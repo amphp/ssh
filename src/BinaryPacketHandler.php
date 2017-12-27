@@ -120,11 +120,11 @@ class BinaryPacketHandler
              the MAC algorithm MUST be "none".
          */
         return call(function () {
-            $packetLength = unpack('N', yield $this->doRead(4))[1];
-            $paddingLength = unpack('C', yield $this->doRead(1))[1];
-            $payload = yield $this->doRead($packetLength - $paddingLength - 1);
-            $padding = yield $this->doRead($paddingLength);
-            $mac = yield $this->doRead($this->decryptMac->getLength());
+            $packetLength = unpack('N', yield $this->doReadDecrypted(4))[1];
+            $paddingLength = unpack('C', yield $this->doReadDecrypted(1))[1];
+            $payload = yield $this->doReadDecrypted($packetLength - $paddingLength - 1);
+            $padding = yield $this->doReadDecrypted($paddingLength);
+            $mac = yield $this->doReadRaw($this->decryptMac->getLength());
 
             $computedMac = $this->decryptMac->hash(pack(
                 'NNCa*',
@@ -144,23 +144,30 @@ class BinaryPacketHandler
         });
     }
 
-    private function doRead(int $length, bool $decrypt = true): Promise
+    private function doReadDecrypted(int $length): Promise
     {
-        return call(function () use ($length, $decrypt) {
+        return call(function () use ($length) {
             while (\strlen($this->decryptedBuffer) < $length) {
-                $this->cryptedBuffer .= yield $this->socket->read();
-                $cryptedLength = \strlen($this->cryptedBuffer);
-                $lengthToDecrypt = $cryptedLength - ($cryptedLength % $this->decryption->getBlockSize());
-
-                if ($lengthToDecrypt > 0) {
-                    $toDecrypt = substr($this->cryptedBuffer, 0, $lengthToDecrypt);
-                    $this->cryptedBuffer = substr($this->cryptedBuffer, $lengthToDecrypt);
-                    $this->decryptedBuffer .= $this->decryption->decrypt($toDecrypt);
-                }
+                $rawRead = yield $this->doReadRaw($this->decryption->getBlockSize());
+                $this->decryptedBuffer .= $this->decryption->decrypt($rawRead);
             }
 
             $read = substr($this->decryptedBuffer, 0, $length);
             $this->decryptedBuffer = substr($this->decryptedBuffer, $length);
+
+            return $read;
+        });
+    }
+
+    private function doReadRaw($length): Promise
+    {
+        return call(function () use ($length) {
+            while (\strlen($this->cryptedBuffer) < $length) {
+                $this->cryptedBuffer .= yield $this->socket->read();
+            }
+
+            $read = substr($this->cryptedBuffer, 0, $length);
+            $this->cryptedBuffer = substr($this->cryptedBuffer, $length);
 
             return $read;
         });
