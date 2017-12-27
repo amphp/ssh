@@ -5,6 +5,7 @@ namespace Amp\SSH;
 use function Amp\call;
 use Amp\Promise;
 use Amp\Socket\Socket;
+use Amp\SSH\Encryption\Aes;
 use Amp\SSH\Encryption\Aes128Ctr;
 use Amp\SSH\Encryption\Decryption;
 use Amp\SSH\Encryption\Encryption;
@@ -39,9 +40,17 @@ class Transport
         $this->decryption = new None();
         $this->negotiator = new Negotiator();
         $this->negotiator->addKeyExchange(new Curve25519Sha256());
-        $this->negotiator->addEncryption(new Aes128Ctr());
-        $this->negotiator->addDecryption(new Aes128Ctr());
+
+        foreach (Aes::create() as $algorithm) {
+            $this->negotiator->addEncryption($algorithm);
+        }
+
+        foreach (Aes::create() as $algorithm) {
+            $this->negotiator->addDecryption($algorithm);
+        }
+
         $this->negotiator->addMac(new Hash('sha256', 'hmac-sha2-256', 32));
+
         $this->socket = $socket;
     }
 
@@ -131,14 +140,6 @@ class Transport
                 mpint     K, the shared secret
              */
 
-            var_dump($this->identification);
-            var_dump($serverIdentification);
-            var_dump(bin2hex($clientKexPayload));
-            var_dump(bin2hex($serverKexPayload));
-            var_dump(bin2hex($kex->getHostKey($exchangeReceive)));
-            var_dump(bin2hex($kex->getEBytes($exchangeSend)));
-            var_dump(bin2hex($kex->getFBytes($exchangeReceive)));
-            var_dump(bin2hex($key));
             $exchangeHash = pack(
                 'Na*Na*Na*Na*Na*Na*Na*Na*',
                 \strlen($this->identification),
@@ -159,6 +160,8 @@ class Transport
                 $key
             );
 
+            $exchangeHash = $kex->hash($exchangeHash);
+
             if ($this->sessionId === null) {
                 $this->sessionId = $exchangeHash;
             }
@@ -174,11 +177,6 @@ class Transport
 
             $key = pack('Na*', \strlen($key), $key);
 
-            $key = base64_decode("AAABAE3HFyfJ2YFA6QydiYZoQyt4bU7feHj02aGYysYsOsUuJqaFZxOqWqewntEmFtVQK2Af5MwcdqjCV9gWAnRzyxBBZbvjzwROAKdk/CMR3HK/kmbeOZc4zX+lqsKZx9soiNTlE+zbfDo1L2qe2nTkr7fbS8gPyMLx/3eiGcsaJVMo7aWQXXhEhciuBz1s1jVhw1F46s4c9vYUdWoEztA3yvRtNrf7rxG3uN11hlTFaJ9SLvysMUqxmm86l8BOU9xS03XujTohY0GwyAEQod1A20rbgZrP161pa7tddGLq57iEDNBfb5Q2CrWUKgnlm022Ob9+eynbGt/gYePhOcc3GxI=");
-            $exchangeHash = $this->sessionId = base64_decode("Ga6ggk7D0AGkkK30hf5MTAqVQRk=");
-
-//            var_dump(base64_encode($key));
-
             $createDerivationKey = function ($type, $length) use ($kex, $key, $exchangeHash) {
                 $derivation = $kex->hash($key . $exchangeHash . $type . $this->sessionId);
 
@@ -189,18 +187,13 @@ class Transport
                 return substr($derivation, 0, $length);
             };
 
-            $test = $createDerivationKey('A', $encrypt->getBlockSize());
-
-            // o5orYwaHlDgVwUcsaO4Wqg==
-            var_dump(base64_encode($test));
-
             $encrypt->resetEncrypt(
-                $createDerivationKey('C', $encrypt->getBlockSize()),
+                $createDerivationKey('C', $encrypt->getKeySize()),
                 $createDerivationKey('A', $encrypt->getBlockSize())
             );
 
             $decrypt->resetDecrypt(
-                $createDerivationKey('D', $encrypt->getBlockSize()),
+                $createDerivationKey('D', $encrypt->getKeySize()),
                 $createDerivationKey('B', $decrypt->getBlockSize())
             );
 

@@ -6,6 +6,8 @@ interface Encryption
 {
     public function getBlockSize(): int;
 
+    public function getKeySize(): int;
+
     public function crypt(string $payload): string;
 
     public function getName(): string;

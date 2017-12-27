@@ -6,8 +6,12 @@ namespace Amp\SSH\Encryption\CipherMode;
 
 class Ctr implements CipherMode
 {
+    public const NAME = 'ctr';
+
     private const CTR_BLOCK_MAX = 65536; // maximum 16-bit unsigned integer value
 
+    private const BLOCK_SIZE = 16;
+    
     /**
      * The hash initialization vector, stored as eight 16-bit words
      * @var int[]
@@ -19,16 +23,13 @@ class Ctr implements CipherMode
      * @var int[]
      */
     private $ctrOffset;
-
-    private $blockSize;
-
-    public function __construct(string $iv, string $openSSLMethodName, int $blockSize)
+    
+    public function __construct(string $iv, string $openSSLMethodName)
     {
         if (\strlen($iv) !== \openssl_cipher_iv_length($openSSLMethodName)) {
             throw new \InvalidArgumentException('Invalid initialization vector');
         }
 
-        $this->blockSize = $blockSize;
         $this->iv = $this->extractIvParts($iv);
         $this->ctrOffset = array_fill(0, 8, 0);
     }
@@ -50,7 +51,7 @@ class Ctr implements CipherMode
 
     public function updateIV(string $cipherBlock): void
     {
-        $incrementBy = \strlen($cipherBlock) / $this->blockSize;
+        $incrementBy = \strlen($cipherBlock) / self::BLOCK_SIZE;
 
         for ($i = 7; $i >= 0; $i--) {
             $incrementedBlock = $this->ctrOffset[$i] + $incrementBy;

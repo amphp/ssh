@@ -19,13 +19,9 @@ class Curve25519Sha256 implements KeyExchange
     public function exchange(BinaryPacketHandler $handler): Promise
     {
         return call(function () use($handler) {
-//            $secret = \random_bytes(32);
-            $secret = base64_decode('KxE6HURAAsrbgG+W+EunfGN8DFhh/B62UNI78g5tFUA=');
-            var_dump(base64_encode($secret));
-
+            $secret = \random_bytes(32);
             $message = new KeyExchangeCurveInit();
             $message->exchange = \sodium_crypto_box_publickey_from_secretkey($secret);
-//            var_dump(base64_encode($message->exchange));
 
             yield $handler->write($message->encode());
             $packet = yield $handler->read();

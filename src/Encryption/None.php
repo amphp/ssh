@@ -14,6 +14,11 @@ class None implements Encryption, Decryption
         return $payload;
     }
 
+    public function getKeySize(): int
+    {
+        return 0;
+    }
+
     public function decrypt(string $payload): string
     {
         return $payload;

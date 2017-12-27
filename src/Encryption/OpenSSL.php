@@ -20,8 +20,6 @@ abstract class OpenSSL implements Decryption, Encryption
 
     abstract protected function createCipherMode(string $iv): CipherMode;
 
-    abstract protected function getHashMethod(): string;
-
     public function resetEncrypt(string $key, string $initIv): void
     {
         $this->key = $key;

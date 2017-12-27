@@ -168,14 +168,13 @@ class BinaryPacketHandler
 
     public function write($payload): Promise
     {
-        // 4 + 1 + length + 4 (padding)
-        $length = \strlen($payload) + 9;
-        $length += (($this->encryption->getBlockSize() - 1) * $length) % $this->encryption->getBlockSize();
-        $paddingLength = $length - \strlen($payload) - 5;
-        $padding = \random_bytes($paddingLength);
-        $packetLength = $length - 4;
+        $length = 4 + 1 + \strlen($payload);
+        $paddingLength = $this->encryption->getBlockSize() - ($length % $this->encryption->getBlockSize());
+        $paddingLength += $paddingLength < 4 ? $this->encryption->getBlockSize() : 0;
 
-        $packet = pack('NCa*', $packetLength, $paddingLength, $payload . $padding);
+        $padding = \random_bytes($paddingLength);
+        $packetLength = \strlen($payload) + $paddingLength + 1;
+        $packet = pack('NCa*a*', $packetLength, $paddingLength, $payload, $padding);
         $mac = $this->encryptMac->hash(pack('Na*', $this->writeSequenceNumber, $packet));
         $cipher = $this->encryption->crypt($packet);
         $cipher .= $mac;
