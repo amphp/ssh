@@ -140,7 +140,6 @@ class Transport
                 mpint     f, exchange value sent by the server
                 mpint     K, the shared secret
              */
-            $keyBytes = $key->toBytes(true);
 
             $exchangeHash = pack(
                 'Na*Na*Na*Na*Na*Na*Na*Na*',
@@ -158,8 +157,8 @@ class Transport
                 $kex->getEBytes($exchangeSend),
                 \strlen($kex->getFBytes($exchangeReceive)),
                 $kex->getFBytes($exchangeReceive),
-                \strlen($keyBytes),
-                $keyBytes
+                \strlen($key),
+                $key
             );
 
             $exchangeHash = $kex->hash($exchangeHash);
@@ -177,12 +176,13 @@ class Transport
             yield $binaryPacketHandler->write((new NewKeys())->encode());
             NewKeys::decode(yield $binaryPacketHandler->read());
 
-            $keyBytes = pack('Na*', \strlen($keyBytes), $keyBytes);
-            $createDerivationKey = function ($type, $length) use ($kex, $keyBytes, $exchangeHash) {
-                $derivation = $kex->hash($keyBytes . $exchangeHash . $type . $this->sessionId);
+            $key = pack('Na*', \strlen($key), $key);
+
+            $createDerivationKey = function ($type, $length) use ($kex, $key, $exchangeHash) {
+                $derivation = $kex->hash($key . $exchangeHash . $type . $this->sessionId);
 
                 while ($length > \strlen($derivation)) {
-                    $derivation .= $kex->hash($keyBytes . $exchangeHash . $derivation);
+                    $derivation .= $kex->hash($key . $exchangeHash . $derivation);
                 }
 
                 return substr($derivation, 0, $length);

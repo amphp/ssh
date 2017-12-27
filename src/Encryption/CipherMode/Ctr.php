@@ -66,8 +66,4 @@ class Ctr implements CipherMode
             return unpack('nnum', $part)['num'];
         }, str_split($iv, 2));
     }
-
-    private function calculateCurrentIv(array $baseIv, array $ctrOffset): string
-    {
-    }
 }

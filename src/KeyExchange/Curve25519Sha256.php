@@ -34,8 +34,11 @@ class Curve25519Sha256 implements KeyExchange
 
             $key = \sodium_crypto_scalarmult($secret, $reply->fBytes);
             \sodium_memzero($secret);
-            // @TODO Need to see what's changed from pure php representation
-            $key = new BigInteger($key, 256);
+
+            // Two's complement representation
+            if (\ord($key[0]) & 0x80) {
+                $key = \chr(0) . $key;
+            }
 
             return [$key, $message, $reply];
         });
