@@ -121,9 +121,11 @@ class BinaryPacketHandler
          */
         return call(function () {
             $packetLength = unpack('N', yield $this->doReadDecrypted(4))[1];
-            $paddingLength = unpack('C', yield $this->doReadDecrypted(1))[1];
-            $payload = yield $this->doReadDecrypted($packetLength - $paddingLength - 1);
-            $padding = yield $this->doReadDecrypted($paddingLength);
+            $packet = yield $this->doReadDecrypted($packetLength);
+
+            $paddingLength = unpack('C', $packet)[1];
+            $payload = substr($packet, 1, $packetLength - $paddingLength - 1);
+            $padding = substr($packet, $packetLength - $paddingLength);
             $mac = yield $this->doReadRaw($this->decryptMac->getLength());
 
             $computedMac = $this->decryptMac->hash(pack(

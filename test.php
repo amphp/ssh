@@ -9,16 +9,8 @@ Amp\Loop::run(function () {
     /** @var \Amp\SSH\BinaryPacketHandler $binaryPacketHandler */
     $binaryPacketHandler = yield $transport->initialize();
 
-    // Not working
-    $payload = pack(
-        'CNa*',
-        Amp\SSH\Message\Message::SSH_MSG_SERVICE_REQUEST,
-        strlen('ssh-userauth'),
-        'ssh-userauth'
-    );
+    $auth = new \Amp\SSH\Authentication\UsernamePassword('foo', 'bar');
+    $isAuth = yield $auth->authenticate($binaryPacketHandler);
 
-    $writted = yield $binaryPacketHandler->write($payload);
-    var_dump($writted);
-    $packet = yield $binaryPacketHandler->read();
-    var_dump($packet);
+    var_dump($isAuth);
 });
