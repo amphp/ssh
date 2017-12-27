@@ -89,7 +89,7 @@ class Negotiator
             $clientKex->macAlgorithmsServerToClient
         ));
 
-        return $this->macs[$mac];
+        return clone $this->macs[$mac];
     }
 
     public function getEncryptMac(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Mac
@@ -99,7 +99,7 @@ class Negotiator
             $clientKex->macAlgorithmsClientToServer
         ));
 
-        return $this->macs[$mac];
+        return clone $this->macs[$mac];
     }
 
     public function createKeyExchange(): KeyExchangeInit

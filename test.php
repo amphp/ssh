@@ -17,8 +17,8 @@ Amp\Loop::run(function () {
         'ssh-userauth'
     );
 
-    $binaryPacketHandler->write($payload);
+    $writted = yield $binaryPacketHandler->write($payload);
+    var_dump($writted);
     $packet = yield $binaryPacketHandler->read();
-
     var_dump($packet);
 });

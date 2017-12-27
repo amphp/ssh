@@ -8,6 +8,7 @@ use Amp\SSH\BinaryPacketHandler;
 use Amp\SSH\Message\KeyExchangeCurveInit;
 use Amp\SSH\Message\KeyExchangeCurveReply;
 use Amp\SSH\Message\Message;
+use phpseclib\Math\BigInteger;
 
 class Curve25519Sha256 implements KeyExchange
 {
@@ -33,6 +34,8 @@ class Curve25519Sha256 implements KeyExchange
 
             $key = \sodium_crypto_scalarmult($secret, $reply->fBytes);
             \sodium_memzero($secret);
+            // @TODO Need to see what's changed from pure php representation
+            $key = new BigInteger($key, 256);
 
             return [$key, $message, $reply];
         });

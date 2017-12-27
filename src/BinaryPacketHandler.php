@@ -134,7 +134,7 @@ class BinaryPacketHandler
                 $payload . $padding
             ));
 
-            if (\sodium_compare($computedMac, $mac) !== 0) {
+            if (!\hash_equals($computedMac, $mac)) {
                 throw new \RuntimeException('Invalid mac');
             }
 

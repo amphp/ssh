@@ -50,6 +50,7 @@ class Transport
         }
 
         $this->negotiator->addMac(new Hash('sha256', 'hmac-sha2-256', 32));
+        $this->negotiator->addMac(new Hash('sha1', 'hmac-sha1', 20));
 
         $this->socket = $socket;
     }
@@ -139,6 +140,7 @@ class Transport
                 mpint     f, exchange value sent by the server
                 mpint     K, the shared secret
              */
+            $keyBytes = $key->toBytes(true);
 
             $exchangeHash = pack(
                 'Na*Na*Na*Na*Na*Na*Na*Na*',
@@ -156,8 +158,8 @@ class Transport
                 $kex->getEBytes($exchangeSend),
                 \strlen($kex->getFBytes($exchangeReceive)),
                 $kex->getFBytes($exchangeReceive),
-                \strlen($key),
-                $key
+                \strlen($keyBytes),
+                $keyBytes
             );
 
             $exchangeHash = $kex->hash($exchangeHash);
@@ -175,13 +177,12 @@ class Transport
             yield $binaryPacketHandler->write((new NewKeys())->encode());
             NewKeys::decode(yield $binaryPacketHandler->read());
 
-            $key = pack('Na*', \strlen($key), $key);
-
-            $createDerivationKey = function ($type, $length) use ($kex, $key, $exchangeHash) {
-                $derivation = $kex->hash($key . $exchangeHash . $type . $this->sessionId);
+            $keyBytes = pack('Na*', \strlen($keyBytes), $keyBytes);
+            $createDerivationKey = function ($type, $length) use ($kex, $keyBytes, $exchangeHash) {
+                $derivation = $kex->hash($keyBytes . $exchangeHash . $type . $this->sessionId);
 
                 while ($length > \strlen($derivation)) {
-                    $derivation .= $kex->hash($key . $exchangeHash . $derivation);
+                    $derivation .= $kex->hash($keyBytes . $exchangeHash . $derivation);
                 }
 
                 return substr($derivation, 0, $length);
