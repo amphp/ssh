@@ -45,6 +45,17 @@ class MessageHandler implements BinaryPacketHandler
         $static->registerMessageClass(Message\ChannelRequest::class);
         $static->registerMessageClass(Message\ChannelSuccess::class);
         $static->registerMessageClass(Message\ChannelWindowAdjust::class);
+        $static->registerMessageClass(Message\GlobalRequest::class);
+        $static->registerMessageClass(Message\KeyExchangeCurveInit::class);
+        $static->registerMessageClass(Message\KeyExchangeCurveReply::class);
+        $static->registerMessageClass(Message\KeyExchangeInit::class);
+        $static->registerMessageClass(Message\NewKeys::class);
+        $static->registerMessageClass(Message\ServiceAccept::class);
+        $static->registerMessageClass(Message\ServiceRequest::class);
+        $static->registerMessageClass(Message\UserAuthBanner::class);
+        $static->registerMessageClass(Message\UserAuthFailure::class);
+        $static->registerMessageClass(Message\UserAuthRequest::class);
+        $static->registerMessageClass(Message\UserAuthSuccess::class);
 
         return $static;
     }

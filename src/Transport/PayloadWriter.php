@@ -5,25 +5,50 @@ declare(strict_types=1);
 namespace Amp\SSH\Transport;
 
 use Amp\Promise;
-use Amp\SSH\Encryption\Encryption;
-use Amp\SSH\Mac\Mac;
-use Amp\SSH\Message\Message;
+use Amp\Socket\Socket;
+use Amp\SSH\Encryption;
+use Amp\SSH\Mac;
 
 class PayloadWriter implements BinaryPacketWriter
 {
-    /** @var Encryption */
+    /** @var Encryption\Encryption */
     private $encryption;
 
-    /** @var Mac */
+    /** @var Mac\Mac */
     private $encryptMac;
 
-    public function updateEncryption(Encryption $encryption, Mac $encryptMac): void
+    private $writeSequenceNumber = 0;
+
+    private $socket;
+
+    public function __construct(Socket $socket)
     {
-        // TODO: Implement updateEncryption() method.
+        $this->socket = $socket;
+        $this->encryption = new Encryption\None();
+        $this->encryptMac = new Mac\None();
     }
 
-    public function write(Message $message): Promise
+    public function updateEncryption(Encryption\Encryption $encryption, Mac\Mac $encryptMac): void
     {
-        // TODO: Implement write() method.
+        $this->encryption = $encryption;
+        $this->encryptMac = $encryptMac;
+    }
+
+    public function write($payload): Promise
+    {
+        $length = 4 + 1 + \strlen($payload);
+        $paddingLength = $this->encryption->getBlockSize() - ($length % $this->encryption->getBlockSize());
+        $paddingLength += $paddingLength < 4 ? $this->encryption->getBlockSize() : 0;
+
+        $padding = \random_bytes($paddingLength);
+        $packetLength = \strlen($payload) + $paddingLength + 1;
+        $packet = pack('NCa*a*', $packetLength, $paddingLength, $payload, $padding);
+        $mac = $this->encryptMac->hash(pack('Na*', $this->writeSequenceNumber, $packet));
+        $cipher = $this->encryption->crypt($packet);
+        $cipher .= $mac;
+
+        $this->writeSequenceNumber++;
+
+        return $this->socket->write($cipher);
     }
 }

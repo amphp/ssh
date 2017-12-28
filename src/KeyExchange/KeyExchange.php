@@ -3,7 +3,7 @@
 namespace Amp\SSH\KeyExchange;
 
 use Amp\Promise;
-use Amp\SSH\BinaryPacketHandler;
+use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Message\Message;
 
 interface KeyExchange

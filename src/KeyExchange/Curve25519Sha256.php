@@ -4,11 +4,10 @@ namespace Amp\SSH\KeyExchange;
 
 use function Amp\call;
 use Amp\Promise;
-use Amp\SSH\BinaryPacketHandler;
+use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Message\KeyExchangeCurveInit;
 use Amp\SSH\Message\KeyExchangeCurveReply;
 use Amp\SSH\Message\Message;
-use phpseclib\Math\BigInteger;
 
 class Curve25519Sha256 implements KeyExchange
 {
@@ -24,15 +23,18 @@ class Curve25519Sha256 implements KeyExchange
             $message = new KeyExchangeCurveInit();
             $message->exchange = \sodium_crypto_box_publickey_from_secretkey($secret);
 
-            yield $handler->write($message->encode());
+            yield $handler->write($message);
             $packet = yield $handler->read();
-            $reply = KeyExchangeCurveReply::decode($packet);
 
-            if (\strlen($reply->fBytes) !== 32) {
+            if (!$packet instanceof KeyExchangeCurveReply) {
                 throw new \RuntimeException('Invalid reply');
             }
 
-            $key = \sodium_crypto_scalarmult($secret, $reply->fBytes);
+            if (\strlen($packet->fBytes) !== 32) {
+                throw new \RuntimeException('Invalid reply');
+            }
+
+            $key = \sodium_crypto_scalarmult($secret, $packet->fBytes);
             \sodium_memzero($secret);
 
             // Two's complement representation
@@ -40,7 +42,7 @@ class Curve25519Sha256 implements KeyExchange
                 $key = \chr(0) . $key;
             }
 
-            return [$key, $message, $reply];
+            return [$key, $message, $packet];
         });
     }
 

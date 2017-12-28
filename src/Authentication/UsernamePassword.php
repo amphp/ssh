@@ -6,9 +6,9 @@ namespace Amp\SSH\Authentication;
 
 use function Amp\call;
 use Amp\Promise;
-use Amp\SSH\BinaryPacketHandler;
+use Amp\SSH\Message\UserAuthFailure;
+use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Message\Message;
-use Amp\SSH\Message\ServiceAccept;
 use Amp\SSH\Message\ServiceRequest;
 use Amp\SSH\Message\UserAuthRequest;
 
@@ -29,22 +29,22 @@ class UsernamePassword implements Authentication
             $authServiceRequest = new ServiceRequest();
             $authServiceRequest->serviceName = 'ssh-userauth';
 
-            yield $binaryPacketHandler->write($authServiceRequest->encode());
-            $packet = yield $binaryPacketHandler->read();
-
-            ServiceAccept::decode($packet);
+            yield $binaryPacketHandler->write($authServiceRequest);
+            yield $binaryPacketHandler->read();
 
             $userAuthRequest = new UserAuthRequest();
             $userAuthRequest->authType = UserAuthRequest::TYPE_PASSWORD;
             $userAuthRequest->username = $this->username;
             $userAuthRequest->password = $this->password;
 
-            yield $binaryPacketHandler->write($userAuthRequest->encode());
+            yield $binaryPacketHandler->write($userAuthRequest);
             $packet = yield $binaryPacketHandler->read();
-            $type = unpack('C', $packet)[1];
 
-            // @TODO Handle specific message
-            return $type === Message::SSH_MSG_USERAUTH_SUCCESS;
+            if ($packet instanceof UserAuthFailure) {
+                throw new \RuntimeException('Authentication failure');
+            }
+
+            return $packet;
         });
     }
 }

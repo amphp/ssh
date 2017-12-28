@@ -7,22 +7,21 @@ namespace Amp\SSH\Transport;
 use function Amp\call;
 use Amp\Promise;
 use Amp\Socket\Socket;
-use Amp\SSH\Encryption\Decryption;
-use Amp\SSH\Encryption\Encryption;
-use Amp\SSH\Mac\Mac;
+use Amp\SSH\Encryption;
+use Amp\SSH\Mac;
 
 class PayloadReader implements BinaryPacketReader
 {
-    /** @var Encryption */
+    /** @var Encryption\Decryption */
     private $decryption;
 
-    /** @var Mac */
+    /** @var Mac\Mac */
     private $decryptMac;
 
     /** @var int */
     private $readSequenceNumber = 0;
 
-    private $decryptedBuffer;
+    private $decryptedBuffer = '';
 
     private $socket;
 
@@ -32,9 +31,11 @@ class PayloadReader implements BinaryPacketReader
     {
         $this->cryptedBuffer = $buffer;
         $this->socket = $socket;
+        $this->decryption = new Encryption\None();
+        $this->decryptMac = new Mac\None();
     }
 
-    public function updateDecryption(Decryption $decryption, Mac $decryptMac): void
+    public function updateDecryption(Encryption\Decryption $decryption, Mac\Mac $decryptMac): void
     {
         $this->decryption = $decryption;
         $this->decryptMac = $decryptMac;

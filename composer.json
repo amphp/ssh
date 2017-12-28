@@ -2,16 +2,20 @@
     "name": "brouznouf/ampssh",
     "require": {
         "amphp/socket": "^0.10.5",
-        "php-fig/psr-log": "^1.0",
+        "psr/log": "^1.0",
         "phpseclib/phpseclib": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.5"
+        "phpunit/phpunit": "^6.5",
+        "monolog/monolog": "^1.23"
     },
     "autoload": {
         "psr-4": {
             "Amp\\SSH\\": "src/"
-        }
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "authors": [
         {
