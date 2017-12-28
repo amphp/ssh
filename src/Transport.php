@@ -21,12 +21,6 @@ class Transport
 {
     private $identification = 'SSH-2.0-AmpSSH_0.1';
 
-    /** @var Encryption */
-    private $encryption;
-
-    /** @var Decryption */
-    private $decryption;
-
     private $negotiator;
 
     /** @var string */
@@ -36,8 +30,6 @@ class Transport
 
     public function __construct(Socket $socket)
     {
-        $this->encryption = new None();
-        $this->decryption = new None();
         $this->negotiator = new Negotiator();
         $this->negotiator->addKeyExchange(new Curve25519Sha256());
 

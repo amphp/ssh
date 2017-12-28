@@ -2,85 +2,41 @@
 
 declare(strict_types=1);
 
-namespace Amp\SSH;
+namespace Amp\SSH\Transport;
 
 use function Amp\call;
 use Amp\Promise;
 use Amp\Socket\Socket;
-use Amp\SSH\Encryption;
-use Amp\SSH\Mac;
-use Amp\SSH\Message\Message;
+use Amp\SSH\Encryption\Decryption;
+use Amp\SSH\Encryption\Encryption;
+use Amp\SSH\Mac\Mac;
 
-class BinaryPacketHandler
+class PayloadReader implements BinaryPacketReader
 {
-    /** @var string */
-    private $cryptedBuffer = '';
-
-    /** @var string */
-    private $decryptedBuffer = '';
-
-    /** @var Socket */
-    private $socket;
-
-    /** @var Encryption\Encryption */
-    private $encryption;
-
-    /** @var Encryption\Decryption */
+    /** @var Encryption */
     private $decryption;
 
-    /** @var Mac\Mac */
-    private $encryptMac;
-
-    /** @var Mac\Mac */
+    /** @var Mac */
     private $decryptMac;
 
     /** @var int */
-    private $writeSequenceNumber;
+    private $readSequenceNumber = 0;
 
-    /** @var int */
-    private $readSequenceNumber;
+    private $decryptedBuffer;
 
-    public function __construct(Socket $socket, string $buffer)
+    private $socket;
+
+    private $cryptedBuffer;
+
+    public function __construct(Socket $socket, $buffer)
     {
-        $this->socket = $socket;
         $this->cryptedBuffer = $buffer;
-        $this->encryption = new Encryption\None();
-        $this->decryption = new Encryption\None();
-        $this->encryptMac = new Mac\None();
-        $this->decryptMac = new Mac\None();
-        $this->writeSequenceNumber = 0;
-        $this->readSequenceNumber = 0;
+        $this->socket = $socket;
     }
 
-    /**
-     * @param Encryption\Encryption $encryption
-     */
-    public function setEncryption(Encryption\Encryption $encryption): void
-    {
-        $this->encryption = $encryption;
-    }
-
-    /**
-     * @param Encryption\Decryption $decryption
-     */
-    public function setDecryption(Encryption\Decryption $decryption): void
+    public function updateDecryption(Decryption $decryption, Mac $decryptMac): void
     {
         $this->decryption = $decryption;
-    }
-
-    /**
-     * @param Mac\Mac $encryptMac
-     */
-    public function setEncryptMac(Mac\Mac $encryptMac): void
-    {
-        $this->encryptMac = $encryptMac;
-    }
-
-    /**
-     * @param Mac\Mac $decryptMac
-     */
-    public function setDecryptMac(Mac\Mac $decryptMac): void
-    {
         $this->decryptMac = $decryptMac;
     }
 
@@ -174,27 +130,5 @@ class BinaryPacketHandler
 
             return $read;
         });
-    }
-
-    public function write($payload): Promise
-    {
-        if ($payload instanceof Message) {
-            $payload = $payload->encode();
-        }
-
-        $length = 4 + 1 + \strlen($payload);
-        $paddingLength = $this->encryption->getBlockSize() - ($length % $this->encryption->getBlockSize());
-        $paddingLength += $paddingLength < 4 ? $this->encryption->getBlockSize() : 0;
-
-        $padding = \random_bytes($paddingLength);
-        $packetLength = \strlen($payload) + $paddingLength + 1;
-        $packet = pack('NCa*a*', $packetLength, $paddingLength, $payload, $padding);
-        $mac = $this->encryptMac->hash(pack('Na*', $this->writeSequenceNumber, $packet));
-        $cipher = $this->encryption->crypt($packet);
-        $cipher .= $mac;
-
-        $this->writeSequenceNumber++;
-
-        return $this->socket->write($cipher);
     }
 }

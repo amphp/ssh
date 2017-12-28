@@ -10,7 +10,10 @@ Amp\Loop::run(function () {
     $binaryPacketHandler = yield $transport->initialize();
 
     $auth = new \Amp\SSH\Authentication\UsernamePassword('foo', 'bar');
-    $isAuth = yield $auth->authenticate($binaryPacketHandler);
+    yield $auth->authenticate($binaryPacketHandler);
 
-    var_dump($isAuth);
+    $loop = \Amp\SSH\Loop::create($binaryPacketHandler);
+
+    $channel = new \Amp\SSH\Channel\Channel($loop, 0);
+    yield $channel->initialize();
 });
