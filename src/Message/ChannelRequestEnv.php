@@ -10,6 +10,8 @@ class ChannelRequestEnv extends ChannelRequest
 
     public $value;
 
+//    public $wantReply = false;
+
     public function encode(): string
     {
         return parent::encode() . pack(

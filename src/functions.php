@@ -52,8 +52,8 @@ function connect($uri, $username, $password, LoggerInterface $logger = null, $id
         $auth = new UsernamePassword($username, $password);
         yield $auth->authenticate($cryptedHandler);
 
-        $loop = new Loop($cryptedHandler);
-        $loop->run();
+        $loop = new SSHResource($cryptedHandler);
+        $loop->loop();
 
         return $loop;
     });

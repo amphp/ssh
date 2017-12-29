@@ -6,33 +6,31 @@ namespace Amp\SSH;
 
 use function Amp\asyncCall;
 use Amp\Promise;
+use Amp\SSH\Channel\Dispatcher;
 use Amp\SSH\Encryption\Encryption;
 use Amp\SSH\Mac\Mac;
 use Amp\SSH\Message\Message;
 use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Transport\BinaryPacketWriter;
 
-class Loop implements BinaryPacketWriter
+class SSHResource extends EventEmitter implements BinaryPacketWriter
 {
     private $handler;
 
-    private $ons = [];
+    private $dispatcher;
 
     public function __construct(BinaryPacketHandler $handler)
     {
         $this->handler = $handler;
+        $this->dispatcher = new Dispatcher($this);
     }
 
-    public function on(int $type, \Closure $closure): void
+    public function createSession()
     {
-        if (!array_key_exists($type, $this->ons)) {
-            $this->ons[$type] = [];
-        }
-
-        $this->ons[$type][] = $closure;
+        return $this->dispatcher->createSession();
     }
 
-    public function run()
+    public function loop()
     {
         asyncCall(function () {
             while (true) {
@@ -41,12 +39,8 @@ class Loop implements BinaryPacketWriter
 
                 if ($message instanceof Message) {
                     $type = $message::getNumber();
-                }
 
-                if (array_key_exists($type, $this->ons)) {
-                    foreach ($this->ons[$type] as $closure) {
-                        $closure($message);
-                    }
+                    $this->emit($type, $message);
                 }
             }
         });
