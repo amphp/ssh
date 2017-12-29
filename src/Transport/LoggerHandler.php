@@ -45,6 +45,9 @@ class LoggerHandler implements BinaryPacketHandler
 
             if ($packet instanceof Message) {
                 $this->logger->info(sprintf('Receive %s packet', \get_class($packet)));
+            } else {
+                $type = unpack('C', $packet)[1];
+                $this->logger->info(sprintf('Receive %s packet', $type));
             }
 
             return $packet;

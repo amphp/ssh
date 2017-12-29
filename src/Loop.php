@@ -38,11 +38,14 @@ class Loop implements BinaryPacketWriter
             while (true) {
                 /** @var Message $message */
                 $message = yield $this->handler->read();
-                $type = $message::getNumber();
+
+                if ($message instanceof Message) {
+                    $type = $message::getNumber();
+                }
 
                 if (array_key_exists($type, $this->ons)) {
                     foreach ($this->ons[$type] as $closure) {
-                        asyncCall($closure($message));
+                        $closure($message);
                     }
                 }
             }

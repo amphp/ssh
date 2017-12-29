@@ -34,7 +34,7 @@ class ChannelOpen implements Message
 
     public static function decode(string $payload)
     {
-        // TODO: Implement decode() method.
+        return new static();
     }
 
     public static function getNumber(): int

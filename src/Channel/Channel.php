@@ -5,20 +5,36 @@ declare(strict_types=1);
 namespace Amp\SSH\Channel;
 
 use function Amp\call;
+use Amp\Deferred;
 use Amp\Promise;
-use Amp\SSH\Loop;
+use Amp\SSH\Message\ChannelClose;
+use Amp\SSH\Message\ChannelData;
+use Amp\SSH\Message\ChannelEof;
+use Amp\SSH\Message\ChannelExtendedData;
+use Amp\SSH\Message\ChannelFailure;
 use Amp\SSH\Message\ChannelOpen;
+use Amp\SSH\Message\ChannelOpenConfirmation;
+use Amp\SSH\Message\ChannelOpenFailure;
+use Amp\SSH\Message\ChannelRequest;
+use Amp\SSH\Message\ChannelRequestExitStatus;
+use Amp\SSH\Message\ChannelSuccess;
+use Amp\SSH\Message\ChannelWindowAdjust;
+use Amp\SSH\Transport\BinaryPacketWriter;
 
-class Channel
+abstract class Channel implements ChannelListener
 {
-    /** @var Loop */
-    private $loop;
+    protected $channelId;
 
-    private $channelId;
+    /** @var BinaryPacketWriter */
+    protected $writer;
 
-    public function __construct(int $channelId)
+    /** @var Deferred */
+    private $openDeferred;
+
+    public function __construct(BinaryPacketWriter $writer, int $channelId)
     {
         $this->channelId = $channelId;
+        $this->writer = $writer;
     }
 
     /**
@@ -31,45 +47,75 @@ class Channel
 
     public function initialize(): Promise
     {
-        return call(function () {
-            $channelOpen = new ChannelOpen();
-            $channelOpen->senderChannel = $this->channelId;
-            $channelOpen->channelType = ChannelOpen::TYPE_SESSION;
+        $channelOpen = new ChannelOpen();
+        $channelOpen->senderChannel = $this->channelId;
+        $channelOpen->channelType = $this->getType();
 
-            yield $this->handler->write($channelOpen->encode());
-            $packet = yield $this->handler->read();
+        $this->openDeferred = new Deferred();
 
-            var_dump(unpack('C', $packet)[1]);
-            $length = unpack('N', $packet, 1)[1];
-            $requestName = substr($packet, 5, $length);
+        Promise\rethrow($this->writer->write($channelOpen));
 
-            var_dump($requestName);
-            var_dump(unpack('C', $packet, 1 +4 + $length)[1]);
-
-            $packet = yield $this->handler->read();
-            var_dump($packet);
-            var_dump(unpack('C', $packet)[1]);
-            var_dump(unpack('N4', $packet, 1));
-
-        });
+        return $this->openDeferred->promise();
     }
 
+    abstract protected function getType(): string;
 
-    public function exec($cmd): Promise
+    public function onChannelOpen(ChannelOpen $channelOpen)
     {
-
     }
 
-    /**
-     * Promise will resolve a Amp\Socket\SocketPool so it can be used for any purpose (HTTP Client, MySQL)
-     *
-     * @param int $hostPort
-     * @param int $remotePort
-     *
-     * @return Promise
-     */
-    public function forward(int $hostPort, int $remotePort): Promise
+    public function onChannelOpenConfirmation(ChannelOpenConfirmation $channelSuccess)
     {
+        if (null === $this->openDeferred) {
+            return;
+        }
 
+        $this->openDeferred->resolve($this);
+    }
+
+    public function onChannelOpenFailure(ChannelOpenFailure $channelFailure)
+    {
+        if (null === $this->openDeferred) {
+            return;
+        }
+
+        $this->openDeferred->fail(new \RuntimeException('Failed to open channel : ' . $channelFailure->description));
+    }
+
+    public function onChannelData(ChannelData $channelData)
+    {
+        var_dump($channelData->data);
+    }
+
+    public function onChannelExtendedData(ChannelExtendedData $channelExtraData)
+    {
+        var_dump($channelExtraData->data);
+    }
+
+    public function onChannelEof(ChannelEof $channelEof)
+    {
+    }
+
+    public function onChannelClose(ChannelClose $channelClose)
+    {
+    }
+
+    public function onChannelWindowAdjust(ChannelWindowAdjust $channelWindowAdjust)
+    {
+    }
+
+    public function onChannelSuccess(ChannelSuccess $channelSuccess)
+    {
+    }
+
+    public function onChannelFailure(ChannelFailure $channelFailure)
+    {
+    }
+
+    public function onChannelRequest(ChannelRequest $channelRequest)
+    {
+        if ($channelRequest instanceof ChannelRequestExitStatus) {
+            var_dump($channelRequest->code);
+        }
     }
 }

@@ -8,6 +8,8 @@ Amp\Loop::run(function () {
     ]);
     $loop = yield \Amp\SSH\connect('127.0.0.1:22', 'foo', 'bar', $logger);
 
-    $channel = new \Amp\SSH\Channel\Channel($loop, 0);
-    yield $channel->initialize();
+    $dispatcher = new \Amp\SSH\Channel\Dispatcher($loop);
+    /** @var \Amp\SSH\Channel\Session $session */
+    $session = yield $dispatcher->createSession();
+    $session->exec('ls -la');
 });

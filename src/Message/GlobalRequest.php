@@ -16,6 +16,7 @@ class GlobalRequest implements Message
 
     public static function decode(string $payload)
     {
+        return new static();
     }
 
     public static function getNumber(): int

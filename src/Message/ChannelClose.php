@@ -6,16 +6,26 @@ namespace Amp\SSH\Message;
 
 class ChannelClose implements Message
 {
+    public $recipientChannel;
+
     public function encode(): string
     {
         return pack(
-            'C',
-            self::getNumber()
+            'CN',
+            self::getNumber(),
+            $this->recipientChannel
         );
     }
 
     public static function decode(string $payload)
     {
+        $message = new static;
+
+        [
+            $message->recipientChannel,
+        ] = array_values(unpack('N', $payload, 1));
+
+        return $message;
     }
 
     public static function getNumber(): int
