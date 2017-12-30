@@ -2,6 +2,8 @@
 
 namespace Amp\SSH;
 
+use function Amp\asyncCall;
+
 abstract class EventEmitter
 {
     /** @var \Closure[][] */
@@ -14,7 +16,7 @@ abstract class EventEmitter
         }
 
         foreach ($this->closures[$event] as $closure) {
-            $closure($data);
+            asyncCall($closure, $data);
         }
     }
 

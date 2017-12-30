@@ -2,16 +2,52 @@
 
 namespace Amp\SSH\Channel;
 
+use Amp\ByteStream\ClosedException;
 use Amp\ByteStream\OutputStream;
+use function Amp\call;
 use Amp\Promise;
+use Amp\SSH\Message\Message;
 
 class ChannelOutputStream implements OutputStream
 {
-    public function write(string $data): Promise
+    private $writable = true;
+
+    private $channel;
+
+    public function __construct(Channel $channel)
     {
+        $this->channel = $channel;
+        $channel->once(Message::SSH_MSG_CHANNEL_EOF, function () {
+            $this->writable = false;
+
+            return true;
+        });
     }
 
+    /** {@inheritdoc} */
+    public function write(string $data): Promise
+    {
+        if (!$this->writable) {
+            return new Failure(new ClosedException('Stream is closed'));
+        }
+
+        return $this->channel->data($data);
+    }
+
+    /** {@inheritdoc} */
     public function end(string $finalData = ""): Promise
     {
+        return call(function () use($finalData) {
+            yield $this->write($finalData);
+
+            $this->writable = false;
+
+            yield $this->close();
+        });
+    }
+
+    public function close(): Promise
+    {
+        return $this->channel->eof();
     }
 }

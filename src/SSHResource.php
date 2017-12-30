@@ -55,4 +55,9 @@ class SSHResource extends EventEmitter implements BinaryPacketWriter
     {
         return $this->handler->write($message);
     }
+
+    public function close(): Promise
+    {
+
+    }
 }

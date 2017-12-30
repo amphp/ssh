@@ -6,7 +6,7 @@ namespace Amp\SSH\Message;
 
 class ChannelRequestPty extends ChannelRequest
 {
-    public $term;
+    public $term = 'xterm';
 
     public $columns;
 
@@ -16,7 +16,7 @@ class ChannelRequestPty extends ChannelRequest
 
     public $height;
 
-    public $modes;
+    public $modes = '';
 
     public function encode(): string
     {

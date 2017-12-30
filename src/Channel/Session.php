@@ -4,6 +4,7 @@ namespace Amp\SSH\Channel;
 
 use function Amp\call;
 use Amp\Promise;
+use Amp\SSH\Message\ChannelData;
 use Amp\SSH\Message\ChannelOpen;
 use Amp\SSH\Message\ChannelRequestEnv;
 use Amp\SSH\Message\ChannelRequestExec;

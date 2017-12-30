@@ -12,15 +12,11 @@ use Amp\SSH\Channel\ChannelOutputStream;
 use Amp\SSH\Message\ChannelRequest;
 use Amp\SSH\Message\ChannelRequestExitStatus;
 use Amp\SSH\Message\Message;
-use Amp\Success;
 
-class Process
+class Shell
 {
     /** @var Channel\Session */
     private $session;
-
-    /** @var string */
-    private $command;
 
     /** @var ChannelInputStream */
     private $stderr;
@@ -31,34 +27,31 @@ class Process
     /** @var ChannelOutputStream */
     private $stdin;
 
-    /** @var int */
-    private $exitCode;
-
     /** @var Deferred */
     private $resolved;
 
     /** @var array */
     private $env;
 
-    public function __construct(SSHResource $sshResource, string $command, string $cwd = null, array $env = [])
+    public function __construct(SSHResource $sshResource, array $env = [])
     {
         $this->session = $sshResource->createSession();
-        $this->command = $cwd !== null ? sprintf('cd %s; %s', $cwd, $command) : $command;
         $this->stdout = new ChannelInputStream($this->session);
         $this->stderr = new ChannelInputStream($this->session, Message::SSH_MSG_CHANNEL_EXTENDED_DATA);
         $this->stdin = new ChannelOutputStream($this->session);
         $this->env = $env;
-        $this->session->once(Message::SSH_MSG_CHANNEL_REQUEST, function (ChannelRequest $request) {
+        $this->session->each(Message::SSH_MSG_CHANNEL_REQUEST, function (ChannelRequest $request) {
+
             if (!$request instanceof ChannelRequestExitStatus) {
                 return false;
             }
 
-            $this->exitCode = $request->code;
+            yield $this->session->close();
 
             if ($this->resolved !== null) {
                 $resolved = $this->resolved;
                 $this->resolved = null;
-                $resolved->resolve($this->exitCode);
+                $resolved->resolve();
             }
 
             return true;
@@ -74,7 +67,7 @@ class Process
 
     public function start(): Promise
     {
-        if ($this->resolved !== null || $this->exitCode !== null) {
+        if ($this->resolved !== null) {
             throw new \RuntimeException('Process has already been started.');
         }
 
@@ -87,21 +80,9 @@ class Process
                 yield $this->session->env($key, $value, true);
             }
 
-            yield $this->session->exec($this->command);
+            yield $this->session->pty();
+            yield $this->session->shell();
         });
-    }
-
-    public function join(): Promise
-    {
-        if ($this->exitCode !== null) {
-            return new Success($this->exitCode);
-        }
-
-        if ($this->resolved === null) {
-            throw new \RuntimeException('Process has not been started.');
-        }
-
-        return $this->resolved->promise();
     }
 
     public function kill(): void
@@ -137,4 +118,5 @@ class Process
     {
         return $this->stderr;
     }
+
 }

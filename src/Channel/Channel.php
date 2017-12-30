@@ -8,12 +8,16 @@ use function Amp\call;
 use Amp\Deferred;
 use Amp\Promise;
 use Amp\SSH\EventEmitter;
+use Amp\SSH\Message\ChannelClose;
+use Amp\SSH\Message\ChannelData;
+use Amp\SSH\Message\ChannelEof;
 use Amp\SSH\Message\ChannelFailure;
 use Amp\SSH\Message\ChannelOpen;
 use Amp\SSH\Message\ChannelOpenFailure;
 use Amp\SSH\Message\ChannelRequest;
 use Amp\SSH\Message\Message;
 use Amp\SSH\Transport\BinaryPacketWriter;
+use Amp\Success;
 
 abstract class Channel extends EventEmitter
 {
@@ -52,6 +56,35 @@ abstract class Channel extends EventEmitter
         Promise\rethrow($this->writer->write($channelOpen));
 
         return $openDeferred->promise();
+    }
+
+    public function data(string $data): Promise
+    {
+        $message = new ChannelData();
+        $message->data = $data;
+        $message->recipientChannel = $this->channelId;
+
+        if (empty($data)) {
+            return new Success;
+        }
+
+        return $this->writer->write($message);
+    }
+
+    public function eof(): Promise
+    {
+        $message = new ChannelEof();
+        $message->recipientChannel = $this->channelId;
+
+        return $this->writer->write($message);
+    }
+
+    public function close(): Promise
+    {
+        $message = new ChannelClose();
+        $message->recipientChannel = $this->channelId;
+
+        return $this->writer->write($message);
     }
 
     protected function doRequest(ChannelRequest $request): Promise
