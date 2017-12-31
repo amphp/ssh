@@ -52,6 +52,11 @@ class Negotiator
         $this->macs[$mac->getName()] = $mac;
     }
 
+    public function getSessionId(): string
+    {
+        return $this->sessionId;
+    }
+
     /**
      * @param BinaryPacketHandler $binaryPacketHandler
      * @param string $serverIdentification

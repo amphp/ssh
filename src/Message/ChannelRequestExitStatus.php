@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelRequestExitStatus extends ChannelRequest
 {
     public $wantReply = false;
@@ -25,6 +27,6 @@ class ChannelRequestExitStatus extends ChannelRequest
 
     protected function decodeExtraData($extraPayload)
     {
-        $this->code = unpack('N', $extraPayload)[1];
+        $this->code = read_uint32($extraPayload);
     }
 }

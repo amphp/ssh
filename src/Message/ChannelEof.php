@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelEof implements Message
 {
     public $recipientChannel;
@@ -19,11 +22,10 @@ class ChannelEof implements Message
 
     public static function decode(string $payload)
     {
-        $message = new static;
+        read_byte($payload);
 
-        [
-            $message->recipientChannel,
-        ] = array_values(unpack('N', $payload, 1));
+        $message = new static;
+        $message->recipientChannel = read_uint32($payload);
 
         return $message;
     }

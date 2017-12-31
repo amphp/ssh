@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
-class UserAuthRequest implements Message
+abstract class UserAuthRequest implements Message
 {
     public const TYPE_PASSWORD = 'password';
     public const TYPE_PUBLIC_KEY = 'publickey';
@@ -12,24 +12,24 @@ class UserAuthRequest implements Message
 
     public $username;
     public $authType = self::TYPE_NONE;
-    public $password = '';
+    public $serviceName = 'ssh-connection';
 
     public function encode(): string
     {
         return pack(
-            'CNa*Na*Na*CNa*',
+            'CNa*Na*Na*a*',
             self::getNumber(),
             \strlen($this->username),
             $this->username,
-            \strlen('ssh-connection'),
-            'ssh-connection',
+            \strlen($this->serviceName),
+            $this->serviceName,
             \strlen($this->authType),
             $this->authType,
-            0,
-            \strlen($this->password),
-            $this->password
+            $this->extraEncode()
         );
     }
+
+    abstract protected function extraEncode(): string;
 
     public static function decode(string $payload)
     {

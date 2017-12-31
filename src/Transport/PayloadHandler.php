@@ -14,10 +14,13 @@ class PayloadHandler implements BinaryPacketHandler
 
     private $writer;
 
+    private $socket;
+
     public function __construct(Socket $socket, $buffer)
     {
         $this->reader = new PayloadReader($socket, $buffer);
         $this->writer = new PayloadWriter($socket);
+        $this->socket = $socket;
     }
 
     public function updateDecryption(Decryption $decryption, Mac $decryptMac): void
@@ -38,5 +41,10 @@ class PayloadHandler implements BinaryPacketHandler
     public function write($message): Promise
     {
         return $this->writer->write($message);
+    }
+
+    public function close(): void
+    {
+        $this->socket->close();
     }
 }

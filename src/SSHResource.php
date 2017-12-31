@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Amp\SSH;
 
 use function Amp\asyncCall;
+use function Amp\call;
 use Amp\Promise;
 use Amp\SSH\Channel\Dispatcher;
 use Amp\SSH\Encryption\Encryption;
 use Amp\SSH\Mac\Mac;
+use Amp\SSH\Message\Disconnect;
 use Amp\SSH\Message\Message;
 use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Transport\BinaryPacketWriter;
@@ -18,6 +20,8 @@ class SSHResource extends EventEmitter implements BinaryPacketWriter
     private $handler;
 
     private $dispatcher;
+
+    private $running = true;
 
     public function __construct(BinaryPacketHandler $handler)
     {
@@ -33,7 +37,7 @@ class SSHResource extends EventEmitter implements BinaryPacketWriter
     public function loop()
     {
         asyncCall(function () {
-            while (true) {
+            while ($this->running) {
                 /** @var Message $message */
                 $message = yield $this->handler->read();
 
@@ -58,6 +62,10 @@ class SSHResource extends EventEmitter implements BinaryPacketWriter
 
     public function close(): Promise
     {
-
+        return call(function () {
+            $this->write(new Disconnect);
+            $this->running = false;
+            $this->handler->close();
+        });
     }
 }

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_boolean;
+use function Amp\SSH\Transport\read_string;
+
 class ChannelRequestExitSignal extends ChannelRequest
 {
     public $signal;
@@ -53,14 +56,10 @@ class ChannelRequestExitSignal extends ChannelRequest
 
     protected function decodeExtraData($extraPayload)
     {
-        $signalLength = unpack('N', $extraPayload)[1];
-        $signal = substr($extraPayload, 4, $signalLength);
+        $signal = read_string($extraPayload);
         $this->signal = current(array_keys($this->signalMapping, $signal));
-        $this->coreDumped = (bool) unpack('C', $extraPayload, 4 + $signalLength)[1];
-
-        $errorMessageLength = unpack('N', $extraPayload, 5 + $signalLength);
-        $this->errorMessage = substr($extraPayload, 9 + $signalLength, $errorMessageLength);
-        $languageTagLength = unpack('N', $extraPayload, 9 + $signalLength + $errorMessageLength);
-        $this->errorMessage = substr($extraPayload, 13 + $signalLength + $errorMessageLength, $languageTagLength);
+        $this->coreDumped = read_boolean($extraPayload);
+        $this->errorMessage = read_string($extraPayload);
+        $this->languageTag = read_string($extraPayload);
     }
 }

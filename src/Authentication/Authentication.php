@@ -9,5 +9,5 @@ use Amp\SSH\Transport\BinaryPacketHandler;
 
 interface Authentication
 {
-    public function authenticate(BinaryPacketHandler $handler): Promise;
+    public function authenticate(BinaryPacketHandler $handler, string $sessionId): Promise;
 }

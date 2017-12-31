@@ -2,11 +2,14 @@
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_boolean;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 
-class UserAuthBanner implements Message
+class Debug implements Message
 {
+    public $alwaysDisplay;
+
     public $message;
 
     public $languageTag;
@@ -14,8 +17,13 @@ class UserAuthBanner implements Message
     public function encode(): string
     {
         return pack(
-            'C',
-            self::getNumber()
+            'CCNa*Na*',
+            self::getNumber(),
+            $this->alwaysDisplay,
+            \strlen($this->message),
+            $this->message,
+            \strlen($this->languageTag),
+            $this->languageTag
         );
     }
 
@@ -24,6 +32,7 @@ class UserAuthBanner implements Message
         read_byte($payload);
 
         $message = new static;
+        $message->alwaysDisplay = read_boolean($payload);
         $message->message = read_string($payload);
         $message->languageTag = read_string($payload);
 
@@ -32,6 +41,6 @@ class UserAuthBanner implements Message
 
     public static function getNumber(): int
     {
-        return self::SSH_MSG_USERAUTH_BANNER;
+        return self::SSH_MSG_DEBUG;
     }
 }

@@ -7,10 +7,9 @@ namespace Amp\SSH\Authentication;
 use function Amp\call;
 use Amp\Promise;
 use Amp\SSH\Message\UserAuthFailure;
+use Amp\SSH\Message\UserAuthRequestPassword;
 use Amp\SSH\Transport\BinaryPacketHandler;
-use Amp\SSH\Message\Message;
 use Amp\SSH\Message\ServiceRequest;
-use Amp\SSH\Message\UserAuthRequest;
 
 class UsernamePassword implements Authentication
 {
@@ -23,7 +22,7 @@ class UsernamePassword implements Authentication
         $this->password = $password;
     }
 
-    public function authenticate(BinaryPacketHandler $binaryPacketHandler): Promise
+    public function authenticate(BinaryPacketHandler $binaryPacketHandler, string $sessionId): Promise
     {
         return call(function () use($binaryPacketHandler) {
             $authServiceRequest = new ServiceRequest();
@@ -32,8 +31,8 @@ class UsernamePassword implements Authentication
             yield $binaryPacketHandler->write($authServiceRequest);
             yield $binaryPacketHandler->read();
 
-            $userAuthRequest = new UserAuthRequest();
-            $userAuthRequest->authType = UserAuthRequest::TYPE_PASSWORD;
+            $userAuthRequest = new UserAuthRequestPassword();
+            $userAuthRequest->authType = UserAuthRequestPassword::TYPE_PASSWORD;
             $userAuthRequest->username = $this->username;
             $userAuthRequest->password = $this->password;
 

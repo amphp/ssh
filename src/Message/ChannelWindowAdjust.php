@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelWindowAdjust implements Message
 {
     public $recipientChannel;
@@ -22,12 +25,11 @@ class ChannelWindowAdjust implements Message
 
     public static function decode(string $payload)
     {
-        $message = new static;
+        read_byte($payload);
 
-        [
-            $message->recipientChannel,
-            $message->bytesToAdd
-        ] = array_values(unpack('N2', $payload, 1));
+        $message = new static;
+        $message->recipientChannel = read_uint32($payload);
+        $message->bytesToAdd = read_uint32($payload);
 
         return $message;
     }

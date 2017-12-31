@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_string;
+
 class ChannelRequestExec extends ChannelRequest
 {
     public $command;
@@ -24,7 +26,6 @@ class ChannelRequestExec extends ChannelRequest
 
     protected function decodeExtraData($extraPayload)
     {
-        $commandLength = unpack('N', $extraPayload)[1];
-        $this->command = substr($extraPayload, 4, $commandLength);
+        $this->command = read_string($extraPayload);
     }
 }

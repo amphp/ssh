@@ -95,16 +95,17 @@ abstract class Channel extends EventEmitter
 
         $deferred = new Deferred();
 
-        $this->once(Message::SSH_MSG_CHANNEL_SUCCESS, function () use($deferred) {
+        $successEventId = $failureEventId = null;
+        $successEventId = $this->each(Message::SSH_MSG_CHANNEL_SUCCESS, function () use (&$successEventId, &$failureEventId, $deferred) {
+            $this->remove($successEventId);
+            $this->remove($failureEventId);
             $deferred->resolve(true);
-
-            return true;
         });
 
-        $this->once(Message::SSH_MSG_CHANNEL_FAILURE, function () use($deferred) {
+        $failureEventId = $this->each(Message::SSH_MSG_CHANNEL_FAILURE, function () use (&$successEventId, &$failureEventId, $deferred) {
+            $this->remove($successEventId);
+            $this->remove($failureEventId);
             $deferred->fail(new \RuntimeException('Failed to execute request'));
-
-            return true;
         });
 
         Promise\rethrow($this->writer->write($request));

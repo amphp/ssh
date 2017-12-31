@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_string;
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelData implements Message
 {
     public $recipientChannel;
@@ -23,14 +27,11 @@ class ChannelData implements Message
 
     public static function decode(string $payload)
     {
+        read_byte($payload);
+
         $message = new static;
-
-        [
-            $message->recipientChannel,
-            $dataLength,
-        ] = array_values(unpack('N2', $payload, 1));
-
-        $message->data = substr($payload, 9, $dataLength);
+        $message->recipientChannel = read_uint32($payload);
+        $message->data = read_string($payload);
 
         return $message;
     }

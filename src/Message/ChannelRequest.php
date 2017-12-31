@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_boolean;
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_string;
+use function Amp\SSH\Transport\read_uint32;
+
 abstract class ChannelRequest implements Message
 {
     public const TYPE_PTY = 'pty-req';
@@ -20,6 +25,8 @@ abstract class ChannelRequest implements Message
     public $recipientChannel;
 
     public $wantReply = true;
+
+    public $requestType;
 
     private static $typeMapping = [
         self::TYPE_PTY => ChannelRequestPty::class,
@@ -50,12 +57,9 @@ abstract class ChannelRequest implements Message
 
     public static function decode(string $payload)
     {
-        [
-            $recipientChannel,
-            $requestTypeLength
-        ] = array_values(unpack('N2', $payload, 1));
-
-        $requestType = substr($payload, 9, $requestTypeLength);
+        read_byte($payload);
+        $recipientChannel = read_uint32($payload);
+        $requestType = read_string($payload);
 
         if (!array_key_exists($requestType, self::$typeMapping)) {
             throw new \RuntimeException('Unimplemented request type : ' . $requestType);
@@ -63,13 +67,12 @@ abstract class ChannelRequest implements Message
 
         $messageClass = self::$typeMapping[$requestType];
 
+        /** @var static $message */
         $message = new $messageClass;
         $message->requestType = $requestType;
         $message->recipientChannel = $recipientChannel;
-        $message->wantReply = unpack('C', $payload, 9 + $requestTypeLength)[1];
-
-        $extraData = substr($payload, 10 + $requestTypeLength);
-        $message->decodeExtraData($extraData);
+        $message->wantReply = read_boolean($payload);
+        $message->decodeExtraData($payload);
 
         return $message;
     }

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_string;
+
 class ServiceAccept implements Message
 {
     public $serviceName;
@@ -14,15 +17,10 @@ class ServiceAccept implements Message
 
     public static function decode(string $payload)
     {
-        $type = unpack('C', $payload)[1];
+        read_byte($payload);
 
-        if ($type !== self::getNumber()) {
-            throw new \RuntimeException('Invalid message');
-        }
-
-        $serviceNameLength = unpack('N', $payload, 1)[1];
         $message = new static();
-        $message->serviceName = substr($payload, 5, $serviceNameLength);
+        $message->serviceName = read_string($payload);
 
         return $message;
     }

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_string;
+
 class ChannelRequestEnv extends ChannelRequest
 {
     public $name;
 
     public $value;
-
-//    public $wantReply = false;
 
     public function encode(): string
     {
@@ -30,9 +30,7 @@ class ChannelRequestEnv extends ChannelRequest
 
     protected function decodeExtraData($extraPayload)
     {
-        $nameLength = unpack('N', $extraPayload)[1];
-        $this->name = substr($extraPayload, 4, $nameLength);
-        $valueLength = unpack('N', $extraPayload, 4 + $nameLength)[1];
-        $this->value = substr($extraPayload, 8 + $nameLength, $valueLength);
+        $this->name = read_string($extraPayload);
+        $this->value = read_string($extraPayload);
     }
 }

@@ -2,6 +2,11 @@
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_boolean;
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_bytes;
+use function Amp\SSH\Transport\read_namelist;
+
 class KeyExchangeInit implements Message
 {
     public $cookie;
@@ -70,39 +75,23 @@ class KeyExchangeInit implements Message
 
     public static function decode(string $payload)
     {
-        $byte = unpack('C', $payload)[1];
+        read_byte($payload);
 
-        if ($byte !== self::getNumber()) {
-            throw new \RuntimeException('Decoding wrong message');
-        }
-
-        $keyExchangeInit = new self();
-        $keyExchangeInit->cookie = substr($payload, 1, 16);
-        [$keyExchangeInit->kexAlgorithms, $payload] = self::decodeNameList(substr($payload, 17));
-        [$keyExchangeInit->serverHostKeyAlgorithms, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->encryptionAlgorithmsClientToServer, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->encryptionAlgorithmsServerToClient, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->macAlgorithmsClientToServer, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->macAlgorithmsServerToClient, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->compressionAlgorithmsClientToServer, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->compressionAlgorithmsServerToClient, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->languagesClientToServer, $payload] = self::decodeNameList($payload);
-        [$keyExchangeInit->languagesServerToClient, $payload] = self::decodeNameList($payload);
-
-        $keyExchangeInit->firstKexPacketFollow = unpack('C', $payload)[1];
+        $keyExchangeInit = new static();
+        $keyExchangeInit->cookie = read_bytes($payload, 16);
+        $keyExchangeInit->kexAlgorithms = read_namelist($payload);
+        $keyExchangeInit->serverHostKeyAlgorithms = read_namelist($payload);
+        $keyExchangeInit->encryptionAlgorithmsClientToServer = read_namelist($payload);
+        $keyExchangeInit->encryptionAlgorithmsServerToClient = read_namelist($payload);
+        $keyExchangeInit->macAlgorithmsClientToServer = read_namelist($payload);
+        $keyExchangeInit->macAlgorithmsServerToClient = read_namelist($payload);
+        $keyExchangeInit->compressionAlgorithmsClientToServer = read_namelist($payload);
+        $keyExchangeInit->compressionAlgorithmsServerToClient = read_namelist($payload);
+        $keyExchangeInit->languagesClientToServer = read_namelist($payload);
+        $keyExchangeInit->languagesServerToClient = read_namelist($payload);
+        $keyExchangeInit->firstKexPacketFollow = read_boolean($payload);
 
         return $keyExchangeInit;
-    }
-
-    private static function decodeNameList($payload)
-    {
-        $length = unpack('N', $payload)[1];
-        $nameListStr = substr($payload, 4, $length);
-
-        return [
-            empty($nameListStr) ? [] : explode(',', $nameListStr),
-            substr($payload, $length + 4)
-        ];
     }
 
     public static function getNumber(): int

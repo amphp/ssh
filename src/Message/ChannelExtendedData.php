@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_string;
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelExtendedData implements Message
 {
     public const SSH_EXTENDED_DATA_STDERR = 1;
@@ -28,15 +32,12 @@ class ChannelExtendedData implements Message
 
     public static function decode(string $payload)
     {
+        read_byte($payload);
+
         $message = new static;
-
-        [
-            $message->recipientChannel,
-            $message->dataType,
-            $dataLength,
-        ] = array_values(unpack('N3', $payload, 1));
-
-        $message->data = substr($payload, 13, $dataLength);
+        $message->recipientChannel = read_uint32($payload);
+        $message->dataType = read_uint32($payload);
+        $message->data = read_string($payload);
 
         return $message;
     }

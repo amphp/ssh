@@ -13,12 +13,6 @@ class NewKeys implements Message
 
     public static function decode(string $payload)
     {
-        $type = unpack('C', $payload)[1];
-
-        if ($type !== self::getNumber()) {
-            throw new \RuntimeException('Invalid message');
-        }
-
         return new static;
     }
 

@@ -1,22 +1,20 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Amp\SSH\Message;
 
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_uint32;
 
-class ChannelFailure implements Message
+class Unimplemented implements Message
 {
-    public $recipientChannel;
+    public $packetSequenceNumberRejected;
 
     public function encode(): string
     {
         return pack(
             'CN',
             self::getNumber(),
-            $this->recipientChannel
+            $this->packetSequenceNumberRejected
         );
     }
 
@@ -25,13 +23,13 @@ class ChannelFailure implements Message
         read_byte($payload);
 
         $message = new static;
-        $message->recipientChannel = read_uint32($payload);
+        $message->packetSequenceNumberRejected = read_uint32($payload);
 
         return $message;
     }
 
     public static function getNumber(): int
     {
-        return self::SSH_MSG_CHANNEL_FAILURE;
+        return self::SSH_MSG_UNIMPLEMENTED;
     }
 }

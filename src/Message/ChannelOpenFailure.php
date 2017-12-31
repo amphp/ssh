@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_string;
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelOpenFailure implements Message
 {
     public $recipientChannel;
@@ -24,17 +28,13 @@ class ChannelOpenFailure implements Message
 
     public static function decode(string $payload)
     {
+        read_byte($payload);
+
         $message = new static;
-
-        [
-            $message->recipientChannel,
-            $message->reasonCode,
-            $descriptionLength
-        ] = array_values(unpack('N3', $payload, 1));
-
-        $message->description = substr($payload, 13, $descriptionLength);
-        $languageTagLength = unpack('N', $payload, 13 + $descriptionLength)[1];
-        $message->languageTag = substr($payload, 17 + $descriptionLength, $languageTagLength);
+        $message->recipientChannel = read_uint32($payload);
+        $message->reasonCode = read_uint32($payload);
+        $message->description = read_string($payload);
+        $message->languageTag = read_string($payload);
 
         return $message;
     }

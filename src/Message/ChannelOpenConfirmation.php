@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_byte;
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelOpenConfirmation implements Message
 {
     public $recipientChannel;
@@ -24,14 +27,13 @@ class ChannelOpenConfirmation implements Message
 
     public static function decode(string $payload)
     {
-        $message = new static;
+        read_byte($payload);
 
-        [
-            $message->recipientChannel,
-            $message->senderChannel,
-            $message->initialWindowSize,
-            $message->maximumPacketSize,
-        ] = array_values(unpack('N4', $payload, 1));
+        $message = new static;
+        $message->recipientChannel = read_uint32($payload);
+        $message->senderChannel = read_uint32($payload);
+        $message->initialWindowSize = read_uint32($payload);
+        $message->maximumPacketSize = read_uint32($payload);
 
         return $message;
     }

@@ -34,28 +34,33 @@ class MessageHandler implements BinaryPacketHandler
     public static function create(...$args)
     {
         $static = new static(...$args);
-        $static->registerMessageClass(Message\ChannelClose::class);
-        $static->registerMessageClass(Message\ChannelData::class);
-        $static->registerMessageClass(Message\ChannelEof::class);
-        $static->registerMessageClass(Message\ChannelExtendedData::class);
-        $static->registerMessageClass(Message\ChannelFailure::class);
+        $static->registerMessageClass(Message\Disconnect::class);
+        $static->registerMessageClass(Message\Ignore::class);
+        $static->registerMessageClass(Message\Unimplemented::class);
+        $static->registerMessageClass(Message\Debug::class);
+        $static->registerMessageClass(Message\ServiceRequest::class);
+        $static->registerMessageClass(Message\ServiceAccept::class);
+        $static->registerMessageClass(Message\KeyExchangeInit::class);
+        $static->registerMessageClass(Message\NewKeys::class);
+        $static->registerMessageClass(Message\KeyExchangeCurveInit::class);
+        $static->registerMessageClass(Message\KeyExchangeCurveReply::class);
+        $static->registerMessageClass(Message\UserAuthRequest::class);
+        $static->registerMessageClass(Message\UserAuthFailure::class);
+        $static->registerMessageClass(Message\UserAuthSuccess::class);
+        $static->registerMessageClass(Message\UserAuthBanner::class);
+        $static->registerMessageClass(Message\UserAuthPkOk::class);
+        $static->registerMessageClass(Message\GlobalRequest::class);
         $static->registerMessageClass(Message\ChannelOpen::class);
         $static->registerMessageClass(Message\ChannelOpenConfirmation::class);
         $static->registerMessageClass(Message\ChannelOpenFailure::class);
+        $static->registerMessageClass(Message\ChannelWindowAdjust::class);
+        $static->registerMessageClass(Message\ChannelData::class);
+        $static->registerMessageClass(Message\ChannelExtendedData::class);
+        $static->registerMessageClass(Message\ChannelEof::class);
+        $static->registerMessageClass(Message\ChannelClose::class);
         $static->registerMessageClass(Message\ChannelRequest::class);
         $static->registerMessageClass(Message\ChannelSuccess::class);
-        $static->registerMessageClass(Message\ChannelWindowAdjust::class);
-        $static->registerMessageClass(Message\GlobalRequest::class);
-        $static->registerMessageClass(Message\KeyExchangeCurveInit::class);
-        $static->registerMessageClass(Message\KeyExchangeCurveReply::class);
-        $static->registerMessageClass(Message\KeyExchangeInit::class);
-        $static->registerMessageClass(Message\NewKeys::class);
-        $static->registerMessageClass(Message\ServiceAccept::class);
-        $static->registerMessageClass(Message\ServiceRequest::class);
-        $static->registerMessageClass(Message\UserAuthBanner::class);
-        $static->registerMessageClass(Message\UserAuthFailure::class);
-        $static->registerMessageClass(Message\UserAuthRequest::class);
-        $static->registerMessageClass(Message\UserAuthSuccess::class);
+        $static->registerMessageClass(Message\ChannelFailure::class);
 
         return $static;
     }
@@ -97,5 +102,10 @@ class MessageHandler implements BinaryPacketHandler
         }
 
         return $this->handler->write($message);
+    }
+
+    public function close(): void
+    {
+        $this->handler->close();
     }
 }

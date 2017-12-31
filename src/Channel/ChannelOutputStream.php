@@ -2,11 +2,11 @@
 
 namespace Amp\SSH\Channel;
 
-use Amp\ByteStream\ClosedException;
 use Amp\ByteStream\OutputStream;
 use function Amp\call;
 use Amp\Promise;
 use Amp\SSH\Message\Message;
+use Amp\Success;
 
 class ChannelOutputStream implements OutputStream
 {
@@ -28,7 +28,7 @@ class ChannelOutputStream implements OutputStream
     public function write(string $data): Promise
     {
         if (!$this->writable) {
-            return new Failure(new ClosedException('Stream is closed'));
+            return new Success();
         }
 
         return $this->channel->data($data);

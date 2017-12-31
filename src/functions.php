@@ -3,6 +3,7 @@
 namespace Amp\SSH;
 
 use function Amp\call;
+use Amp\SSH\Authentication\Authentication;
 use Amp\SSH\Authentication\UsernamePassword;
 use Amp\SSH\Transport\LoggerHandler;
 use Amp\SSH\Transport\MessageHandler;
@@ -10,8 +11,8 @@ use Amp\SSH\Transport\PayloadHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
-function connect($uri, $username, $password, LoggerInterface $logger = null, $identification = 'SSH-2.0-AmpSSH_0.1') {
-    return call(function () use($uri, $username, $password, $identification, $logger) {
+function connect($uri, Authentication $authentication, LoggerInterface $logger = null, $identification = 'SSH-2.0-AmpSSH_0.1') {
+    return call(function () use($uri, $authentication, $identification, $logger) {
         $socket = yield \Amp\Socket\connect($uri);
         $logger = $logger ?? new NullLogger();
 
@@ -49,8 +50,7 @@ function connect($uri, $username, $password, LoggerInterface $logger = null, $id
         $negotiator = Negotiator::create();
         $cryptedHandler = yield $negotiator->negotiate($loggerHandler, $serverIdentification, $identification);
 
-        $auth = new UsernamePassword($username, $password);
-        yield $auth->authenticate($cryptedHandler);
+        yield $authentication->authenticate($cryptedHandler, $negotiator->getSessionId());
 
         $loop = new SSHResource($cryptedHandler);
         $loop->loop();

@@ -20,9 +20,10 @@ interface Message
     public const SSH_MSG_USERAUTH_FAILURE = 51;
     public const SSH_MSG_USERAUTH_SUCCESS = 52;
     public const SSH_MSG_USERAUTH_BANNER = 53;
-    public const SSH_MSG_GLOBAL_REQUEST = 80;
-    public const SSH_MSG_REQUEST_SUCCESS = 81;
-    public const SSH_MSG_REQUEST_FAILURE = 82;
+    public const SSH_MSG_USERAUTH_PK_OK = 60;
+    public const SSH_MSG_GLOBAL_REQUEST = 80; //@TODO
+    public const SSH_MSG_REQUEST_SUCCESS = 81; //@TODO
+    public const SSH_MSG_REQUEST_FAILURE = 82; //@TODO
     public const SSH_MSG_CHANNEL_OPEN = 90;
     public const SSH_MSG_CHANNEL_OPEN_CONFIRMATION = 91;
     public const SSH_MSG_CHANNEL_OPEN_FAILURE = 92;

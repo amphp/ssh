@@ -65,10 +65,19 @@ class Shell
         }
     }
 
+    public function join(): Promise
+    {
+        if ($this->resolved === null) {
+            return new Failure(new \RuntimeException('Process is not running'));
+        }
+
+        return $this->resolved->promise();
+    }
+
     public function start(): Promise
     {
         if ($this->resolved !== null) {
-            throw new \RuntimeException('Process has already been started.');
+            return new Failure(new \RuntimeException('Process has already been started.'));
         }
 
         $this->resolved = new Deferred();
@@ -93,7 +102,7 @@ class Shell
     public function signal(int $signo): Promise
     {
         if (!$this->isRunning()) {
-            throw new \RuntimeException('Process is not running.');
+            return new Failure(new \RuntimeException('Process is not running.'));
         }
 
         return $this->session->signal($signo);

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_uint32;
+
 class ChannelRequestWindowChange extends ChannelRequest
 {
     public $columns;
@@ -34,11 +36,9 @@ class ChannelRequestWindowChange extends ChannelRequest
 
     protected function decodeExtraData($extraPayload)
     {
-        [
-            $this->columns,
-            $this->rows,
-            $this->width,
-            $this->height,
-        ] = array_values(unpack('N4', $extraPayload));
+        $this->columns = read_uint32($extraPayload);
+        $this->rows = read_uint32($extraPayload);
+        $this->width = read_uint32($extraPayload);
+        $this->height = read_uint32($extraPayload);
     }
 }

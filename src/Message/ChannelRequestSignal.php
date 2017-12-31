@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
+use function Amp\SSH\Transport\read_string;
+
 class ChannelRequestSignal extends ChannelRequest
 {
     public $signal;
 
-    private $signalMapping = [
+    private static $signalMapping = [
         SIGABRT => 'ABRT',
         SIGALRM => 'ALRM',
         SIGFPE => 'FPE',
@@ -24,9 +26,11 @@ class ChannelRequestSignal extends ChannelRequest
         SIGUSR2 => 'USR2',
     ];
 
+    public $wantReply = false;
+
     public function encode(): string
     {
-        $signal = is_int($this->signal) ? $this->signalMapping[$this->signal] : $this->signal;
+        $signal = is_int($this->signal) ? self::$signalMapping[$this->signal] : $this->signal;
 
         return parent::encode() . pack(
             'Na*',
@@ -42,9 +46,8 @@ class ChannelRequestSignal extends ChannelRequest
 
     protected function decodeExtraData($extraPayload)
     {
-        $signalLength = unpack('N', $extraPayload)[1];
-        $signal = substr($extraPayload, 4, $signalLength);
+        $signal = read_string($extraPayload);
 
-        $this->signal = current(array_keys($this->signalMapping, $signal));
+        $this->signal = current(array_keys(self::$signalMapping, $signal));
     }
 }
