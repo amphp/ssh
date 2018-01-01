@@ -12,6 +12,9 @@ use Amp\SSH\Message\ChannelRequestPty;
 use Amp\SSH\Message\ChannelRequestShell;
 use Amp\SSH\Message\ChannelRequestSignal;
 
+/**
+ * @internal
+ */
 class Session extends Channel
 {
     protected function getType(): string

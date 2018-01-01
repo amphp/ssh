@@ -4,32 +4,54 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Channel;
 
+use function Amp\asyncCall;
 use function Amp\call;
-use Amp\Deferred;
+use Amp\Emitter;
+use Amp\Iterator;
 use Amp\Promise;
-use Amp\SSH\EventEmitter;
 use Amp\SSH\Message\ChannelClose;
 use Amp\SSH\Message\ChannelData;
 use Amp\SSH\Message\ChannelEof;
+use Amp\SSH\Message\ChannelExtendedData;
 use Amp\SSH\Message\ChannelFailure;
 use Amp\SSH\Message\ChannelOpen;
+use Amp\SSH\Message\ChannelOpenConfirmation;
 use Amp\SSH\Message\ChannelOpenFailure;
 use Amp\SSH\Message\ChannelRequest;
-use Amp\SSH\Message\Message;
+use Amp\SSH\Message\ChannelSuccess;
 use Amp\SSH\Transport\BinaryPacketWriter;
 use Amp\Success;
 
-abstract class Channel extends EventEmitter
+/**
+ * @internal
+ */
+abstract class Channel
 {
     protected $channelId;
 
     /** @var BinaryPacketWriter */
     protected $writer;
 
-    public function __construct(BinaryPacketWriter $writer, int $channelId)
+    /** @var Iterator */
+    protected $channelMessage;
+
+    protected $dataEmitter;
+
+    protected $dataExtendedEmitter;
+
+    protected $requestEmitter;
+
+    protected $requestResultEmitter;
+
+    public function __construct(BinaryPacketWriter $writer, Iterator $channelMessage, int $channelId)
     {
         $this->channelId = $channelId;
         $this->writer = $writer;
+        $this->channelMessage = $channelMessage;
+        $this->dataEmitter = new Emitter();
+        $this->dataExtendedEmitter = new Emitter();
+        $this->requestEmitter = new Emitter();
+        $this->requestResultEmitter = new Emitter();
     }
 
     public function getChannelId(): int
@@ -37,25 +59,79 @@ abstract class Channel extends EventEmitter
         return $this->channelId;
     }
 
-    public function initialize(): Promise
+    /**
+     * @return Emitter
+     */
+    public function getDataEmitter(): Emitter
     {
-        $openDeferred = new Deferred();
+        return $this->dataEmitter;
+    }
 
-        $this->once(Message::SSH_MSG_CHANNEL_OPEN_CONFIRMATION, function () use($openDeferred) {
-            $openDeferred->resolve(true);
+    /**
+     * @return Emitter
+     */
+    public function getDataExtendedEmitter(): Emitter
+    {
+        return $this->dataExtendedEmitter;
+    }
+
+    /**
+     * @return Emitter
+     */
+    public function getRequestEmitter(): Emitter
+    {
+        return $this->requestEmitter;
+    }
+
+    protected function dispatch(): void
+    {
+        asyncCall(function () {
+            while (yield $this->channelMessage->advance()) {
+                $message = $this->channelMessage->getCurrent();
+
+                if ($message instanceof ChannelData) {
+                    $this->dataEmitter->emit($message);
+                }
+
+                if ($message instanceof ChannelExtendedData) {
+                    $this->dataExtendedEmitter->emit($message);
+                }
+
+                if ($message instanceof ChannelRequest) {
+                    $this->requestEmitter->emit($message);
+                }
+
+                if ($message instanceof ChannelSuccess || $message instanceof ChannelFailure) {
+                    $this->requestResultEmitter->emit($message);
+                }
+            }
         });
+    }
 
-        $this->once(Message::SSH_MSG_CHANNEL_OPEN_FAILURE, function (ChannelOpenFailure $channelOpenFailure) use($openDeferred) {
-            $openDeferred->fail(new \RuntimeException('Failed to open channel : ' . $channelOpenFailure->description));
+    public function open(): Promise
+    {
+        return call(function () {
+            $channelOpen = new ChannelOpen();
+            $channelOpen->senderChannel = $this->channelId;
+            $channelOpen->channelType = $this->getType();
+
+            yield $this->writer->write($channelOpen);
+            yield $this->channelMessage->advance();
+
+            $openResult = $this->channelMessage->getCurrent();
+
+            if ($openResult instanceof ChannelOpenConfirmation) {
+                $this->dispatch();
+
+                return true;
+            }
+
+            if ($openResult instanceof ChannelOpenFailure) {
+                throw new \RuntimeException('Failed to open channel : ' . $openResult->description);
+            }
+
+            throw new \RuntimeException('Invalid message receive');
         });
-
-        $channelOpen = new ChannelOpen();
-        $channelOpen->senderChannel = $this->channelId;
-        $channelOpen->channelType = $this->getType();
-
-        Promise\rethrow($this->writer->write($channelOpen));
-
-        return $openDeferred->promise();
     }
 
     public function data(string $data): Promise
@@ -81,36 +157,29 @@ abstract class Channel extends EventEmitter
 
     public function close(): Promise
     {
-        $message = new ChannelClose();
-        $message->recipientChannel = $this->channelId;
+        return call(function () {
+            $message = new ChannelClose();
+            $message->recipientChannel = $this->channelId;
 
-        return $this->writer->write($message);
+            yield $this->writer->write($message);
+
+            $this->requestResultEmitter->complete();
+            $this->requestEmitter->complete();
+            $this->dataEmitter->complete();
+            $this->dataExtendedEmitter->complete();
+        });
     }
 
     protected function doRequest(ChannelRequest $request): Promise
     {
-        if (!$request->wantReply) {
-            return $this->writer->write($request);
-        }
+        return call(function () use($request) {
+            yield $this->writer->write($request);
+            yield $this->requestResultEmitter->iterate()->advance();
 
-        $deferred = new Deferred();
+            $message = $this->requestResultEmitter->iterate()->getCurrent();
 
-        $successEventId = $failureEventId = null;
-        $successEventId = $this->each(Message::SSH_MSG_CHANNEL_SUCCESS, function () use (&$successEventId, &$failureEventId, $deferred) {
-            $this->remove($successEventId);
-            $this->remove($failureEventId);
-            $deferred->resolve(true);
+            return $message instanceof ChannelSuccess;
         });
-
-        $failureEventId = $this->each(Message::SSH_MSG_CHANNEL_FAILURE, function () use (&$successEventId, &$failureEventId, $deferred) {
-            $this->remove($successEventId);
-            $this->remove($failureEventId);
-            $deferred->fail(new \RuntimeException('Failed to execute request'));
-        });
-
-        Promise\rethrow($this->writer->write($request));
-
-        return $deferred->promise();
     }
 
     abstract protected function getType(): string;

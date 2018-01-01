@@ -2,6 +2,7 @@
 
 namespace Amp\SSH;
 
+use function Amp\asyncCall;
 use Amp\ByteStream\InputStream;
 use Amp\ByteStream\OutputStream;
 use function Amp\call;
@@ -9,9 +10,7 @@ use Amp\Deferred;
 use Amp\Promise;
 use Amp\SSH\Channel\ChannelInputStream;
 use Amp\SSH\Channel\ChannelOutputStream;
-use Amp\SSH\Message\ChannelRequest;
 use Amp\SSH\Message\ChannelRequestExitStatus;
-use Amp\SSH\Message\Message;
 
 class Shell
 {
@@ -36,26 +35,10 @@ class Shell
     public function __construct(SSHResource $sshResource, array $env = [])
     {
         $this->session = $sshResource->createSession();
-        $this->stdout = new ChannelInputStream($this->session);
-        $this->stderr = new ChannelInputStream($this->session, Message::SSH_MSG_CHANNEL_EXTENDED_DATA);
+        $this->stdout = new ChannelInputStream($this->session->getDataEmitter()->iterate());
+        $this->stderr = new ChannelInputStream($this->session->getDataExtendedEmitter()->iterate());
         $this->stdin = new ChannelOutputStream($this->session);
         $this->env = $env;
-        $this->session->each(Message::SSH_MSG_CHANNEL_REQUEST, function (ChannelRequest $request) {
-
-            if (!$request instanceof ChannelRequestExitStatus) {
-                return false;
-            }
-
-            yield $this->session->close();
-
-            if ($this->resolved !== null) {
-                $resolved = $this->resolved;
-                $this->resolved = null;
-                $resolved->resolve();
-            }
-
-            return true;
-        });
     }
 
     public function __destruct()
@@ -67,7 +50,7 @@ class Shell
 
     public function join(): Promise
     {
-        if ($this->resolved === null) {
+        if (!$this->isRunning()) {
             return new Failure(new \RuntimeException('Process is not running'));
         }
 
@@ -76,14 +59,14 @@ class Shell
 
     public function start(): Promise
     {
-        if ($this->resolved !== null) {
+        if ($this->isRunning()) {
             return new Failure(new \RuntimeException('Process has already been started.'));
         }
 
         $this->resolved = new Deferred();
 
         return call(function () {
-            yield $this->session->initialize();
+            yield $this->session->open();
 
             foreach ($this->env as $key => $value) {
                 yield $this->session->env($key, $value, true);
@@ -91,11 +74,17 @@ class Shell
 
             yield $this->session->pty();
             yield $this->session->shell();
+
+            $this->handleRequests();
         });
     }
 
     public function kill(): void
     {
+        if (!$this->isRunning()) {
+            throw new \RuntimeException('Process is not running.');
+        }
+
         Promise\rethrow($this->signal(SIGKILL));
     }
 
@@ -128,4 +117,25 @@ class Shell
         return $this->stderr;
     }
 
+    protected function handleRequests(): void
+    {
+        asyncCall(function () {
+            $requestIterator = $this->session->getRequestEmitter()->iterate();
+
+            while ($this->isRunning()) {
+                yield $requestIterator->advance();
+                $message = $requestIterator->getCurrent();
+
+                if ($message instanceof ChannelRequestExitStatus) {
+                    $resolved = $this->resolved;
+                    $this->resolved = null;
+                    $resolved->resolve($message->code);
+
+                    $this->session->close();
+
+                    break;
+                }
+            }
+        });
+    }
 }

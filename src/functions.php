@@ -5,6 +5,7 @@ namespace Amp\SSH;
 use function Amp\call;
 use Amp\SSH\Authentication\Authentication;
 use Amp\SSH\Authentication\UsernamePassword;
+use Amp\SSH\Channel\Dispatcher;
 use Amp\SSH\Transport\LoggerHandler;
 use Amp\SSH\Transport\MessageHandler;
 use Amp\SSH\Transport\PayloadHandler;
@@ -52,9 +53,9 @@ function connect($uri, Authentication $authentication, LoggerInterface $logger =
 
         yield $authentication->authenticate($cryptedHandler, $negotiator->getSessionId());
 
-        $loop = new SSHResource($cryptedHandler);
-        $loop->loop();
+        $dispatcher = new Dispatcher($cryptedHandler);
+        $dispatcher->start();
 
-        return $loop;
+        return new SSHResource($cryptedHandler, $dispatcher);
     });
 }

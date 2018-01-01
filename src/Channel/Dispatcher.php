@@ -4,56 +4,92 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Channel;
 
-use Amp\SSH\SSHResource;
+use function Amp\asyncCall;
+use Amp\Emitter;
+use Amp\SSH\Message\ChannelClose;
+use Amp\SSH\Message\ChannelOpen;
 use Amp\SSH\Message\Message;
+use Amp\SSH\Transport\BinaryPacketHandler;
 
+/**
+ * @internal
+ */
 class Dispatcher
 {
-    private $channels = [];
+    /** @var Emitter[] */
+    private $channelsEmitter = [];
 
-    private $resource;
+    private $handler;
 
     private $channelSequence = 0;
 
-    public function __construct(SSHResource $resource)
-    {
-        $this->resource = $resource;
+    private $running = true;
 
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_OPEN_CONFIRMATION, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_OPEN_FAILURE, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_DATA, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_EXTENDED_DATA, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_EOF, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_CLOSE, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_WINDOW_ADJUST, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_SUCCESS, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_FAILURE, 'recipientChannel');
-        $this->createDispatch(Message::SSH_MSG_CHANNEL_REQUEST, 'recipientChannel');
+    private $closed = false;
+
+    public function __construct(BinaryPacketHandler $handler)
+    {
+        $this->handler = $handler;
+    }
+
+    public function start(): void
+    {
+        if ($this->closed) {
+            throw new \RuntimeException('SSH Connection is closed');
+        }
+
+        asyncCall(function () {
+            while ($this->running) {
+                $message = yield $this->handler->read();
+
+                if (!$message instanceof Message) {
+                    continue;
+                }
+
+                $type = $message::getNumber();
+
+                if ($type >= Message::SSH_MSG_CHANNEL_OPEN && $type <= Message::SSH_MSG_CHANNEL_FAILURE) {
+                    $channelId = $message instanceof ChannelOpen ? $message->senderChannel : $message->recipientChannel;
+
+                    if (!array_key_exists($channelId, $this->channelsEmitter)) {
+                        continue;
+                    }
+
+                    $this->channelsEmitter[$channelId]->emit($message);
+
+                    if ($message instanceof ChannelClose) {
+                        $this->channelsEmitter[$channelId]->complete();
+
+                        unset($this->channelsEmitter[$channelId]);
+                    }
+
+                    continue;
+                }
+            }
+        });
+    }
+
+    public function stop(): void
+    {
+        $this->running = false;
+    }
+
+    public function close()
+    {
+        $this->stop();
+
+        foreach ($this->channelsEmitter as $emitter) {
+            $emitter->complete();
+        }
     }
 
     public function createSession(): Session
     {
-        $session = new Session($this->resource, $this->channelSequence);
-        $this->channels[$this->channelSequence] = $session;
+        $emitter = new Emitter();
+        $session = new Session($this->handler, $emitter->iterate(), $this->channelSequence);
+        $this->channelsEmitter[$this->channelSequence] = $emitter;
         ++$this->channelSequence;
 
         return $session;
-    }
-
-    private function createDispatch(int $messageNumber, string $propertyName)
-    {
-        $closure = function (Message $data) use ($propertyName) {
-            $channelId = $data->$propertyName;
-
-            if (!array_key_exists($channelId, $this->channels)) {
-                return;
-            }
-
-            /** @var Channel $channel */
-            $channel = $this->channels[$channelId];
-            $channel->emit($data::getNumber(), $data);
-        };
-
-        $this->resource->each($messageNumber, $closure);
     }
 }

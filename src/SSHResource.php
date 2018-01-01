@@ -8,6 +8,7 @@ use function Amp\asyncCall;
 use function Amp\call;
 use Amp\Promise;
 use Amp\SSH\Channel\Dispatcher;
+use Amp\SSH\Channel\Session;
 use Amp\SSH\Encryption\Encryption;
 use Amp\SSH\Mac\Mac;
 use Amp\SSH\Message\Disconnect;
@@ -15,7 +16,10 @@ use Amp\SSH\Message\Message;
 use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Transport\BinaryPacketWriter;
 
-class SSHResource extends EventEmitter implements BinaryPacketWriter
+/**
+ * @internal
+ */
+class SSHResource
 {
     private $handler;
 
@@ -23,48 +27,25 @@ class SSHResource extends EventEmitter implements BinaryPacketWriter
 
     private $running = true;
 
-    public function __construct(BinaryPacketHandler $handler)
+    public function __construct(BinaryPacketHandler $handler, Dispatcher $dispatcher)
     {
         $this->handler = $handler;
-        $this->dispatcher = new Dispatcher($this);
+        $this->dispatcher = $dispatcher;
     }
 
-    public function createSession()
+    public function createSession(): Session
     {
         return $this->dispatcher->createSession();
-    }
-
-    public function loop()
-    {
-        asyncCall(function () {
-            while ($this->running) {
-                /** @var Message $message */
-                $message = yield $this->handler->read();
-
-                if ($message instanceof Message) {
-                    $type = $message::getNumber();
-
-                    $this->emit($type, $message);
-                }
-            }
-        });
-    }
-
-    final public function updateEncryption(Encryption $encryption, Mac $encryptMac): void
-    {
-        throw new \RuntimeException('Not allowed');
-    }
-
-    public function write($message): Promise
-    {
-        return $this->handler->write($message);
     }
 
     public function close(): Promise
     {
         return call(function () {
-            $this->write(new Disconnect);
             $this->running = false;
+            $this->dispatcher->close();
+
+            yield $this->handler->write(new Disconnect);
+
             $this->handler->close();
         });
     }

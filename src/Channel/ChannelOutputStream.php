@@ -8,6 +8,9 @@ use Amp\Promise;
 use Amp\SSH\Message\Message;
 use Amp\Success;
 
+/**
+ * @internal
+ */
 class ChannelOutputStream implements OutputStream
 {
     private $writable = true;
@@ -17,11 +20,6 @@ class ChannelOutputStream implements OutputStream
     public function __construct(Channel $channel)
     {
         $this->channel = $channel;
-        $channel->once(Message::SSH_MSG_CHANNEL_EOF, function () {
-            $this->writable = false;
-
-            return true;
-        });
     }
 
     /** {@inheritdoc} */

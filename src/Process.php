@@ -2,6 +2,7 @@
 
 namespace Amp\SSH;
 
+use function Amp\asyncCall;
 use Amp\ByteStream\InputStream;
 use Amp\ByteStream\OutputStream;
 use function Amp\call;
@@ -44,25 +45,10 @@ class Process
     {
         $this->session = $sshResource->createSession();
         $this->command = $cwd !== null ? sprintf('cd %s; %s', $cwd, $command) : $command;
-        $this->stdout = new ChannelInputStream($this->session);
-        $this->stderr = new ChannelInputStream($this->session, Message::SSH_MSG_CHANNEL_EXTENDED_DATA);
+        $this->stdout = new ChannelInputStream($this->session->getDataEmitter()->iterate());
+        $this->stderr = new ChannelInputStream($this->session->getDataExtendedEmitter()->iterate());
         $this->stdin = new ChannelOutputStream($this->session);
         $this->env = $env;
-        $this->session->once(Message::SSH_MSG_CHANNEL_REQUEST, function (ChannelRequest $request) {
-            if (!$request instanceof ChannelRequestExitStatus) {
-                return false;
-            }
-
-            $this->exitCode = $request->code;
-
-            if ($this->resolved !== null) {
-                $resolved = $this->resolved;
-                $this->resolved = null;
-                $resolved->resolve($this->exitCode);
-            }
-
-            return true;
-        });
     }
 
     public function __destruct()
@@ -81,13 +67,15 @@ class Process
         $this->resolved = new Deferred();
 
         return call(function () {
-            yield $this->session->initialize();
+            yield $this->session->open();
 
             foreach ($this->env as $key => $value) {
                 yield $this->session->env($key, $value, true);
             }
 
             yield $this->session->exec($this->command);
+
+            $this->handleRequests();
         });
     }
 
@@ -136,5 +124,27 @@ class Process
     public function getStderr(): InputStream
     {
         return $this->stderr;
+    }
+
+    protected function handleRequests(): void
+    {
+        asyncCall(function () {
+            $requestIterator = $this->session->getRequestEmitter()->iterate();
+
+            while ($this->isRunning()) {
+                yield $requestIterator->advance();
+                $message = $requestIterator->getCurrent();
+
+                if ($message instanceof ChannelRequestExitStatus) {
+                    $resolved = $this->resolved;
+                    $this->resolved = null;
+                    $resolved->resolve($message->code);
+
+                    $this->session->close();
+
+                    break;
+                }
+            }
+        });
     }
 }
