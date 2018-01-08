@@ -3,34 +3,27 @@
 namespace Amp\SSH\Channel;
 
 use Amp\ByteStream\InputStream;
-use Amp\ByteStream\PendingReadError;
-use function Amp\call;
-use Amp\Deferred;
 use Amp\Iterator;
 use Amp\Promise;
 use Amp\SSH\Message\ChannelData;
-use Amp\SSH\Message\ChannelEof;
 use Amp\SSH\Message\ChannelExtendedData;
-use Amp\SSH\Message\Message;
 use Amp\Success;
+use function Amp\call;
 
 /**
  * @internal
  */
-class ChannelInputStream implements InputStream
-{
+class ChannelInputStream implements InputStream {
     private $readable = true;
 
     private $iterator;
 
-    public function __construct(Iterator $iterator)
-    {
+    public function __construct(Iterator $iterator) {
         $this->iterator = $iterator;
     }
 
     /** {@inheritdoc} */
-    public function read(): Promise
-    {
+    public function read(): Promise {
         if (!$this->readable) {
             return new Success; // Resolve with null on closed stream.
         }

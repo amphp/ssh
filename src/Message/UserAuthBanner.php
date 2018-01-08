@@ -5,22 +5,19 @@ namespace Amp\SSH\Message;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 
-class UserAuthBanner implements Message
-{
+class UserAuthBanner implements Message {
     public $message;
 
     public $languageTag;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'C',
             self::getNumber()
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -30,8 +27,7 @@ class UserAuthBanner implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_USERAUTH_BANNER;
     }
 }

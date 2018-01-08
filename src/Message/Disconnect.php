@@ -6,8 +6,7 @@ use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 use function Amp\SSH\Transport\read_uint32;
 
-class Disconnect implements Message
-{
+class Disconnect implements Message {
     public const SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT = 1;
     public const SSH_DISCONNECT_PROTOCOL_ERROR = 2;
     public const SSH_DISCONNECT_KEY_EXCHANGE_FAILED = 3;
@@ -30,9 +29,8 @@ class Disconnect implements Message
 
     public $languageTag = '';
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'CN2a*Na*',
             self::getNumber(),
             $this->reasonCode,
@@ -43,8 +41,7 @@ class Disconnect implements Message
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -53,9 +50,7 @@ class Disconnect implements Message
         $message->languageTag = read_string($payload);
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_DISCONNECT;
     }
-
 }

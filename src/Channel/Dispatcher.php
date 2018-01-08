@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Channel;
 
-use function Amp\asyncCall;
 use Amp\Emitter;
 use Amp\SSH\Message\ChannelClose;
 use Amp\SSH\Message\ChannelOpen;
 use Amp\SSH\Message\Message;
 use Amp\SSH\Transport\BinaryPacketHandler;
+use function Amp\asyncCall;
 
 /**
  * @internal
  */
-class Dispatcher
-{
+class Dispatcher {
     /** @var Emitter[] */
     private $channelsEmitter = [];
 
@@ -27,13 +26,11 @@ class Dispatcher
 
     private $closed = false;
 
-    public function __construct(BinaryPacketHandler $handler)
-    {
+    public function __construct(BinaryPacketHandler $handler) {
         $this->handler = $handler;
     }
 
-    public function start(): void
-    {
+    public function start(): void {
         if ($this->closed) {
             throw new \RuntimeException('SSH Connection is closed');
         }
@@ -51,7 +48,7 @@ class Dispatcher
                 if ($type >= Message::SSH_MSG_CHANNEL_OPEN && $type <= Message::SSH_MSG_CHANNEL_FAILURE) {
                     $channelId = $message instanceof ChannelOpen ? $message->senderChannel : $message->recipientChannel;
 
-                    if (!array_key_exists($channelId, $this->channelsEmitter)) {
+                    if (!\array_key_exists($channelId, $this->channelsEmitter)) {
                         continue;
                     }
 
@@ -69,13 +66,11 @@ class Dispatcher
         });
     }
 
-    public function stop(): void
-    {
+    public function stop(): void {
         $this->running = false;
     }
 
-    public function close()
-    {
+    public function close() {
         $this->stop();
 
         foreach ($this->channelsEmitter as $emitter) {
@@ -83,8 +78,7 @@ class Dispatcher
         }
     }
 
-    public function createSession(): Session
-    {
+    public function createSession(): Session {
         $emitter = new Emitter();
         $session = new Session($this->handler, $emitter->iterate(), $this->channelSequence);
         $this->channelsEmitter[$this->channelSequence] = $emitter;

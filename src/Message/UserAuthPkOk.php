@@ -5,18 +5,15 @@ namespace Amp\SSH\Message;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 
-class UserAuthPkOk implements Message
-{
+class UserAuthPkOk implements Message {
     private $keyAlgorithm;
 
     private $keyBlob;
 
-    public function encode(): string
-    {
+    public function encode(): string {
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -26,8 +23,7 @@ class UserAuthPkOk implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_USERAUTH_PK_OK;
     }
 }

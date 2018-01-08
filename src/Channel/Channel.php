@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Channel;
 
-use function Amp\asyncCall;
-use function Amp\call;
 use Amp\Emitter;
 use Amp\Iterator;
 use Amp\Promise;
@@ -21,12 +19,13 @@ use Amp\SSH\Message\ChannelRequest;
 use Amp\SSH\Message\ChannelSuccess;
 use Amp\SSH\Transport\BinaryPacketWriter;
 use Amp\Success;
+use function Amp\asyncCall;
+use function Amp\call;
 
 /**
  * @internal
  */
-abstract class Channel
-{
+abstract class Channel {
     protected $channelId;
 
     /** @var BinaryPacketWriter */
@@ -43,8 +42,7 @@ abstract class Channel
 
     protected $requestResultEmitter;
 
-    public function __construct(BinaryPacketWriter $writer, Iterator $channelMessage, int $channelId)
-    {
+    public function __construct(BinaryPacketWriter $writer, Iterator $channelMessage, int $channelId) {
         $this->channelId = $channelId;
         $this->writer = $writer;
         $this->channelMessage = $channelMessage;
@@ -54,37 +52,32 @@ abstract class Channel
         $this->requestResultEmitter = new Emitter();
     }
 
-    public function getChannelId(): int
-    {
+    public function getChannelId(): int {
         return $this->channelId;
     }
 
     /**
      * @return Emitter
      */
-    public function getDataEmitter(): Emitter
-    {
+    public function getDataEmitter(): Emitter {
         return $this->dataEmitter;
     }
 
     /**
      * @return Emitter
      */
-    public function getDataExtendedEmitter(): Emitter
-    {
+    public function getDataExtendedEmitter(): Emitter {
         return $this->dataExtendedEmitter;
     }
 
     /**
      * @return Emitter
      */
-    public function getRequestEmitter(): Emitter
-    {
+    public function getRequestEmitter(): Emitter {
         return $this->requestEmitter;
     }
 
-    protected function dispatch(): void
-    {
+    protected function dispatch(): void {
         asyncCall(function () {
             while (yield $this->channelMessage->advance()) {
                 $message = $this->channelMessage->getCurrent();
@@ -108,8 +101,7 @@ abstract class Channel
         });
     }
 
-    public function open(): Promise
-    {
+    public function open(): Promise {
         return call(function () {
             $channelOpen = new ChannelOpen();
             $channelOpen->senderChannel = $this->channelId;
@@ -134,8 +126,7 @@ abstract class Channel
         });
     }
 
-    public function data(string $data): Promise
-    {
+    public function data(string $data): Promise {
         $message = new ChannelData();
         $message->data = $data;
         $message->recipientChannel = $this->channelId;
@@ -147,16 +138,14 @@ abstract class Channel
         return $this->writer->write($message);
     }
 
-    public function eof(): Promise
-    {
+    public function eof(): Promise {
         $message = new ChannelEof();
         $message->recipientChannel = $this->channelId;
 
         return $this->writer->write($message);
     }
 
-    public function close(): Promise
-    {
+    public function close(): Promise {
         return call(function () {
             $message = new ChannelClose();
             $message->recipientChannel = $this->channelId;
@@ -170,9 +159,8 @@ abstract class Channel
         });
     }
 
-    protected function doRequest(ChannelRequest $request): Promise
-    {
-        return call(function () use($request) {
+    protected function doRequest(ChannelRequest $request): Promise {
+        return call(function () use ($request) {
             yield $this->writer->write($request);
             yield $this->requestResultEmitter->iterate()->advance();
 

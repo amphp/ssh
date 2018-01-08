@@ -6,8 +6,7 @@ namespace Amp\SSH\Encryption;
 
 use Amp\SSH\Encryption\CipherMode\CipherMode;
 
-abstract class OpenSSL implements Decryption, Encryption
-{
+abstract class OpenSSL implements Decryption, Encryption {
     protected $key;
 
     /** @var CipherMode */
@@ -20,21 +19,18 @@ abstract class OpenSSL implements Decryption, Encryption
 
     abstract protected function createCipherMode(string $iv): CipherMode;
 
-    public function resetEncrypt(string $key, string $initIv): void
-    {
+    public function resetEncrypt(string $key, string $initIv): void {
         $this->key = $key;
         $this->encryptCipherMode = $this->createCipherMode($initIv);
     }
 
-    public function resetDecrypt(string $key, string $initIv): void
-    {
+    public function resetDecrypt(string $key, string $initIv): void {
         $this->key = $key;
         $this->decryptCipherMode = $this->createCipherMode($initIv);
     }
 
-    public function crypt(string $payload): string
-    {
-        $cryptedText = openssl_encrypt(
+    public function crypt(string $payload): string {
+        $cryptedText = \openssl_encrypt(
             $payload,
             $this->getOpenSSLMethod(),
             $this->key,
@@ -47,13 +43,12 @@ abstract class OpenSSL implements Decryption, Encryption
         return $cryptedText;
     }
 
-    public function decrypt(string $payload): string
-    {
+    public function decrypt(string $payload): string {
         if ((\strlen($payload) % $this->getBlockSize()) !== 0) {
             throw new \RuntimeException('Payload is not a multiple of crypt block size');
         }
 
-        $decrypted = openssl_decrypt(
+        $decrypted = \openssl_decrypt(
             $payload,
             $this->getOpenSSLMethod(),
             $this->key,

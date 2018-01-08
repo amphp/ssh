@@ -8,15 +8,13 @@ use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 use function Amp\SSH\Transport\read_uint32;
 
-class ChannelData implements Message
-{
+class ChannelData implements Message {
     public $recipientChannel;
 
     public $data;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'CN2a*',
             self::getNumber(),
             $this->recipientChannel,
@@ -25,8 +23,7 @@ class ChannelData implements Message
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -36,8 +33,7 @@ class ChannelData implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_CHANNEL_DATA;
     }
 }

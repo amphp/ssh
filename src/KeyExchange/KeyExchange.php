@@ -3,11 +3,10 @@
 namespace Amp\SSH\KeyExchange;
 
 use Amp\Promise;
-use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Message\Message;
+use Amp\SSH\Transport\BinaryPacketHandler;
 
-interface KeyExchange
-{
+interface KeyExchange {
     public function getName(): string;
 
     public function exchange(BinaryPacketHandler $handler): Promise;

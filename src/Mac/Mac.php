@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Mac;
 
-interface Mac
-{
+interface Mac {
     public function getLength(): int;
 
     public function hash(string $payload): string;

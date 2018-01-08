@@ -2,18 +2,17 @@
 
 namespace Amp\SSH;
 
-use function Amp\asyncCall;
 use Amp\ByteStream\InputStream;
 use Amp\ByteStream\OutputStream;
-use function Amp\call;
 use Amp\Deferred;
 use Amp\Promise;
 use Amp\SSH\Channel\ChannelInputStream;
 use Amp\SSH\Channel\ChannelOutputStream;
 use Amp\SSH\Message\ChannelRequestExitStatus;
+use function Amp\asyncCall;
+use function Amp\call;
 
-class Shell
-{
+class Shell {
     /** @var Channel\Session */
     private $session;
 
@@ -32,8 +31,7 @@ class Shell
     /** @var array */
     private $env;
 
-    public function __construct(SSHResource $sshResource, array $env = [])
-    {
+    public function __construct(SSHResource $sshResource, array $env = []) {
         $this->session = $sshResource->createSession();
         $this->stdout = new ChannelInputStream($this->session->getDataEmitter()->iterate());
         $this->stderr = new ChannelInputStream($this->session->getDataExtendedEmitter()->iterate());
@@ -41,15 +39,13 @@ class Shell
         $this->env = $env;
     }
 
-    public function __destruct()
-    {
+    public function __destruct() {
         if ($this->isRunning()) {
             $this->kill();
         }
     }
 
-    public function join(): Promise
-    {
+    public function join(): Promise {
         if (!$this->isRunning()) {
             return new Failure(new \RuntimeException('Process is not running'));
         }
@@ -57,8 +53,7 @@ class Shell
         return $this->resolved->promise();
     }
 
-    public function start(): Promise
-    {
+    public function start(): Promise {
         if ($this->isRunning()) {
             return new Failure(new \RuntimeException('Process has already been started.'));
         }
@@ -79,8 +74,7 @@ class Shell
         });
     }
 
-    public function kill(): void
-    {
+    public function kill(): void {
         if (!$this->isRunning()) {
             throw new \RuntimeException('Process is not running.');
         }
@@ -88,8 +82,7 @@ class Shell
         Promise\rethrow($this->signal(SIGKILL));
     }
 
-    public function signal(int $signo): Promise
-    {
+    public function signal(int $signo): Promise {
         if (!$this->isRunning()) {
             return new Failure(new \RuntimeException('Process is not running.'));
         }
@@ -97,28 +90,23 @@ class Shell
         return $this->session->signal($signo);
     }
 
-    public function isRunning()
-    {
+    public function isRunning() {
         return $this->resolved !== null;
     }
 
-    public function getStdin(): OutputStream
-    {
+    public function getStdin(): OutputStream {
         return $this->stdin;
     }
 
-    public function getStdout(): InputStream
-    {
+    public function getStdout(): InputStream {
         return $this->stdout;
     }
 
-    public function getStderr(): InputStream
-    {
+    public function getStderr(): InputStream {
         return $this->stderr;
     }
 
-    protected function handleRequests(): void
-    {
+    protected function handleRequests(): void {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 

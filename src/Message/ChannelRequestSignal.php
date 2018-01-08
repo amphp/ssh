@@ -6,8 +6,7 @@ namespace Amp\SSH\Message;
 
 use function Amp\SSH\Transport\read_string;
 
-class ChannelRequestSignal extends ChannelRequest
-{
+class ChannelRequestSignal extends ChannelRequest {
     public $signal;
 
     private static $signalMapping = [
@@ -28,26 +27,23 @@ class ChannelRequestSignal extends ChannelRequest
 
     public $wantReply = false;
 
-    public function encode(): string
-    {
-        $signal = is_int($this->signal) ? self::$signalMapping[$this->signal] : $this->signal;
+    public function encode(): string {
+        $signal = \is_int($this->signal) ? self::$signalMapping[$this->signal] : $this->signal;
 
-        return parent::encode() . pack(
+        return parent::encode() . \pack(
             'Na*',
             \strlen($signal),
             $signal
         );
     }
 
-    public function getType()
-    {
+    public function getType() {
         return self::TYPE_SIGNAL;
     }
 
-    protected function decodeExtraData($extraPayload)
-    {
+    protected function decodeExtraData($extraPayload) {
         $signal = read_string($extraPayload);
 
-        $this->signal = current(array_keys(self::$signalMapping, $signal));
+        $this->signal = \current(\array_keys(self::$signalMapping, $signal));
     }
 }

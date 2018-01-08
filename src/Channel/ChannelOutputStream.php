@@ -3,28 +3,24 @@
 namespace Amp\SSH\Channel;
 
 use Amp\ByteStream\OutputStream;
-use function Amp\call;
 use Amp\Promise;
-use Amp\SSH\Message\Message;
 use Amp\Success;
+use function Amp\call;
 
 /**
  * @internal
  */
-class ChannelOutputStream implements OutputStream
-{
+class ChannelOutputStream implements OutputStream {
     private $writable = true;
 
     private $channel;
 
-    public function __construct(Channel $channel)
-    {
+    public function __construct(Channel $channel) {
         $this->channel = $channel;
     }
 
     /** {@inheritdoc} */
-    public function write(string $data): Promise
-    {
+    public function write(string $data): Promise {
         if (!$this->writable) {
             return new Success();
         }
@@ -33,9 +29,8 @@ class ChannelOutputStream implements OutputStream
     }
 
     /** {@inheritdoc} */
-    public function end(string $finalData = ""): Promise
-    {
-        return call(function () use($finalData) {
+    public function end(string $finalData = ""): Promise {
+        return call(function () use ($finalData) {
             yield $this->write($finalData);
 
             $this->writable = false;
@@ -44,8 +39,7 @@ class ChannelOutputStream implements OutputStream
         });
     }
 
-    public function close(): Promise
-    {
+    public function close(): Promise {
         return $this->channel->eof();
     }
 }

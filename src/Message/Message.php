@@ -2,8 +2,7 @@
 
 namespace Amp\SSH\Message;
 
-interface Message
-{
+interface Message {
     public const SSH_MSG_DISCONNECT = 1;
     public const SSH_MSG_IGNORE = 2;
     public const SSH_MSG_UNIMPLEMENTED = 3;

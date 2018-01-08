@@ -8,8 +8,7 @@ use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 use function Amp\SSH\Transport\read_uint32;
 
-class ChannelOpenFailure implements Message
-{
+class ChannelOpenFailure implements Message {
     public $recipientChannel;
 
     public $reasonCode;
@@ -18,16 +17,14 @@ class ChannelOpenFailure implements Message
 
     public $languageTag;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'C',
             self::getNumber()
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -39,8 +36,7 @@ class ChannelOpenFailure implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_CHANNEL_OPEN_FAILURE;
     }
 }

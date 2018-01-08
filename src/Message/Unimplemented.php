@@ -5,21 +5,18 @@ namespace Amp\SSH\Message;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_uint32;
 
-class Unimplemented implements Message
-{
+class Unimplemented implements Message {
     public $packetSequenceNumberRejected;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'CN',
             self::getNumber(),
             $this->packetSequenceNumberRejected
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -28,8 +25,7 @@ class Unimplemented implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_UNIMPLEMENTED;
     }
 }

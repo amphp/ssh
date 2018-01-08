@@ -2,18 +2,17 @@
 
 namespace Amp\SSH;
 
-use function Amp\call;
 use Amp\SSH\Authentication\Authentication;
-use Amp\SSH\Authentication\UsernamePassword;
 use Amp\SSH\Channel\Dispatcher;
 use Amp\SSH\Transport\LoggerHandler;
 use Amp\SSH\Transport\MessageHandler;
 use Amp\SSH\Transport\PayloadHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use function Amp\call;
 
 function connect($uri, Authentication $authentication, LoggerInterface $logger = null, $identification = 'SSH-2.0-AmpSSH_0.1') {
-    return call(function () use($uri, $authentication, $identification, $logger) {
+    return call(function () use ($uri, $authentication, $identification, $logger) {
         $socket = yield \Amp\Socket\connect($uri);
         $logger = $logger ?? new NullLogger();
 
@@ -33,14 +32,14 @@ function connect($uri, Authentication $authentication, LoggerInterface $logger =
         while ($serverIdentification === false) {
             $readed .= yield $socket->read();
 
-            if (($crlfpos = strpos($readed, "\r\n")) !== false) {
-                $line = substr($readed, 0, $crlfpos);
+            if (($crlfpos = \strpos($readed, "\r\n")) !== false) {
+                $line = \substr($readed, 0, $crlfpos);
 
-                if (strpos($line, 'SSH') === 0) {
+                if (\strpos($line, 'SSH') === 0) {
                     $serverIdentification = $line;
                 }
 
-                $readed = substr($readed, $crlfpos + 2);
+                $readed = \substr($readed, $crlfpos + 2);
             }
         }
 

@@ -7,15 +7,13 @@ namespace Amp\SSH\Message;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_uint32;
 
-class ChannelWindowAdjust implements Message
-{
+class ChannelWindowAdjust implements Message {
     public $recipientChannel;
 
     public $bytesToAdd;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'CN2',
             self::getNumber(),
             $this->recipientChannel,
@@ -23,8 +21,7 @@ class ChannelWindowAdjust implements Message
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -34,8 +31,7 @@ class ChannelWindowAdjust implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_CHANNEL_WINDOW_ADJUST;
     }
 }

@@ -7,8 +7,7 @@ namespace Amp\SSH\Message;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_uint32;
 
-class ChannelOpenConfirmation implements Message
-{
+class ChannelOpenConfirmation implements Message {
     public $recipientChannel;
 
     public $senderChannel;
@@ -17,16 +16,14 @@ class ChannelOpenConfirmation implements Message
 
     public $maximumPacketSize;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'C',
             self::getNumber()
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -38,8 +35,7 @@ class ChannelOpenConfirmation implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
     }
 }

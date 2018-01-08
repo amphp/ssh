@@ -6,22 +6,19 @@ use function Amp\SSH\Transport\read_boolean;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_namelist;
 
-class UserAuthFailure implements Message
-{
+class UserAuthFailure implements Message {
     public $nextAuthentications;
 
     public $partialSuccess;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'C',
             self::getNumber()
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -31,8 +28,7 @@ class UserAuthFailure implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_USERAUTH_FAILURE;
     }
 }

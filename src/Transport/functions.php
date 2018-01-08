@@ -10,15 +10,15 @@ namespace Amp\SSH\Transport;
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
 function read_byte(&$payload) {
-    $byte = unpack('C', $payload)[1];
-    $payload = substr($payload, 1);
+    $byte = \unpack('C', $payload)[1];
+    $payload = \substr($payload, 1);
 
     return $byte;
 }
 
 function read_bytes(&$payload, $length) {
-    $bytes = substr($payload, 0, $length);
-    $payload = substr($payload, $length);
+    $bytes = \substr($payload, 0, $length);
+    $payload = \substr($payload, $length);
 
     return $bytes;
 }
@@ -31,7 +31,7 @@ function read_bytes(&$payload, $length) {
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_boolean (&$payload) {
+function read_boolean(&$payload) {
     return (bool) read_byte($payload);
 }
 
@@ -44,8 +44,8 @@ function read_boolean (&$payload) {
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
 function read_uint32(&$payload) {
-    $uint32 = unpack('N', $payload)[1];
-    $payload = substr($payload, 4);
+    $uint32 = \unpack('N', $payload)[1];
+    $payload = \substr($payload, 4);
 
     return $uint32;
 }
@@ -57,8 +57,8 @@ function read_uint32(&$payload) {
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
 function read_uint64(&$payload) {
-    $uint64 = unpack('J', $payload)[1];
-    $payload = substr($payload, 8);
+    $uint64 = \unpack('J', $payload)[1];
+    $payload = \substr($payload, 8);
 
     return $uint64;
 }
@@ -82,8 +82,8 @@ function read_uint64(&$payload) {
  */
 function read_string(&$payload) {
     $length = read_uint32($payload);
-    $string = substr($payload, 0, $length);
-    $payload = substr($payload, $length);
+    $string = \substr($payload, 0, $length);
+    $payload = \substr($payload, $length);
 
     return $string;
 }
@@ -131,5 +131,5 @@ function read_namelist(&$payload) {
         return [];
     }
 
-    return explode(',', $nameListString);
+    return \explode(',', $nameListString);
 }

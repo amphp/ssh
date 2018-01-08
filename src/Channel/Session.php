@@ -2,35 +2,31 @@
 
 namespace Amp\SSH\Channel;
 
-use function Amp\call;
 use Amp\Promise;
-use Amp\SSH\Message\ChannelData;
 use Amp\SSH\Message\ChannelOpen;
 use Amp\SSH\Message\ChannelRequestEnv;
 use Amp\SSH\Message\ChannelRequestExec;
 use Amp\SSH\Message\ChannelRequestPty;
 use Amp\SSH\Message\ChannelRequestShell;
 use Amp\SSH\Message\ChannelRequestSignal;
+use function Amp\call;
 
 /**
  * @internal
  */
-class Session extends Channel
-{
-    protected function getType(): string
-    {
+class Session extends Channel {
+    protected function getType(): string {
         return ChannelOpen::TYPE_SESSION;
     }
 
-    public function env(string $name, string $value, $quiet = false): Promise
-    {
+    public function env(string $name, string $value, $quiet = false): Promise {
         $request = new ChannelRequestEnv();
         $request->recipientChannel = $this->channelId;
         $request->value = $value;
         $request->name = $name;
         $request->wantReply = !$quiet;
 
-        return call(function () use($request) {
+        return call(function () use ($request) {
             try {
                 return yield $this->doRequest($request);
             } catch (\Throwable $exception) {
@@ -39,8 +35,7 @@ class Session extends Channel
         });
     }
 
-    public function signal(int $signo)
-    {
+    public function signal(int $signo) {
         $request = new ChannelRequestSignal();
         $request->recipientChannel = $this->channelId;
         $request->signal = $signo;
@@ -48,8 +43,7 @@ class Session extends Channel
         return $this->doRequest($request);
     }
 
-    public function pty(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600)
-    {
+    public function pty(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600) {
         $request = new ChannelRequestPty();
         $request->recipientChannel = $this->channelId;
         $request->columns = $columns;
@@ -60,16 +54,14 @@ class Session extends Channel
         return $this->doRequest($request);
     }
 
-    public function shell()
-    {
+    public function shell() {
         $request = new ChannelRequestShell();
         $request->recipientChannel = $this->channelId;
 
         return $this->doRequest($request);
     }
 
-    public function exec(string $command)
-    {
+    public function exec(string $command) {
         $request = new ChannelRequestExec();
         $request->recipientChannel = $this->channelId;
         $request->command = $command;

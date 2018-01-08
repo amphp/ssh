@@ -8,8 +8,7 @@ use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 use function Amp\SSH\Transport\read_uint32;
 
-class ChannelRequestPty extends ChannelRequest
-{
+class ChannelRequestPty extends ChannelRequest {
     public const MODE_TTY_OP_END = 0;
     public const MODE_VINTR = 1;
     public const MODE_VQUIT = 2;
@@ -80,17 +79,16 @@ class ChannelRequestPty extends ChannelRequest
 
     public $modes = [];
 
-    public function encode(): string
-    {
+    public function encode(): string {
         $modesStr = '';
 
         foreach ($this->modes as $modeId => $modeValue) {
-            $modesStr .= pack('CN', $modeId, $modeValue);
+            $modesStr .= \pack('CN', $modeId, $modeValue);
         }
 
-        $modesStr .= pack('C', self::MODE_TTY_OP_END);
+        $modesStr .= \pack('C', self::MODE_TTY_OP_END);
 
-        return parent::encode() . pack(
+        return parent::encode() . \pack(
             'Na*N5a*',
             \strlen($this->term),
             $this->term,
@@ -103,13 +101,11 @@ class ChannelRequestPty extends ChannelRequest
         );
     }
 
-    public function getType()
-    {
+    public function getType() {
         return self::TYPE_PTY;
     }
 
-    protected function decodeExtraData($extraPayload)
-    {
+    protected function decodeExtraData($extraPayload) {
         $this->term = read_string($extraPayload);
         $this->columns = read_uint32($extraPayload);
         $this->rows = read_uint32($extraPayload);

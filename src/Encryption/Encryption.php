@@ -2,8 +2,7 @@
 
 namespace Amp\SSH\Encryption;
 
-interface Encryption
-{
+interface Encryption {
     public function getBlockSize(): int;
 
     public function getKeySize(): int;

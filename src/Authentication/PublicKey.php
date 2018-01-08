@@ -2,9 +2,6 @@
 
 namespace Amp\SSH\Authentication;
 
-use function Amp\call;
-use function Amp\File\exists;
-use function Amp\File\get;
 use Amp\Promise;
 use Amp\SSH\Message\ServiceRequest;
 use Amp\SSH\Message\UserAuthFailure;
@@ -13,25 +10,25 @@ use Amp\SSH\Message\UserAuthRequest;
 use Amp\SSH\Message\UserAuthRequestAskPublicKey;
 use Amp\SSH\Message\UserAuthRequestSignedPublicKey;
 use Amp\SSH\Transport\BinaryPacketHandler;
+use function Amp\call;
+use function Amp\File\exists;
+use function Amp\File\get;
 
-class PublicKey implements Authentication
-{
+class PublicKey implements Authentication {
     private $privateKeyPath;
 
     private $username;
 
     private $passphrase;
 
-    public function __construct(string $username, string $privateKeyPath = '~/.ssh/id_rsa', string $passphrase = '')
-    {
+    public function __construct(string $username, string $privateKeyPath = '~/.ssh/id_rsa', string $passphrase = '') {
         $this->username = $username;
         $this->privateKeyPath = $privateKeyPath;
         $this->passphrase = $passphrase;
     }
 
-    public function authenticate(BinaryPacketHandler $handler, string $sessionId): Promise
-    {
-        return call(function () use($handler, $sessionId) {
+    public function authenticate(BinaryPacketHandler $handler, string $sessionId): Promise {
+        return call(function () use ($handler, $sessionId) {
             if (!yield exists($this->privateKeyPath)) {
                 throw new \RuntimeException('Private key does not exist at path: ' . $this->privateKeyPath);
             }
@@ -48,9 +45,8 @@ class PublicKey implements Authentication
         });
     }
 
-    protected function rsa(BinaryPacketHandler $handler, $key, array $privateKeyInfo, string $sessionId): Promise
-    {
-        return call(function () use($handler, $key, $privateKeyInfo, $sessionId) {
+    protected function rsa(BinaryPacketHandler $handler, $key, array $privateKeyInfo, string $sessionId): Promise {
+        return call(function () use ($handler, $key, $privateKeyInfo, $sessionId) {
             $authServiceRequest = new ServiceRequest();
             $authServiceRequest->serviceName = 'ssh-userauth';
 
@@ -67,7 +63,7 @@ class PublicKey implements Authentication
                 $n = \chr(0) . $n;
             }
 
-            $publickey = pack(
+            $publickey = \pack(
                 'Na*Na*Na*',
                 \strlen('ssh-rsa'),
                 'ssh-rsa',
@@ -96,7 +92,7 @@ class PublicKey implements Authentication
             $signatureRequest->keyAlgorithm = 'ssh-rsa';
             $signatureRequest->keyBlob = $publickey;
 
-            $signatureRaw = pack(
+            $signatureRaw = \pack(
                 'Na*a*',
                 \strlen($sessionId),
                 $sessionId,
@@ -104,7 +100,7 @@ class PublicKey implements Authentication
             );
 
             \openssl_sign($signatureRaw, $signature, $key);
-            $signature = pack('Na*Na*', \strlen('ssh-rsa'), 'ssh-rsa', \strlen($signature), $signature);
+            $signature = \pack('Na*Na*', \strlen('ssh-rsa'), 'ssh-rsa', \strlen($signature), $signature);
 
             $signatureRequest->signature = $signature;
 

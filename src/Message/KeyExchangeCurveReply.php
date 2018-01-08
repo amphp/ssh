@@ -5,21 +5,18 @@ namespace Amp\SSH\Message;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 
-class KeyExchangeCurveReply implements Message
-{
+class KeyExchangeCurveReply implements Message {
     public $hostKey;
     public $hostKeyFormat;
     public $fBytes;
     public $signature;
     public $signatureFormat;
 
-    public function encode(): string
-    {
+    public function encode(): string {
         throw new \RuntimeException('Not implemented');
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static();
@@ -38,9 +35,7 @@ class KeyExchangeCurveReply implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_KEX_ECDH_REPLY;
     }
-
 }

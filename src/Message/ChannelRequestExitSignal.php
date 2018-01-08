@@ -7,8 +7,7 @@ namespace Amp\SSH\Message;
 use function Amp\SSH\Transport\read_boolean;
 use function Amp\SSH\Transport\read_string;
 
-class ChannelRequestExitSignal extends ChannelRequest
-{
+class ChannelRequestExitSignal extends ChannelRequest {
     public $signal;
 
     public $coreDumped;
@@ -33,11 +32,10 @@ class ChannelRequestExitSignal extends ChannelRequest
         SIGUSR2 => 'USR2',
     ];
 
-    public function encode(): string
-    {
-        $signal = is_int($this->signal) ? $this->signalMapping[$this->signal] : $this->signal;
+    public function encode(): string {
+        $signal = \is_int($this->signal) ? $this->signalMapping[$this->signal] : $this->signal;
 
-        return parent::encode() . pack(
+        return parent::encode() . \pack(
             'Na*C',
             \strlen($signal),
             $signal,
@@ -49,15 +47,13 @@ class ChannelRequestExitSignal extends ChannelRequest
         );
     }
 
-    public function getType()
-    {
+    public function getType() {
         return self::TYPE_EXIT_SIGNAL;
     }
 
-    protected function decodeExtraData($extraPayload)
-    {
+    protected function decodeExtraData($extraPayload) {
         $signal = read_string($extraPayload);
-        $this->signal = current(array_keys($this->signalMapping, $signal));
+        $this->signal = \current(\array_keys($this->signalMapping, $signal));
         $this->coreDumped = read_boolean($extraPayload);
         $this->errorMessage = read_string($extraPayload);
         $this->languageTag = read_string($extraPayload);

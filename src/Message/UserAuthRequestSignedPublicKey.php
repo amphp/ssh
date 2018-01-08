@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
-class UserAuthRequestSignedPublicKey extends UserAuthRequest
-{
+class UserAuthRequestSignedPublicKey extends UserAuthRequest {
     public $keyAlgorithm;
 
     public $keyBlob;
 
     public $signature;
 
-    protected function extraEncode(): string
-    {
+    protected function extraEncode(): string {
         if (null === $this->signature) {
-            return pack(
+            return \pack(
                 'CNa*Na*',
                 1,
                 \strlen($this->keyAlgorithm),
@@ -25,7 +23,7 @@ class UserAuthRequestSignedPublicKey extends UserAuthRequest
             );
         }
 
-        return pack(
+        return \pack(
             'CNa*Na*Na*',
             1,
             \strlen($this->keyAlgorithm),

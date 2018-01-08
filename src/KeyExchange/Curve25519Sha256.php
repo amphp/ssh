@@ -2,23 +2,20 @@
 
 namespace Amp\SSH\KeyExchange;
 
-use function Amp\call;
 use Amp\Promise;
-use Amp\SSH\Transport\BinaryPacketHandler;
 use Amp\SSH\Message\KeyExchangeCurveInit;
 use Amp\SSH\Message\KeyExchangeCurveReply;
 use Amp\SSH\Message\Message;
+use Amp\SSH\Transport\BinaryPacketHandler;
+use function Amp\call;
 
-class Curve25519Sha256 implements KeyExchange
-{
-    public function getName(): string
-    {
+class Curve25519Sha256 implements KeyExchange {
+    public function getName(): string {
         return 'curve25519-sha256@libssh.org';
     }
 
-    public function exchange(BinaryPacketHandler $handler): Promise
-    {
-        return call(function () use($handler) {
+    public function exchange(BinaryPacketHandler $handler): Promise {
+        return call(function () use ($handler) {
             $secret = \random_bytes(32);
             $message = new KeyExchangeCurveInit();
             $message->exchange = \sodium_crypto_box_publickey_from_secretkey($secret);
@@ -46,8 +43,7 @@ class Curve25519Sha256 implements KeyExchange
         });
     }
 
-    public function getEBytes(Message $message)
-    {
+    public function getEBytes(Message $message) {
         if (!$message instanceof KeyExchangeCurveInit) {
             throw new \RuntimeException();
         }
@@ -55,8 +51,7 @@ class Curve25519Sha256 implements KeyExchange
         return $message->exchange;
     }
 
-    public function getFBytes(Message $message)
-    {
+    public function getFBytes(Message $message) {
         if (!$message instanceof KeyExchangeCurveReply) {
             throw new \RuntimeException();
         }
@@ -64,8 +59,7 @@ class Curve25519Sha256 implements KeyExchange
         return $message->fBytes;
     }
 
-    public function getHostKey(Message $message)
-    {
+    public function getHostKey(Message $message) {
         if (!$message instanceof KeyExchangeCurveReply) {
             throw new \RuntimeException();
         }
@@ -73,8 +67,7 @@ class Curve25519Sha256 implements KeyExchange
         return $message->hostKey;
     }
 
-    public function hash(string $payload): string
-    {
+    public function hash(string $payload): string {
         return \hash('sha256', $payload, true);
     }
 }

@@ -7,8 +7,7 @@ use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_bytes;
 use function Amp\SSH\Transport\read_namelist;
 
-class KeyExchangeInit implements Message
-{
+class KeyExchangeInit implements Message {
     public $cookie;
     public $kexAlgorithms = [];
     public $serverHostKeyAlgorithms = [];
@@ -22,8 +21,7 @@ class KeyExchangeInit implements Message
     public $languagesServerToClient = [];
     public $firstKexPacketFollow = false;
 
-    public function encode(): string
-    {
+    public function encode(): string {
         if (null === $this->cookie) {
             $this->cookie = \random_bytes(16);
         }
@@ -39,7 +37,7 @@ class KeyExchangeInit implements Message
         $nameListLangCToS = $this->toNameList($this->languagesClientToServer);
         $nameListLangSToC = $this->toNameList($this->languagesServerToClient);
 
-        return pack(
+        return \pack(
             'Ca*Na*Na*Na*Na*Na*Na*Na*Na*Na*Na*CN',
             self::getNumber(),
             $this->cookie,
@@ -68,13 +66,11 @@ class KeyExchangeInit implements Message
         );
     }
 
-    private function toNameList($value)
-    {
-        return implode(',', $value);
+    private function toNameList($value) {
+        return \implode(',', $value);
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $keyExchangeInit = new static();
@@ -94,8 +90,7 @@ class KeyExchangeInit implements Message
         return $keyExchangeInit;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_KEXINIT;
     }
 }

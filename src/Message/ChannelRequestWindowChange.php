@@ -6,8 +6,7 @@ namespace Amp\SSH\Message;
 
 use function Amp\SSH\Transport\read_uint32;
 
-class ChannelRequestWindowChange extends ChannelRequest
-{
+class ChannelRequestWindowChange extends ChannelRequest {
     public $columns;
 
     public $rows;
@@ -18,9 +17,8 @@ class ChannelRequestWindowChange extends ChannelRequest
 
     public $modes;
 
-    public function encode(): string
-    {
-        return parent::encode() . pack(
+    public function encode(): string {
+        return parent::encode() . \pack(
             'N4*',
             $this->columns,
             $this->rows,
@@ -29,13 +27,11 @@ class ChannelRequestWindowChange extends ChannelRequest
         );
     }
 
-    public function getType()
-    {
+    public function getType() {
         return self::TYPE_WINDOW_CHANGE;
     }
 
-    protected function decodeExtraData($extraPayload)
-    {
+    protected function decodeExtraData($extraPayload) {
         $this->columns = read_uint32($extraPayload);
         $this->rows = read_uint32($extraPayload);
         $this->width = read_uint32($extraPayload);

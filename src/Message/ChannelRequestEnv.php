@@ -6,15 +6,13 @@ namespace Amp\SSH\Message;
 
 use function Amp\SSH\Transport\read_string;
 
-class ChannelRequestEnv extends ChannelRequest
-{
+class ChannelRequestEnv extends ChannelRequest {
     public $name;
 
     public $value;
 
-    public function encode(): string
-    {
-        return parent::encode() . pack(
+    public function encode(): string {
+        return parent::encode() . \pack(
             'Na*Na*',
             \strlen($this->name),
             $this->name,
@@ -23,13 +21,11 @@ class ChannelRequestEnv extends ChannelRequest
         );
     }
 
-    public function getType()
-    {
+    public function getType() {
         return self::TYPE_ENV;
     }
 
-    protected function decodeExtraData($extraPayload)
-    {
+    protected function decodeExtraData($extraPayload) {
         $this->name = read_string($extraPayload);
         $this->value = read_string($extraPayload);
     }

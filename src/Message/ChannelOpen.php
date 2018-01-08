@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
-class ChannelOpen implements Message
-{
+class ChannelOpen implements Message {
     public const TYPE_SESSION = 'session';
     public const TYPE_X11 = 'x11';
     public const TYPE_FORWARDED_TCPIP = 'forwarded-tcpip';
@@ -19,9 +18,8 @@ class ChannelOpen implements Message
 
     public $maximumPacketSize = 0x4000;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'CNa*N3',
             self::getNumber(),
             \strlen($this->channelType),
@@ -32,13 +30,11 @@ class ChannelOpen implements Message
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         return new static();
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_CHANNEL_OPEN;
     }
 }

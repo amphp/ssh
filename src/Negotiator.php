@@ -2,7 +2,6 @@
 
 namespace Amp\SSH;
 
-use function Amp\call;
 use Amp\Promise;
 use Amp\SSH\Encryption\Aes;
 use Amp\SSH\Encryption\Decryption;
@@ -15,9 +14,9 @@ use Amp\SSH\Message\KeyExchangeInit;
 use Amp\SSH\Message\Message;
 use Amp\SSH\Message\NewKeys;
 use Amp\SSH\Transport\BinaryPacketHandler;
+use function Amp\call;
 
-class Negotiator
-{
+class Negotiator {
     /** @var Decryption[] */
     private $decryptions = [];
 
@@ -32,28 +31,23 @@ class Negotiator
 
     private $sessionId;
 
-    private function addDecryption(Decryption $decryption): void
-    {
+    private function addDecryption(Decryption $decryption): void {
         $this->decryptions[$decryption->getName()] = $decryption;
     }
 
-    private function addEncryption(Encryption $encryption): void
-    {
+    private function addEncryption(Encryption $encryption): void {
         $this->encryptions[$encryption->getName()] = $encryption;
     }
 
-    private function addKeyExchange(KeyExchange $keyExchange): void
-    {
+    private function addKeyExchange(KeyExchange $keyExchange): void {
         $this->keyExchanges[$keyExchange->getName()] = $keyExchange;
     }
 
-    private function addMac(Mac $mac): void
-    {
+    private function addMac(Mac $mac): void {
         $this->macs[$mac->getName()] = $mac;
     }
 
-    public function getSessionId(): string
-    {
+    public function getSessionId(): string {
         return $this->sessionId;
     }
 
@@ -63,9 +57,8 @@ class Negotiator
      * @param string $clientIdentification
      * @return Promise
      */
-    public function negotiate(BinaryPacketHandler $binaryPacketHandler, string $serverIdentification, string $clientIdentification): Promise
-    {
-        return call(function () use($binaryPacketHandler, $serverIdentification, $clientIdentification) {
+    public function negotiate(BinaryPacketHandler $binaryPacketHandler, string $serverIdentification, string $clientIdentification): Promise {
+        return call(function () use ($binaryPacketHandler, $serverIdentification, $clientIdentification) {
             /*
             Key exchange will begin immediately after sending this identifier.
             All packets following the identification string SHALL use the binary
@@ -111,7 +104,7 @@ class Negotiator
             $clientKexPayload = $clientKex->encode();
             $serverKexPayload = $serverKex->encode();
 
-            $exchangeHash = pack(
+            $exchangeHash = \pack(
                 'Na*Na*Na*Na*Na*Na*Na*Na*',
                 \strlen($clientIdentification),
                 $clientIdentification,
@@ -146,7 +139,7 @@ class Negotiator
             yield $binaryPacketHandler->write(new NewKeys());
             yield $binaryPacketHandler->read();
 
-            $key = pack('Na*', \strlen($key), $key);
+            $key = \pack('Na*', \strlen($key), $key);
 
             $createDerivationKey = function ($type, $length) use ($kex, $key, $exchangeHash) {
                 $derivation = $kex->hash($key . $exchangeHash . $type . $this->sessionId);
@@ -155,7 +148,7 @@ class Negotiator
                     $derivation .= $kex->hash($key . $exchangeHash . $derivation);
                 }
 
-                return substr($derivation, 0, $length);
+                return \substr($derivation, 0, $length);
             };
 
             $encrypt->resetEncrypt(
@@ -178,9 +171,8 @@ class Negotiator
         });
     }
 
-    private function getDecrypt(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Decryption
-    {
-        $decrypt = current(array_intersect(
+    private function getDecrypt(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Decryption {
+        $decrypt = \current(\array_intersect(
             $serverKex->encryptionAlgorithmsServerToClient,
             $clientKex->encryptionAlgorithmsServerToClient
         ));
@@ -188,9 +180,8 @@ class Negotiator
         return $this->decryptions[$decrypt];
     }
 
-    private function getEncrypt(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Encryption
-    {
-        $encrypt = current(array_intersect(
+    private function getEncrypt(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Encryption {
+        $encrypt = \current(\array_intersect(
             $serverKex->encryptionAlgorithmsClientToServer,
             $clientKex->encryptionAlgorithmsClientToServer
         ));
@@ -198,9 +189,8 @@ class Negotiator
         return $this->encryptions[$encrypt];
     }
 
-    private function getKeyExchange(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): KeyExchange
-    {
-        $keyExchangeName = current(array_intersect(
+    private function getKeyExchange(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): KeyExchange {
+        $keyExchangeName = \current(\array_intersect(
             $serverKex->kexAlgorithms,
             $clientKex->kexAlgorithms
         ));
@@ -208,9 +198,8 @@ class Negotiator
         return $this->keyExchanges[$keyExchangeName];
     }
 
-    private function getServerHostKey(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex)
-    {
-        $serverHostKey = current(array_intersect(
+    private function getServerHostKey(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex) {
+        $serverHostKey = \current(\array_intersect(
             $serverKex->serverHostKeyAlgorithms,
             $clientKex->serverHostKeyAlgorithms
         ));
@@ -218,9 +207,8 @@ class Negotiator
         return $serverHostKey;
     }
 
-    private function getDecryptMac(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Mac
-    {
-        $mac = current(array_intersect(
+    private function getDecryptMac(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Mac {
+        $mac = \current(\array_intersect(
             $serverKex->macAlgorithmsServerToClient,
             $clientKex->macAlgorithmsServerToClient
         ));
@@ -228,9 +216,8 @@ class Negotiator
         return clone $this->macs[$mac];
     }
 
-    private function getEncryptMac(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Mac
-    {
-        $mac = current(array_intersect(
+    private function getEncryptMac(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Mac {
+        $mac = \current(\array_intersect(
             $serverKex->macAlgorithmsClientToServer,
             $clientKex->macAlgorithmsClientToServer
         ));
@@ -238,19 +225,18 @@ class Negotiator
         return clone $this->macs[$mac];
     }
 
-    private function createKeyExchange(): KeyExchangeInit
-    {
+    private function createKeyExchange(): KeyExchangeInit {
         $clientKex = new KeyExchangeInit();
         $clientKex->cookie = \random_bytes(16);
-        $clientKex->kexAlgorithms = array_keys($this->keyExchanges);
+        $clientKex->kexAlgorithms = \array_keys($this->keyExchanges);
         $clientKex->serverHostKeyAlgorithms = [
             'ssh-rsa', // RECOMMENDED  sign   Raw RSA Key
             'ssh-dss'  // REQUIRED     sign   Raw DSS Key
         ];
-        $clientKex->encryptionAlgorithmsClientToServer = array_keys($this->encryptions);
-        $clientKex->encryptionAlgorithmsServerToClient = array_keys($this->decryptions);
-        $clientKex->macAlgorithmsServerToClient = array_keys($this->macs);
-        $clientKex->macAlgorithmsClientToServer = array_keys($this->macs);
+        $clientKex->encryptionAlgorithmsClientToServer = \array_keys($this->encryptions);
+        $clientKex->encryptionAlgorithmsServerToClient = \array_keys($this->decryptions);
+        $clientKex->macAlgorithmsServerToClient = \array_keys($this->macs);
+        $clientKex->macAlgorithmsClientToServer = \array_keys($this->macs);
         $clientKex->compressionAlgorithmsServerToClient = $clientKex->compressionAlgorithmsClientToServer = [
             'none',
         ];
@@ -258,8 +244,7 @@ class Negotiator
         return $clientKex;
     }
 
-    public static function create()
-    {
+    public static function create() {
         $negotiator = new static();
         $negotiator->addKeyExchange(new Curve25519Sha256());
 

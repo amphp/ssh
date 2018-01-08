@@ -9,8 +9,7 @@ use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 use function Amp\SSH\Transport\read_uint32;
 
-abstract class ChannelRequest implements Message
-{
+abstract class ChannelRequest implements Message {
     public const TYPE_PTY = 'pty-req';
     public const TYPE_X11_FORWARDING = 'x11-req';
     public const TYPE_ENV = 'env';
@@ -39,9 +38,8 @@ abstract class ChannelRequest implements Message
         self::TYPE_EXIT_SIGNAL => ChannelRequestExitSignal::class,
     ];
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'CN2a*C',
             self::getNumber(),
             $this->recipientChannel,
@@ -55,13 +53,12 @@ abstract class ChannelRequest implements Message
 
     abstract public function getType();
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
         $recipientChannel = read_uint32($payload);
         $requestType = read_string($payload);
 
-        if (!array_key_exists($requestType, self::$typeMapping)) {
+        if (!\array_key_exists($requestType, self::$typeMapping)) {
             throw new \RuntimeException('Unimplemented request type : ' . $requestType);
         }
 
@@ -77,8 +74,7 @@ abstract class ChannelRequest implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_CHANNEL_REQUEST;
     }
 }

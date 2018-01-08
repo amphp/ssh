@@ -2,21 +2,18 @@
 
 namespace Amp\SSH;
 
-use function Amp\asyncCall;
 use Amp\ByteStream\InputStream;
 use Amp\ByteStream\OutputStream;
-use function Amp\call;
 use Amp\Deferred;
 use Amp\Promise;
 use Amp\SSH\Channel\ChannelInputStream;
 use Amp\SSH\Channel\ChannelOutputStream;
-use Amp\SSH\Message\ChannelRequest;
 use Amp\SSH\Message\ChannelRequestExitStatus;
-use Amp\SSH\Message\Message;
 use Amp\Success;
+use function Amp\asyncCall;
+use function Amp\call;
 
-class Process
-{
+class Process {
     /** @var Channel\Session */
     private $session;
 
@@ -41,25 +38,22 @@ class Process
     /** @var array */
     private $env;
 
-    public function __construct(SSHResource $sshResource, string $command, string $cwd = null, array $env = [])
-    {
+    public function __construct(SSHResource $sshResource, string $command, string $cwd = null, array $env = []) {
         $this->session = $sshResource->createSession();
-        $this->command = $cwd !== null ? sprintf('cd %s; %s', $cwd, $command) : $command;
+        $this->command = $cwd !== null ? \sprintf('cd %s; %s', $cwd, $command) : $command;
         $this->stdout = new ChannelInputStream($this->session->getDataEmitter()->iterate());
         $this->stderr = new ChannelInputStream($this->session->getDataExtendedEmitter()->iterate());
         $this->stdin = new ChannelOutputStream($this->session);
         $this->env = $env;
     }
 
-    public function __destruct()
-    {
+    public function __destruct() {
         if ($this->isRunning()) {
             $this->kill();
         }
     }
 
-    public function start(): Promise
-    {
+    public function start(): Promise {
         if ($this->resolved !== null || $this->exitCode !== null) {
             throw new \RuntimeException('Process has already been started.');
         }
@@ -79,8 +73,7 @@ class Process
         });
     }
 
-    public function join(): Promise
-    {
+    public function join(): Promise {
         if ($this->exitCode !== null) {
             return new Success($this->exitCode);
         }
@@ -92,13 +85,11 @@ class Process
         return $this->resolved->promise();
     }
 
-    public function kill(): void
-    {
+    public function kill(): void {
         Promise\rethrow($this->signal(SIGKILL));
     }
 
-    public function signal(int $signo): Promise
-    {
+    public function signal(int $signo): Promise {
         if (!$this->isRunning()) {
             throw new \RuntimeException('Process is not running.');
         }
@@ -106,28 +97,23 @@ class Process
         return $this->session->signal($signo);
     }
 
-    public function isRunning()
-    {
+    public function isRunning() {
         return $this->resolved !== null;
     }
 
-    public function getStdin(): OutputStream
-    {
+    public function getStdin(): OutputStream {
         return $this->stdin;
     }
 
-    public function getStdout(): InputStream
-    {
+    public function getStdout(): InputStream {
         return $this->stdout;
     }
 
-    public function getStderr(): InputStream
-    {
+    public function getStderr(): InputStream {
         return $this->stderr;
     }
 
-    protected function handleRequests(): void
-    {
+    protected function handleRequests(): void {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 

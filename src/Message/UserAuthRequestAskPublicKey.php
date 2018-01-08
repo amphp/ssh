@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Message;
 
-class UserAuthRequestAskPublicKey extends UserAuthRequest
-{
+class UserAuthRequestAskPublicKey extends UserAuthRequest {
     public $keyAlgorithm;
 
     public $keyBlob;
 
-    protected function extraEncode(): string
-    {
-        return pack(
+    protected function extraEncode(): string {
+        return \pack(
             'CNa*Na*',
             0,
             \strlen($this->keyAlgorithm),

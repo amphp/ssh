@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Amp\SSH\Transport;
 
-use function Amp\call;
 use Amp\Promise;
 use Amp\Socket\Socket;
 use Amp\SSH\Encryption;
 use Amp\SSH\Mac;
+use function Amp\call;
 
-class PayloadReader implements BinaryPacketReader
-{
+class PayloadReader implements BinaryPacketReader {
     /** @var Encryption\Decryption */
     private $decryption;
 
@@ -27,22 +26,19 @@ class PayloadReader implements BinaryPacketReader
 
     private $cryptedBuffer;
 
-    public function __construct(Socket $socket, $buffer)
-    {
+    public function __construct(Socket $socket, $buffer) {
         $this->cryptedBuffer = $buffer;
         $this->socket = $socket;
         $this->decryption = new Encryption\None();
         $this->decryptMac = new Mac\None();
     }
 
-    public function updateDecryption(Encryption\Decryption $decryption, Mac\Mac $decryptMac): void
-    {
+    public function updateDecryption(Encryption\Decryption $decryption, Mac\Mac $decryptMac): void {
         $this->decryption = $decryption;
         $this->decryptMac = $decryptMac;
     }
 
-    public function read(): Promise
-    {
+    public function read(): Promise {
         /*
         Each packet is in the following format:
 
@@ -78,15 +74,15 @@ class PayloadReader implements BinaryPacketReader
              the MAC algorithm MUST be "none".
          */
         return call(function () {
-            $packetLength = unpack('N', yield $this->doReadDecrypted(4))[1];
+            $packetLength = \unpack('N', yield $this->doReadDecrypted(4))[1];
             $packet = yield $this->doReadDecrypted($packetLength);
 
-            $paddingLength = unpack('C', $packet)[1];
-            $payload = substr($packet, 1, $packetLength - $paddingLength - 1);
-            $padding = substr($packet, $packetLength - $paddingLength);
+            $paddingLength = \unpack('C', $packet)[1];
+            $payload = \substr($packet, 1, $packetLength - $paddingLength - 1);
+            $padding = \substr($packet, $packetLength - $paddingLength);
             $mac = yield $this->doReadRaw($this->decryptMac->getLength());
 
-            $computedMac = $this->decryptMac->hash(pack(
+            $computedMac = $this->decryptMac->hash(\pack(
                 'NNCa*',
                 $this->readSequenceNumber,
                 $packetLength,
@@ -104,30 +100,28 @@ class PayloadReader implements BinaryPacketReader
         });
     }
 
-    private function doReadDecrypted(int $length): Promise
-    {
+    private function doReadDecrypted(int $length): Promise {
         return call(function () use ($length) {
             while (\strlen($this->decryptedBuffer) < $length) {
                 $rawRead = yield $this->doReadRaw($this->decryption->getBlockSize());
                 $this->decryptedBuffer .= $this->decryption->decrypt($rawRead);
             }
 
-            $read = substr($this->decryptedBuffer, 0, $length);
-            $this->decryptedBuffer = substr($this->decryptedBuffer, $length);
+            $read = \substr($this->decryptedBuffer, 0, $length);
+            $this->decryptedBuffer = \substr($this->decryptedBuffer, $length);
 
             return $read;
         });
     }
 
-    private function doReadRaw($length): Promise
-    {
+    private function doReadRaw($length): Promise {
         return call(function () use ($length) {
             while (\strlen($this->cryptedBuffer) < $length) {
                 $this->cryptedBuffer .= yield $this->socket->read();
             }
 
-            $read = substr($this->cryptedBuffer, 0, $length);
-            $this->cryptedBuffer = substr($this->cryptedBuffer, $length);
+            $read = \substr($this->cryptedBuffer, 0, $length);
+            $this->cryptedBuffer = \substr($this->cryptedBuffer, $length);
 
             return $read;
         });

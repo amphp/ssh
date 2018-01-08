@@ -8,40 +8,33 @@ use Amp\SSH\Encryption\CipherMode\Cbc;
 use Amp\SSH\Encryption\CipherMode\CipherMode;
 use Amp\SSH\Encryption\CipherMode\Ctr;
 
-class Aes extends OpenSSL
-{
+class Aes extends OpenSSL {
     private $keySize;
 
     private $cipherMode;
 
-    public function __construct(int $keySize = 128, string $cipherMode = Ctr::NAME)
-    {
+    public function __construct(int $keySize = 128, string $cipherMode = Ctr::NAME) {
         $this->keySize = $keySize;
         $this->cipherMode = $cipherMode;
     }
 
-    public function getKeySize(): int
-    {
+    public function getKeySize(): int {
         return $this->keySize / 8;
     }
 
-    public function getBlockSize(): int
-    {
+    public function getBlockSize(): int {
         return 16;
     }
 
-    public function getName(): string
-    {
-        return sprintf('aes%s-%s', $this->keySize, $this->cipherMode);
+    public function getName(): string {
+        return \sprintf('aes%s-%s', $this->keySize, $this->cipherMode);
     }
 
-    protected function getOpenSSLMethod(): string
-    {
-        return sprintf('aes-%s-%s', $this->keySize, $this->cipherMode);
+    protected function getOpenSSLMethod(): string {
+        return \sprintf('aes-%s-%s', $this->keySize, $this->cipherMode);
     }
 
-    protected function createCipherMode(string $iv): CipherMode
-    {
+    protected function createCipherMode(string $iv): CipherMode {
         if ($this->cipherMode === Cbc::NAME) {
             return new Cbc($iv, $this->getOpenSSLMethod());
         }
@@ -51,8 +44,7 @@ class Aes extends OpenSSL
         }
     }
 
-    public static function create()
-    {
+    public static function create() {
         return [
             new static(128, Cbc::NAME),
             new static(192, Cbc::NAME),

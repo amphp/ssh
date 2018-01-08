@@ -3,8 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 Amp\Loop::run(function () {
-    $username = get_current_user();
-    $home = getenv('HOME');
+    $username = \get_current_user();
+    $home = \getenv('HOME');
 
     $authentication = new \Amp\SSH\Authentication\PublicKey($username, $home . '/.ssh/id_rsa');
     $sshResource = yield \Amp\SSH\connect('127.0.0.1:22', $authentication);
@@ -17,7 +17,7 @@ Amp\Loop::run(function () {
 
     $stdin = new \Amp\ByteStream\ResourceInputStream(STDIN);
 
-    \Amp\asyncCall(function () use($shell, $stdin) {
+    \Amp\asyncCall(function () use ($shell, $stdin) {
         yield $shell->join();
         $stdin->close();
     });

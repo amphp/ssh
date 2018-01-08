@@ -6,17 +6,15 @@ use function Amp\SSH\Transport\read_boolean;
 use function Amp\SSH\Transport\read_byte;
 use function Amp\SSH\Transport\read_string;
 
-class Debug implements Message
-{
+class Debug implements Message {
     public $alwaysDisplay;
 
     public $message;
 
     public $languageTag;
 
-    public function encode(): string
-    {
-        return pack(
+    public function encode(): string {
+        return \pack(
             'CCNa*Na*',
             self::getNumber(),
             $this->alwaysDisplay,
@@ -27,8 +25,7 @@ class Debug implements Message
         );
     }
 
-    public static function decode(string $payload)
-    {
+    public static function decode(string $payload) {
         read_byte($payload);
 
         $message = new static;
@@ -39,8 +36,7 @@ class Debug implements Message
         return $message;
     }
 
-    public static function getNumber(): int
-    {
+    public static function getNumber(): int {
         return self::SSH_MSG_DEBUG;
     }
 }
