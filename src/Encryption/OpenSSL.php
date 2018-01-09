@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Amp\SSH\Encryption;
 
 use Amp\SSH\Encryption\CipherMode\CipherMode;

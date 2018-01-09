@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Amp\SSH\Message;
 
 class UserAuthRequestSignedPublicKey extends UserAuthRequest {
