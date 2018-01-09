@@ -7,7 +7,7 @@
     "require-dev": {
         "phpunit/phpunit": "^6.5",
         "monolog/monolog": "^1.23",
-        "fabpot/php-cs-fixer": "^2.9"
+        "friendsofphp/php-cs-fixer": "^2.9"
     },
     "autoload": {
         "psr-4": {
