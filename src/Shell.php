@@ -5,6 +5,7 @@ namespace Amp\Ssh;
 use Amp\ByteStream\InputStream;
 use Amp\ByteStream\OutputStream;
 use Amp\Deferred;
+use Amp\Failure;
 use Amp\Promise;
 use Amp\Ssh\Channel\ChannelInputStream;
 use Amp\Ssh\Channel\ChannelOutputStream;
