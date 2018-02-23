@@ -1,5 +1,24 @@
 {
-    "name": "brouznouf/ampssh",
+    "name": "amphp/ssh",
+    "homepage": "https://github.com/amphp/ssh",
+    "description": "Async SSH client for Amp.",
+    "keywords": [
+        "ssh",
+        "ssh2",
+        "sftp",
+        "scp",
+        "client",
+        "async",
+        "amp",
+        "amphp"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joel Wurtz",
+            "email": "jwurtz@jolicode.com"
+        }
+    ],
     "require": {
         "amphp/socket": "^0.10.5",
         "psr/log": "^1.0"
@@ -11,17 +30,19 @@
     },
     "autoload": {
         "psr-4": {
-            "Amp\\SSH\\": "src/"
+            "Amp\\Ssh\\": "src/"
         },
         "files": [
             "src/functions.php",
             "src/Transport/functions.php"
         ]
     },
-    "authors": [
-        {
-            "name": "Joel Wurtz",
-            "email": "jwurtz@jolicode.com"
-        }
-    ]
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "phpdbg -qrr vendor/bin/phpunit --coverage-text --coverage-clover build/logs/clover.xml",
+        "lint": "vendor/bin/php-cs-fixer --diff --dry-run -v fix"
+    }
 }

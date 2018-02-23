@@ -1,21 +1,24 @@
 <?php
 
-namespace Amp\SSH;
+namespace Amp\Ssh;
 
 use Amp\Promise;
-use Amp\SSH\Encryption\Aes;
-use Amp\SSH\Encryption\Decryption;
-use Amp\SSH\Encryption\Encryption;
-use Amp\SSH\KeyExchange\Curve25519Sha256;
-use Amp\SSH\KeyExchange\KeyExchange;
-use Amp\SSH\Mac\Hash;
-use Amp\SSH\Mac\Mac;
-use Amp\SSH\Message\KeyExchangeInit;
-use Amp\SSH\Message\Message;
-use Amp\SSH\Message\NewKeys;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Encryption\Aes;
+use Amp\Ssh\Encryption\Decryption;
+use Amp\Ssh\Encryption\Encryption;
+use Amp\Ssh\KeyExchange\Curve25519Sha256;
+use Amp\Ssh\KeyExchange\KeyExchange;
+use Amp\Ssh\Mac\Hash;
+use Amp\Ssh\Mac\Mac;
+use Amp\Ssh\Message\KeyExchangeInit;
+use Amp\Ssh\Message\Message;
+use Amp\Ssh\Message\NewKeys;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 
+/**
+ * Negotiate algorithms to use for the ssh connection
+ */
 class Negotiator {
     /** @var Decryption[] */
     private $decryptions = [];
@@ -51,12 +54,6 @@ class Negotiator {
         return $this->sessionId;
     }
 
-    /**
-     * @param BinaryPacketHandler $binaryPacketHandler
-     * @param string $serverIdentification
-     * @param string $clientIdentification
-     * @return Promise
-     */
     public function negotiate(BinaryPacketHandler $binaryPacketHandler, string $serverIdentification, string $clientIdentification): Promise {
         return call(function () use ($binaryPacketHandler, $serverIdentification, $clientIdentification) {
             /*

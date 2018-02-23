@@ -1,12 +1,12 @@
 <?php
 
-namespace Amp\SSH\Channel;
+namespace Amp\Ssh\Channel;
 
 use Amp\Emitter;
-use Amp\SSH\Message\ChannelClose;
-use Amp\SSH\Message\ChannelOpen;
-use Amp\SSH\Message\Message;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Message\ChannelClose;
+use Amp\Ssh\Message\ChannelOpen;
+use Amp\Ssh\Message\Message;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\asyncCall;
 
 /**

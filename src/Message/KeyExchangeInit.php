@@ -1,11 +1,11 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
-use function Amp\SSH\Transport\read_boolean;
-use function Amp\SSH\Transport\read_byte;
-use function Amp\SSH\Transport\read_bytes;
-use function Amp\SSH\Transport\read_namelist;
+use function Amp\Ssh\Transport\read_boolean;
+use function Amp\Ssh\Transport\read_byte;
+use function Amp\Ssh\Transport\read_bytes;
+use function Amp\Ssh\Transport\read_namelist;
 
 class KeyExchangeInit implements Message {
     public $cookie;

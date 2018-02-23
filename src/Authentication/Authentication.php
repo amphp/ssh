@@ -1,9 +1,9 @@
 <?php
 
-namespace Amp\SSH\Authentication;
+namespace Amp\Ssh\Authentication;
 
 use Amp\Promise;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 
 interface Authentication {
     public function authenticate(BinaryPacketHandler $handler, string $sessionId): Promise;

@@ -1,12 +1,12 @@
 <?php
 
-namespace Amp\SSH\Authentication;
+namespace Amp\Ssh\Authentication;
 
 use Amp\Promise;
-use Amp\SSH\Message\ServiceRequest;
-use Amp\SSH\Message\UserAuthFailure;
-use Amp\SSH\Message\UserAuthRequestPassword;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Message\ServiceRequest;
+use Amp\Ssh\Message\UserAuthFailure;
+use Amp\Ssh\Message\UserAuthRequestPassword;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 
 class UsernamePassword implements Authentication {

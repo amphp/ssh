@@ -1,13 +1,13 @@
 <?php
 
-namespace Amp\SSH\Transport;
+namespace Amp\Ssh\Transport;
 
 use Amp\Promise;
-use Amp\SSH\Encryption\Decryption;
-use Amp\SSH\Encryption\Encryption;
-use Amp\SSH\Mac\Mac;
-use Amp\SSH\Message\Debug;
-use Amp\SSH\Message\Message;
+use Amp\Ssh\Encryption\Decryption;
+use Amp\Ssh\Encryption\Encryption;
+use Amp\Ssh\Mac\Mac;
+use Amp\Ssh\Message\Debug;
+use Amp\Ssh\Message\Message;
 use Psr\Log\LoggerInterface;
 use function Amp\call;
 

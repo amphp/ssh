@@ -1,12 +1,12 @@
 <?php
 
-namespace Amp\SSH\Transport;
+namespace Amp\Ssh\Transport;
 
 use Amp\Promise;
 use Amp\Socket\Socket;
-use Amp\SSH\Encryption\Decryption;
-use Amp\SSH\Encryption\Encryption;
-use Amp\SSH\Mac\Mac;
+use Amp\Ssh\Encryption\Decryption;
+use Amp\Ssh\Encryption\Encryption;
+use Amp\Ssh\Mac\Mac;
 
 class PayloadHandler implements BinaryPacketHandler {
     private $reader;

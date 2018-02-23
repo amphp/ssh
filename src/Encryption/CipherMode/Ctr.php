@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Encryption\CipherMode;
+namespace Amp\Ssh\Encryption\CipherMode;
 
 class Ctr implements CipherMode {
     public const NAME = 'ctr';

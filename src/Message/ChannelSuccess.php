@@ -1,9 +1,9 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
-use function Amp\SSH\Transport\read_byte;
-use function Amp\SSH\Transport\read_uint32;
+use function Amp\Ssh\Transport\read_byte;
+use function Amp\Ssh\Transport\read_uint32;
 
 class ChannelSuccess implements Message {
     public $recipientChannel;

@@ -1,11 +1,11 @@
 <?php
 
-namespace Amp\SSH\Transport;
+namespace Amp\Ssh\Transport;
 
 use Amp\Promise;
 use Amp\Socket\Socket;
-use Amp\SSH\Encryption;
-use Amp\SSH\Mac;
+use Amp\Ssh\Encryption;
+use Amp\Ssh\Mac;
 
 class PayloadWriter implements BinaryPacketWriter {
     /** @var Encryption\Encryption */

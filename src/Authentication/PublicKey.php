@@ -1,15 +1,15 @@
 <?php
 
-namespace Amp\SSH\Authentication;
+namespace Amp\Ssh\Authentication;
 
 use Amp\Promise;
-use Amp\SSH\Message\ServiceRequest;
-use Amp\SSH\Message\UserAuthFailure;
-use Amp\SSH\Message\UserAuthPkOk;
-use Amp\SSH\Message\UserAuthRequest;
-use Amp\SSH\Message\UserAuthRequestAskPublicKey;
-use Amp\SSH\Message\UserAuthRequestSignedPublicKey;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Message\ServiceRequest;
+use Amp\Ssh\Message\UserAuthFailure;
+use Amp\Ssh\Message\UserAuthPkOk;
+use Amp\Ssh\Message\UserAuthRequest;
+use Amp\Ssh\Message\UserAuthRequestAskPublicKey;
+use Amp\Ssh\Message\UserAuthRequestSignedPublicKey;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 use function Amp\File\exists;
 use function Amp\File\get;

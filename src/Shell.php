@@ -1,14 +1,14 @@
 <?php
 
-namespace Amp\SSH;
+namespace Amp\Ssh;
 
 use Amp\ByteStream\InputStream;
 use Amp\ByteStream\OutputStream;
 use Amp\Deferred;
 use Amp\Promise;
-use Amp\SSH\Channel\ChannelInputStream;
-use Amp\SSH\Channel\ChannelOutputStream;
-use Amp\SSH\Message\ChannelRequestExitStatus;
+use Amp\Ssh\Channel\ChannelInputStream;
+use Amp\Ssh\Channel\ChannelOutputStream;
+use Amp\Ssh\Message\ChannelRequestExitStatus;
 use function Amp\asyncCall;
 use function Amp\call;
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace Amp\SSH\Channel;
+namespace Amp\Ssh\Channel;
 
 use Amp\ByteStream\InputStream;
 use Amp\Iterator;
 use Amp\Promise;
-use Amp\SSH\Message\ChannelData;
-use Amp\SSH\Message\ChannelExtendedData;
+use Amp\Ssh\Message\ChannelData;
+use Amp\Ssh\Message\ChannelExtendedData;
 use Amp\Success;
 use function Amp\call;
 

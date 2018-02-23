@@ -10,10 +10,10 @@ Amp\Loop::run(function () {
     $username = \get_current_user();
     $home = \getenv('HOME');
 
-    $authentication = new \Amp\SSH\Authentication\PublicKey($username, $home . '/.ssh/id_rsa');
-    $sshResource = yield \Amp\SSH\connect('127.0.0.1:22', $authentication, $logger);
+    $authentication = new \Amp\Ssh\Authentication\PublicKey($username, $home . '/.ssh/id_rsa');
+    $sshResource = yield \Amp\Ssh\connect('127.0.0.1:22', $authentication, $logger);
 
-    $process = new \Amp\SSH\Process($sshResource, 'ls -la');
+    $process = new \Amp\Ssh\Process($sshResource, 'ls -la');
 
     \Amp\ByteStream\pipe($process->getStderr(), new \Amp\ByteStream\ResourceOutputStream(STDERR));
     \Amp\ByteStream\pipe($process->getStdout(), new \Amp\ByteStream\ResourceOutputStream(STDOUT));

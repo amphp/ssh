@@ -1,10 +1,10 @@
 <?php
 
-namespace Amp\SSH\Transport;
+namespace Amp\Ssh\Transport;
 
 use Amp\Promise;
-use Amp\SSH\Encryption\Encryption;
-use Amp\SSH\Mac\Mac;
+use Amp\Ssh\Encryption\Encryption;
+use Amp\Ssh\Mac\Mac;
 
 interface BinaryPacketWriter {
     public function updateEncryption(Encryption $encryption, Mac $encryptMac): void;

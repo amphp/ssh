@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Transport;
+namespace Amp\Ssh\Transport;
 
 /**
  * A byte represents an arbitrary 8-bit value (octet).  Fixed length
@@ -9,7 +9,7 @@ namespace Amp\SSH\Transport;
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_byte(&$payload) {
+function read_byte(string &$payload): int {
     $byte = \unpack('C', $payload)[1];
     $payload = \substr($payload, 1);
 
@@ -31,7 +31,7 @@ function read_bytes(&$payload, $length) {
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_boolean(&$payload) {
+function read_boolean(string &$payload): bool {
     return (bool) read_byte($payload);
 }
 
@@ -43,7 +43,7 @@ function read_boolean(&$payload) {
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_uint32(&$payload) {
+function read_uint32(string &$payload): int {
     $uint32 = \unpack('N', $payload)[1];
     $payload = \substr($payload, 4);
 
@@ -56,7 +56,7 @@ function read_uint32(&$payload) {
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_uint64(&$payload) {
+function read_uint64(string &$payload): int {
     $uint64 = \unpack('J', $payload)[1];
     $payload = \substr($payload, 8);
 
@@ -80,7 +80,7 @@ function read_uint64(&$payload) {
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_string(&$payload) {
+function read_string(string &$payload): string {
     $length = read_uint32($payload);
     $string = \substr($payload, 0, $length);
     $payload = \substr($payload, $length);
@@ -103,7 +103,7 @@ function read_string(&$payload) {
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_mpint(&$payload) {
+function read_mpint(string &$payload): string {
     return read_string($payload);
 }
 
@@ -124,7 +124,7 @@ function read_mpint(&$payload) {
  *
  * @see https://tools.ietf.org/html/rfc4251#section-5
  */
-function read_namelist(&$payload) {
+function read_namelist(string &$payload): array {
     $nameListString = read_string($payload);
 
     if (empty($nameListString)) {

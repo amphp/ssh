@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
 class UserAuthSuccess implements Message {
     public function encode(): string {

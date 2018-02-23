@@ -1,9 +1,9 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
-use function Amp\SSH\Transport\read_boolean;
-use function Amp\SSH\Transport\read_string;
+use function Amp\Ssh\Transport\read_boolean;
+use function Amp\Ssh\Transport\read_string;
 
 class ChannelRequestExitSignal extends ChannelRequest {
     public $signal;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
 class ChannelOpen implements Message {
     public const TYPE_SESSION = 'session';

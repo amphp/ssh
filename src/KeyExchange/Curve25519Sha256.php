@@ -1,12 +1,12 @@
 <?php
 
-namespace Amp\SSH\KeyExchange;
+namespace Amp\Ssh\KeyExchange;
 
 use Amp\Promise;
-use Amp\SSH\Message\KeyExchangeCurveInit;
-use Amp\SSH\Message\KeyExchangeCurveReply;
-use Amp\SSH\Message\Message;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Message\KeyExchangeCurveInit;
+use Amp\Ssh\Message\KeyExchangeCurveReply;
+use Amp\Ssh\Message\Message;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 
 class Curve25519Sha256 implements KeyExchange {

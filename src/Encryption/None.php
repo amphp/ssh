@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Encryption;
+namespace Amp\Ssh\Encryption;
 
 class None implements Encryption, Decryption {
     public function getBlockSize(): int {

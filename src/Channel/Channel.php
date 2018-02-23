@@ -1,21 +1,21 @@
 <?php
 
-namespace Amp\SSH\Channel;
+namespace Amp\Ssh\Channel;
 
 use Amp\Emitter;
 use Amp\Iterator;
 use Amp\Promise;
-use Amp\SSH\Message\ChannelClose;
-use Amp\SSH\Message\ChannelData;
-use Amp\SSH\Message\ChannelEof;
-use Amp\SSH\Message\ChannelExtendedData;
-use Amp\SSH\Message\ChannelFailure;
-use Amp\SSH\Message\ChannelOpen;
-use Amp\SSH\Message\ChannelOpenConfirmation;
-use Amp\SSH\Message\ChannelOpenFailure;
-use Amp\SSH\Message\ChannelRequest;
-use Amp\SSH\Message\ChannelSuccess;
-use Amp\SSH\Transport\BinaryPacketWriter;
+use Amp\Ssh\Message\ChannelClose;
+use Amp\Ssh\Message\ChannelData;
+use Amp\Ssh\Message\ChannelEof;
+use Amp\Ssh\Message\ChannelExtendedData;
+use Amp\Ssh\Message\ChannelFailure;
+use Amp\Ssh\Message\ChannelOpen;
+use Amp\Ssh\Message\ChannelOpenConfirmation;
+use Amp\Ssh\Message\ChannelOpenFailure;
+use Amp\Ssh\Message\ChannelRequest;
+use Amp\Ssh\Message\ChannelSuccess;
+use Amp\Ssh\Transport\BinaryPacketWriter;
 use Amp\Success;
 use function Amp\asyncCall;
 use function Amp\call;

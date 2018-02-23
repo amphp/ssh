@@ -1,10 +1,10 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
-use function Amp\SSH\Transport\read_byte;
-use function Amp\SSH\Transport\read_string;
-use function Amp\SSH\Transport\read_uint32;
+use function Amp\Ssh\Transport\read_byte;
+use function Amp\Ssh\Transport\read_string;
+use function Amp\Ssh\Transport\read_uint32;
 
 class ChannelRequestPty extends ChannelRequest {
     public const MODE_TTY_OP_END = 0;

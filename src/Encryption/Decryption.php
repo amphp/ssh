@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Encryption;
+namespace Amp\Ssh\Encryption;
 
 interface Decryption {
     public function getBlockSize(): int;

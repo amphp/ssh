@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Mac;
+namespace Amp\Ssh\Mac;
 
 class Hash implements Mac {
     private $method;

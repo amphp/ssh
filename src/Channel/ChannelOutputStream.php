@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Channel;
+namespace Amp\Ssh\Channel;
 
 use Amp\ByteStream\OutputStream;
 use Amp\Promise;

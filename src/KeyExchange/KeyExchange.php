@@ -1,10 +1,10 @@
 <?php
 
-namespace Amp\SSH\KeyExchange;
+namespace Amp\Ssh\KeyExchange;
 
 use Amp\Promise;
-use Amp\SSH\Message\Message;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Message\Message;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 
 interface KeyExchange {
     public function getName(): string;

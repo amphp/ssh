@@ -1,12 +1,12 @@
 <?php
 
-namespace Amp\SSH;
+namespace Amp\Ssh;
 
 use Amp\Promise;
-use Amp\SSH\Channel\Dispatcher;
-use Amp\SSH\Channel\Session;
-use Amp\SSH\Message\Disconnect;
-use Amp\SSH\Transport\BinaryPacketHandler;
+use Amp\Ssh\Channel\Dispatcher;
+use Amp\Ssh\Channel\Session;
+use Amp\Ssh\Message\Disconnect;
+use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 
 /**

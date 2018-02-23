@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
 class ChannelRequestShell extends ChannelRequest {
     public function getType() {

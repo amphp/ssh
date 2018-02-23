@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Mac;
+namespace Amp\Ssh\Mac;
 
 class None implements Mac {
     public function getLength(): int {

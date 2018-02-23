@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Mac;
+namespace Amp\Ssh\Mac;
 
 interface Mac {
     public function getLength(): int;

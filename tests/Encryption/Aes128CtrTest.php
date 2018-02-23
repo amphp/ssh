@@ -1,16 +1,16 @@
 <?php
 
-namespace Amp\SSH\Tests\Encryption;
+namespace Amp\Ssh\Tests\Encryption;
 
-use Amp\SSH\Encryption\Aes128Ctr;
+use Amp\Ssh\Encryption\Aes;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @see http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+ */
 class Aes128CtrTest extends TestCase {
-    /**
-     * @see http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
-     */
     public function testEncrypt() {
-        $aes128ctr = new Aes128Ctr();
+        $aes128ctr = new Aes();
         $aes128ctr->resetEncrypt(
             \hex2bin('2b7e151628aed2a6abf7158809cf4f3c'),
             \hex2bin('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff')
@@ -37,7 +37,7 @@ class Aes128CtrTest extends TestCase {
     }
 
     public function testDecrypt() {
-        $aes128ctr = new Aes128Ctr();
+        $aes128ctr = new Aes();
         $aes128ctr->resetDecrypt(
             \hex2bin('2b7e151628aed2a6abf7158809cf4f3c'),
             \hex2bin('f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff')

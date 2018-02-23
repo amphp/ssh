@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
 abstract class UserAuthRequest implements Message {
     public const TYPE_PASSWORD = 'password';

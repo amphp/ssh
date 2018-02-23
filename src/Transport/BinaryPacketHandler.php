@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Transport;
+namespace Amp\Ssh\Transport;
 
 interface BinaryPacketHandler extends BinaryPacketReader, BinaryPacketWriter {
     public function close(): void;

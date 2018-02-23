@@ -1,8 +1,8 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
-use function Amp\SSH\Transport\read_uint32;
+use function Amp\Ssh\Transport\read_uint32;
 
 class ChannelRequestWindowChange extends ChannelRequest {
     public $columns;

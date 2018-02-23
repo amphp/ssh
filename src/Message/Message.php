@@ -1,6 +1,6 @@
 <?php
 
-namespace Amp\SSH\Message;
+namespace Amp\Ssh\Message;
 
 interface Message {
     public const SSH_MSG_DISCONNECT = 1;

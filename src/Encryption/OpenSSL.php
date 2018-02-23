@@ -1,8 +1,8 @@
 <?php
 
-namespace Amp\SSH\Encryption;
+namespace Amp\Ssh\Encryption;
 
-use Amp\SSH\Encryption\CipherMode\CipherMode;
+use Amp\Ssh\Encryption\CipherMode\CipherMode;
 
 abstract class OpenSSL implements Decryption, Encryption {
     protected $key;

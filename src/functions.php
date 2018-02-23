@@ -1,12 +1,12 @@
 <?php
 
-namespace Amp\SSH;
+namespace Amp\Ssh;
 
-use Amp\SSH\Authentication\Authentication;
-use Amp\SSH\Channel\Dispatcher;
-use Amp\SSH\Transport\LoggerHandler;
-use Amp\SSH\Transport\MessageHandler;
-use Amp\SSH\Transport\PayloadHandler;
+use Amp\Ssh\Authentication\Authentication;
+use Amp\Ssh\Channel\Dispatcher;
+use Amp\Ssh\Transport\LoggerHandler;
+use Amp\Ssh\Transport\MessageHandler;
+use Amp\Ssh\Transport\PayloadHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use function Amp\call;

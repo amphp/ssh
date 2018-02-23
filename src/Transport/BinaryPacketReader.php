@@ -1,10 +1,10 @@
 <?php
 
-namespace Amp\SSH\Transport;
+namespace Amp\Ssh\Transport;
 
 use Amp\Promise;
-use Amp\SSH\Encryption\Decryption;
-use Amp\SSH\Mac\Mac;
+use Amp\Ssh\Encryption\Decryption;
+use Amp\Ssh\Mac\Mac;
 
 interface BinaryPacketReader {
     public function updateDecryption(Decryption $decryption, Mac $decryptMac): void;

@@ -1,10 +1,10 @@
 <?php
 
-namespace Amp\SSH\Encryption;
+namespace Amp\Ssh\Encryption;
 
-use Amp\SSH\Encryption\CipherMode\Cbc;
-use Amp\SSH\Encryption\CipherMode\CipherMode;
-use Amp\SSH\Encryption\CipherMode\Ctr;
+use Amp\Ssh\Encryption\CipherMode\Cbc;
+use Amp\Ssh\Encryption\CipherMode\CipherMode;
+use Amp\Ssh\Encryption\CipherMode\Ctr;
 
 class Aes extends OpenSSL {
     private $keySize;

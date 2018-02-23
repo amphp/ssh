@@ -1,14 +1,14 @@
 <?php
 
-namespace Amp\SSH\Channel;
+namespace Amp\Ssh\Channel;
 
 use Amp\Promise;
-use Amp\SSH\Message\ChannelOpen;
-use Amp\SSH\Message\ChannelRequestEnv;
-use Amp\SSH\Message\ChannelRequestExec;
-use Amp\SSH\Message\ChannelRequestPty;
-use Amp\SSH\Message\ChannelRequestShell;
-use Amp\SSH\Message\ChannelRequestSignal;
+use Amp\Ssh\Message\ChannelOpen;
+use Amp\Ssh\Message\ChannelRequestEnv;
+use Amp\Ssh\Message\ChannelRequestExec;
+use Amp\Ssh\Message\ChannelRequestPty;
+use Amp\Ssh\Message\ChannelRequestShell;
+use Amp\Ssh\Message\ChannelRequestSignal;
 use function Amp\call;
 
 /**
