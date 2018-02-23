@@ -19,6 +19,10 @@ composer require amphp/ssh
 - PHP 7.0+
 - [libsodium extension](https://github.com/jedisct1/libsodium-php), included by default in PHP since 7.2
 
+## Examples
+
+See the `examples` directory.
+
 ## Versioning
 
 `amphp/ssh` follows the [semver](http://semver.org/) semantic versioning specification like all other `amphp` packages.
@@ -27,6 +31,9 @@ composer require amphp/ssh
 
 The MIT License (MIT). Please see [`LICENSE`](./LICENSE) for more information.
 
-## Example
+## Credits
 
-See the `examples` directory.
+A lot of work on this lib would not have been possible with previous awesome folks implementing this specification in PHP:
+
+ * [PHPSeclib](https://github.com/phpseclib/phpseclib)
+ * [PHP Encrypted Streams](https://github.com/jeskew/php-encrypted-streams)
