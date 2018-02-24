@@ -3,11 +3,11 @@
 namespace Amp\Ssh\Encryption\CipherMode;
 
 class Ctr implements CipherMode {
-    public const NAME = 'ctr';
+    const NAME = 'ctr';
 
-    private const CTR_BLOCK_MAX = 65536; // maximum 16-bit unsigned integer value
+    const CTR_BLOCK_MAX = 65536; // maximum 16-bit unsigned integer value
 
-    private const BLOCK_SIZE = 16;
+    const BLOCK_SIZE = 16;
 
     /**
      * The hash initialization vector, stored as eight 16-bit words.

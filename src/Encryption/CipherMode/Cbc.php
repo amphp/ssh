@@ -3,9 +3,9 @@
 namespace Amp\Ssh\Encryption\CipherMode;
 
 class Cbc implements CipherMode {
-    public const NAME = 'cbc';
+    const NAME = 'cbc';
 
-    private const BLOCK_SIZE = 16;
+    const BLOCK_SIZE = 16;
 
     private $iv;
 
