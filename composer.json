@@ -1,7 +1,7 @@
 {
     "name": "amphp/ssh",
     "homepage": "https://github.com/amphp/ssh",
-    "description": "Async SSH client for Amp.",
+    "description": "Async SSH client for PHP based on Amp.",
     "keywords": [
         "ssh",
         "ssh2",
@@ -30,7 +30,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Amp\\Ssh\\": "src/"
+            "Amp\\Ssh\\": "src"
         },
         "files": [
             "src/functions.php",
