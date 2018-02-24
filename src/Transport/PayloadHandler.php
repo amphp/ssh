@@ -21,11 +21,11 @@ class PayloadHandler implements BinaryPacketHandler {
         $this->socket = $socket;
     }
 
-    public function updateDecryption(Decryption $decryption, Mac $decryptMac): void {
+    public function updateDecryption(Decryption $decryption, Mac $decryptMac) {
         $this->reader->updateDecryption($decryption, $decryptMac);
     }
 
-    public function updateEncryption(Encryption $encryption, Mac $encryptMac): void {
+    public function updateEncryption(Encryption $encryption, Mac $encryptMac) {
         $this->writer->updateEncryption($encryption, $encryptMac);
     }
 
@@ -37,7 +37,7 @@ class PayloadHandler implements BinaryPacketHandler {
         return $this->writer->write($message);
     }
 
-    public function close(): void {
+    public function close() {
         $this->socket->close();
     }
 }

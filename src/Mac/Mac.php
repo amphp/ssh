@@ -9,5 +9,5 @@ interface Mac {
 
     public function getName(): string;
 
-    public function setKey(string $key): void;
+    public function setKey(string $key);
 }

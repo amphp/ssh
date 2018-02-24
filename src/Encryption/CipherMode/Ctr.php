@@ -44,7 +44,7 @@ class Ctr implements CipherMode {
         }, $iv));
     }
 
-    public function updateIV(string $cipherBlock): void {
+    public function updateIV(string $cipherBlock) {
         $incrementBy = \strlen($cipherBlock) / self::BLOCK_SIZE;
 
         for ($i = 7; $i >= 0; $i--) {

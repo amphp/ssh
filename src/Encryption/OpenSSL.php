@@ -17,12 +17,12 @@ abstract class OpenSSL implements Decryption, Encryption {
 
     abstract protected function createCipherMode(string $iv): CipherMode;
 
-    public function resetEncrypt(string $key, string $initIv): void {
+    public function resetEncrypt(string $key, string $initIv) {
         $this->key = $key;
         $this->encryptCipherMode = $this->createCipherMode($initIv);
     }
 
-    public function resetDecrypt(string $key, string $initIv): void {
+    public function resetDecrypt(string $key, string $initIv) {
         $this->key = $key;
         $this->decryptCipherMode = $this->createCipherMode($initIv);
     }

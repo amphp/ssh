@@ -15,6 +15,6 @@ class None implements Mac {
         return 'none';
     }
 
-    public function setKey(string $key): void {
+    public function setKey(string $key) {
     }
 }

@@ -85,7 +85,7 @@ class Process {
         return $this->resolved->promise();
     }
 
-    public function kill(): void {
+    public function kill() {
         Promise\rethrow($this->signal(SIGKILL));
     }
 
@@ -113,7 +113,7 @@ class Process {
         return $this->stderr;
     }
 
-    protected function handleRequests(): void {
+    protected function handleRequests() {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 

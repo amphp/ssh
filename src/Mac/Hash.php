@@ -21,7 +21,7 @@ class Hash implements Mac {
         return $this->length;
     }
 
-    public function setKey(string $key): void {
+    public function setKey(string $key) {
         $this->key = $key;
     }
 

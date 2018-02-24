@@ -21,13 +21,13 @@ class LoggerHandler implements BinaryPacketHandler {
         $this->logger = $logger;
     }
 
-    public function updateDecryption(Decryption $decryption, Mac $decryptMac): void {
+    public function updateDecryption(Decryption $decryption, Mac $decryptMac) {
         $this->logger->debug(\sprintf('Decryption (server -> client) updated, cipher: %s, mac: %s', $decryption->getName(), $decryptMac->getName()));
 
         $this->handler->updateDecryption($decryption, $decryptMac);
     }
 
-    public function updateEncryption(Encryption $encryption, Mac $encryptMac): void {
+    public function updateEncryption(Encryption $encryption, Mac $encryptMac) {
         $this->logger->debug(\sprintf('Encryption (client -> server) updated, cipher: %s, mac: %s', $encryption->getName(), $encryptMac->getName()));
 
         $this->handler->updateEncryption($encryption, $encryptMac);
@@ -55,7 +55,7 @@ class LoggerHandler implements BinaryPacketHandler {
             return $packet;
         });
     }
-    public function close(): void {
+    public function close() {
         $this->logger->debug(\sprintf('Shuting down ssh connection'));
 
         $this->handler->close();

@@ -28,7 +28,7 @@ class Dispatcher {
         $this->handler = $handler;
     }
 
-    public function start(): void {
+    public function start() {
         if ($this->closed) {
             throw new \RuntimeException('SSH Connection is closed');
         }
@@ -64,7 +64,7 @@ class Dispatcher {
         });
     }
 
-    public function stop(): void {
+    public function stop() {
         $this->running = false;
     }
 

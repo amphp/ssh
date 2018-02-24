@@ -21,7 +21,7 @@ class Cbc implements CipherMode {
         return $this->iv;
     }
 
-    public function updateIV(string $payload): void {
+    public function updateIV(string $payload) {
         $this->iv = \substr($payload, self::BLOCK_SIZE * -1);
     }
 }

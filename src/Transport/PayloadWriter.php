@@ -24,7 +24,7 @@ class PayloadWriter implements BinaryPacketWriter {
         $this->encryptMac = new Mac\None();
     }
 
-    public function updateEncryption(Encryption\Encryption $encryption, Mac\Mac $encryptMac): void {
+    public function updateEncryption(Encryption\Encryption $encryption, Mac\Mac $encryptMac) {
         $this->encryption = $encryption;
         $this->encryptMac = $encryptMac;
     }

@@ -75,7 +75,7 @@ abstract class Channel {
         return $this->requestEmitter;
     }
 
-    protected function dispatch(): void {
+    protected function dispatch() {
         asyncCall(function () {
             while (yield $this->channelMessage->advance()) {
                 $message = $this->channelMessage->getCurrent();

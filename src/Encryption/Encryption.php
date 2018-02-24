@@ -11,5 +11,5 @@ interface Encryption {
 
     public function getName(): string;
 
-    public function resetEncrypt(string $key, string $initIv): void;
+    public function resetEncrypt(string $key, string $initIv);
 }

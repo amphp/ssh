@@ -17,7 +17,7 @@ use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 
 /**
- * Negotiate algorithms to use for the ssh connection
+ * Negotiate algorithms to use for the ssh connection.
  */
 class Negotiator {
     /** @var Decryption[] */
@@ -34,19 +34,19 @@ class Negotiator {
 
     private $sessionId;
 
-    private function addDecryption(Decryption $decryption): void {
+    private function addDecryption(Decryption $decryption) {
         $this->decryptions[$decryption->getName()] = $decryption;
     }
 
-    private function addEncryption(Encryption $encryption): void {
+    private function addEncryption(Encryption $encryption) {
         $this->encryptions[$encryption->getName()] = $encryption;
     }
 
-    private function addKeyExchange(KeyExchange $keyExchange): void {
+    private function addKeyExchange(KeyExchange $keyExchange) {
         $this->keyExchanges[$keyExchange->getName()] = $keyExchange;
     }
 
-    private function addMac(Mac $mac): void {
+    private function addMac(Mac $mac) {
         $this->macs[$mac->getName()] = $mac;
     }
 

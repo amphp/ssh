@@ -75,7 +75,7 @@ class Shell {
         });
     }
 
-    public function kill(): void {
+    public function kill() {
         if (!$this->isRunning()) {
             throw new \RuntimeException('Process is not running.');
         }
@@ -107,7 +107,7 @@ class Shell {
         return $this->stderr;
     }
 
-    protected function handleRequests(): void {
+    protected function handleRequests() {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 

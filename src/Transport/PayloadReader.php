@@ -31,7 +31,7 @@ class PayloadReader implements BinaryPacketReader {
         $this->decryptMac = new Mac\None();
     }
 
-    public function updateDecryption(Encryption\Decryption $decryption, Mac\Mac $decryptMac): void {
+    public function updateDecryption(Encryption\Decryption $decryption, Mac\Mac $decryptMac) {
         $this->decryption = $decryption;
         $this->decryptMac = $decryptMac;
     }

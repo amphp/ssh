@@ -23,9 +23,9 @@ class None implements Encryption, Decryption {
         return 'none';
     }
 
-    public function resetDecrypt(string $key, string $initIv): void {
+    public function resetDecrypt(string $key, string $initIv) {
     }
 
-    public function resetEncrypt(string $key, string $initIv): void {
+    public function resetEncrypt(string $key, string $initIv) {
     }
 }

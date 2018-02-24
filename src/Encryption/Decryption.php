@@ -11,5 +11,5 @@ interface Decryption {
 
     public function getName(): string;
 
-    public function resetDecrypt(string $key, string $initIv): void;
+    public function resetDecrypt(string $key, string $initIv);
 }

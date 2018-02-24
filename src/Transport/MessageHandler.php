@@ -59,11 +59,11 @@ class MessageHandler implements BinaryPacketHandler {
         return $static;
     }
 
-    public function updateDecryption(Decryption $decryption, Mac $decryptMac): void {
+    public function updateDecryption(Decryption $decryption, Mac $decryptMac) {
         $this->handler->updateDecryption($decryption, $decryptMac);
     }
 
-    public function updateEncryption(Encryption $encryption, Mac $encryptMac): void {
+    public function updateEncryption(Encryption $encryption, Mac $encryptMac) {
         $this->handler->updateEncryption($encryption, $encryptMac);
     }
 
@@ -94,7 +94,7 @@ class MessageHandler implements BinaryPacketHandler {
         return $this->handler->write($message);
     }
 
-    public function close(): void {
+    public function close() {
         $this->handler->close();
     }
 }
