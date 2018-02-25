@@ -23,12 +23,15 @@ class ProcessTest extends TestCase
 
             self::assertTrue($process->isRunning());
 
-            $output = yield $process->getStdout()->read();
-
-            self::assertEquals("foo\n", $output);
-
             $exitCode = yield $process->join();
+            $output = '';
 
+            while ($read = yield $process->getStdout()->read()) {
+                $output .= $read;
+            }
+
+            self::assertFalse($process->isRunning());
+            self::assertEquals("foo\n", $output);
             self::assertEquals(0, $exitCode);
 
             yield $sshResource->close();
