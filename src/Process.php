@@ -41,6 +41,7 @@ class Process {
 
     public function __construct(SSHResource $sshResource, string $command, string $cwd = null, array $env = []) {
         $this->session = $sshResource->createSession();
+        $this->handleRequests();
         $this->command = $cwd !== null ? \sprintf('cd %s; %s', $cwd, $command) : $command;
         $this->stdout = new ChannelInputStream($this->session->getDataEmitter()->iterate());
         $this->stderr = new ChannelInputStream($this->session->getDataExtendedEmitter()->iterate());
@@ -69,8 +70,6 @@ class Process {
             }
 
             yield $this->session->exec($this->command);
-
-            $this->handleRequests();
         });
     }
 
@@ -118,8 +117,7 @@ class Process {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 
-            while ($this->isRunning()) {
-                yield $requestIterator->advance();
+            while (yield $requestIterator->advance()) {
                 $message = $requestIterator->getCurrent();
 
                 if ($message instanceof ChannelRequestExitStatus) {
@@ -129,8 +127,6 @@ class Process {
                     $resolved->resolve($message->code);
 
                     $this->session->close();
-
-                    break;
                 }
             }
         });

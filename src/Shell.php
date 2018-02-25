@@ -34,6 +34,7 @@ class Shell {
 
     public function __construct(SSHResource $sshResource, array $env = []) {
         $this->session = $sshResource->createSession();
+        $this->handleRequests();
         $this->stdout = new ChannelInputStream($this->session->getDataEmitter()->iterate());
         $this->stderr = new ChannelInputStream($this->session->getDataExtendedEmitter()->iterate());
         $this->stdin = new ChannelOutputStream($this->session);
@@ -70,8 +71,6 @@ class Shell {
 
             yield $this->session->pty();
             yield $this->session->shell();
-
-            $this->handleRequests();
         });
     }
 
@@ -111,8 +110,7 @@ class Shell {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 
-            while ($this->isRunning()) {
-                yield $requestIterator->advance();
+            while (yield $requestIterator->advance()) {
                 $message = $requestIterator->getCurrent();
 
                 if ($message instanceof ChannelRequestExitStatus) {
