@@ -167,8 +167,7 @@ abstract class Channel {
         }
     }
 
-    private function doClose()
-    {
+    private function doClose() {
         $this->open = false;
         $this->requestResultEmitter->complete();
         $this->requestEmitter->complete();

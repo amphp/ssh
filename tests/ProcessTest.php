@@ -2,26 +2,22 @@
 
 namespace Amp\Ssh\Tests;
 
-use Amp\Delayed;
 use Amp\Loop;
 use Amp\Ssh\Authentication\UsernamePassword;
-use function Amp\Ssh\connect;
 use Amp\Ssh\Process;
 use PHPUnit\Framework\TestCase;
+use function Amp\Ssh\connect;
 
-class ProcessTest extends TestCase
-{
+class ProcessTest extends TestCase {
     private $logger;
 
-    public function setUp()
-    {
+    public function setUp() {
         $this->logger = new \Monolog\Logger('ampssh', [
-            new \Monolog\Handler\StreamHandler(fopen('debug.log', 'w+'))
+            new \Monolog\Handler\StreamHandler(\fopen('debug.log', 'w+'))
         ]);
     }
 
-    public function testProcess()
-    {
+    public function testProcess() {
         Loop::run(function () {
             $authentication = new UsernamePassword('root', 'root');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, $this->logger);

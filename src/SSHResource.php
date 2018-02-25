@@ -39,8 +39,7 @@ class SSHResource {
         });
     }
 
-    public function __destruct()
-    {
+    public function __destruct() {
         if ($this->running) {
             $this->close();
         }
