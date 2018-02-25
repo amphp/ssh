@@ -2,23 +2,34 @@
 
 namespace Amp\Ssh\Tests;
 
+use Amp\Delayed;
+use Amp\Loop;
+use Amp\Ssh\Authentication\UsernamePassword;
+use function Amp\Ssh\connect;
+use Amp\Ssh\Process;
 use PHPUnit\Framework\TestCase;
 
 class ProcessTest extends TestCase
 {
     public function testProcess()
     {
-        \Amp\Loop::run(function () {
-            $authentication = new \Amp\Ssh\Authentication\UsernamePassword('root', 'root');
-            $sshResource = yield \Amp\Ssh\connect('127.0.0.1:2222', $authentication);
+        Loop::run(function () {
+            $authentication = new UsernamePassword('root', 'root');
+            $sshResource = yield connect('127.0.0.1:2222', $authentication);
 
-            $process = new \Amp\Ssh\Process($sshResource, 'echo foo');
+            $process = new Process($sshResource, 'echo foo');
 
             yield $process->start();
+
+            self::assertTrue($process->isRunning());
+
             $output = yield $process->getStdout()->read();
-            yield $process->join();
 
             self::assertEquals("foo\n", $output);
+
+            $exitCode = yield $process->join();
+
+            self::assertEquals(0, $exitCode);
 
             yield $sshResource->close();
         });

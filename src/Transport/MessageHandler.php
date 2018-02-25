@@ -71,6 +71,10 @@ class MessageHandler implements BinaryPacketHandler {
         return call(function () {
             $packet = yield $this->handler->read();
 
+            if ($packet === null) {
+                return null;
+            }
+
             if ($packet instanceof Message\Message) {
                 return $packet;
             }

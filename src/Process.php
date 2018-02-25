@@ -5,6 +5,7 @@ namespace Amp\Ssh;
 use Amp\ByteStream\InputStream;
 use Amp\ByteStream\OutputStream;
 use Amp\Deferred;
+use Amp\Failure;
 use Amp\Promise;
 use Amp\Ssh\Channel\ChannelInputStream;
 use Amp\Ssh\Channel\ChannelOutputStream;
@@ -55,7 +56,7 @@ class Process {
 
     public function start(): Promise {
         if ($this->resolved !== null || $this->exitCode !== null) {
-            throw new \RuntimeException('Process has already been started.');
+            return new Failure(new \RuntimeException('Process has already been started.'));
         }
 
         $this->resolved = new Deferred();
@@ -79,7 +80,7 @@ class Process {
         }
 
         if ($this->resolved === null) {
-            throw new \RuntimeException('Process has not been started.');
+            return new Failure(new \RuntimeException('Process has not been started.'));
         }
 
         return $this->resolved->promise();
@@ -91,7 +92,7 @@ class Process {
 
     public function signal(int $signo): Promise {
         if (!$this->isRunning()) {
-            throw new \RuntimeException('Process is not running.');
+            return new Failure(new \RuntimeException('Process is not running.'));
         }
 
         return $this->session->signal($signo);
@@ -124,6 +125,7 @@ class Process {
                 if ($message instanceof ChannelRequestExitStatus) {
                     $resolved = $this->resolved;
                     $this->resolved = null;
+                    $this->exitCode = $message->code;
                     $resolved->resolve($message->code);
 
                     $this->session->close();

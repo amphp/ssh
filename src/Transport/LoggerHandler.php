@@ -37,6 +37,10 @@ class LoggerHandler implements BinaryPacketHandler {
         return call(function () {
             $packet = yield $this->handler->read();
 
+            if ($packet === null) {
+                return null;
+            }
+
             if ($packet instanceof Message) {
                 $this->logger->debug(\sprintf('Receive %s packet', \get_class($packet)));
             } else {

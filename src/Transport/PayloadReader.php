@@ -72,8 +72,18 @@ class PayloadReader implements BinaryPacketReader {
              the MAC algorithm MUST be "none".
          */
         return call(function () {
-            $packetLength = \unpack('N', yield $this->doReadDecrypted(4))[1];
+            $packetLengthRead = yield $this->doReadDecrypted(4);
+
+            if ($packetLengthRead === null) {
+                return null;
+            }
+
+            $packetLength = \unpack('N', $packetLengthRead)[1];
             $packet = yield $this->doReadDecrypted($packetLength);
+
+            if ($packet === null) {
+                return null;
+            }
 
             $paddingLength = \unpack('C', $packet)[1];
             $payload = \substr($packet, 1, $packetLength - $paddingLength - 1);
@@ -102,6 +112,11 @@ class PayloadReader implements BinaryPacketReader {
         return call(function () use ($length) {
             while (\strlen($this->decryptedBuffer) < $length) {
                 $rawRead = yield $this->doReadRaw($this->decryption->getBlockSize());
+
+                if ($rawRead === null) {
+                    return null;
+                }
+
                 $this->decryptedBuffer .= $this->decryption->decrypt($rawRead);
             }
 
@@ -115,7 +130,13 @@ class PayloadReader implements BinaryPacketReader {
     private function doReadRaw($length): Promise {
         return call(function () use ($length) {
             while (\strlen($this->cryptedBuffer) < $length) {
-                $this->cryptedBuffer .= yield $this->socket->read();
+                $readed = yield $this->socket->read();
+
+                if ($readed === null) {
+                    return null;
+                }
+
+                $this->cryptedBuffer .= $readed;
             }
 
             $read = \substr($this->cryptedBuffer, 0, $length);
