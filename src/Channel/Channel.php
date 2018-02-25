@@ -40,6 +40,8 @@ abstract class Channel {
 
     protected $requestResultEmitter;
 
+    protected $open = false;
+
     public function __construct(BinaryPacketWriter $writer, Iterator $channelMessage, int $channelId) {
         $this->channelId = $channelId;
         $this->writer = $writer;
@@ -95,6 +97,10 @@ abstract class Channel {
                 if ($message instanceof ChannelSuccess || $message instanceof ChannelFailure) {
                     $this->requestResultEmitter->emit($message);
                 }
+
+                if ($message instanceof ChannelClose) {
+                    $this->doClose();
+                }
             }
         });
     }
@@ -111,6 +117,7 @@ abstract class Channel {
             $openResult = $this->channelMessage->getCurrent();
 
             if ($openResult instanceof ChannelOpenConfirmation) {
+                $this->open = true;
                 $this->dispatch();
 
                 return true;
@@ -150,11 +157,23 @@ abstract class Channel {
 
             yield $this->writer->write($message);
 
-            $this->requestResultEmitter->complete();
-            $this->requestEmitter->complete();
-            $this->dataEmitter->complete();
-            $this->dataExtendedEmitter->complete();
+            $this->doClose();
         });
+    }
+
+    public function __destruct() {
+        if ($this->open) {
+            $this->close();
+        }
+    }
+
+    private function doClose()
+    {
+        $this->open = false;
+        $this->requestResultEmitter->complete();
+        $this->requestEmitter->complete();
+        $this->dataEmitter->complete();
+        $this->dataExtendedEmitter->complete();
     }
 
     protected function doRequest(ChannelRequest $request): Promise {

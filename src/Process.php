@@ -36,6 +36,9 @@ class Process {
     /** @var Deferred */
     private $resolved;
 
+    /** @var bool */
+    private $open = false;
+
     /** @var array */
     private $env;
 
@@ -63,7 +66,11 @@ class Process {
         $this->resolved = new Deferred();
 
         return call(function () {
-            yield $this->session->open();
+            if (!$this->open) {
+                yield $this->session->open();
+
+                $this->open = true;
+            }
 
             foreach ($this->env as $key => $value) {
                 yield $this->session->env($key, $value, true);
@@ -125,8 +132,6 @@ class Process {
                     $this->resolved = null;
                     $this->exitCode = $message->code;
                     $resolved->resolve($message->code);
-
-                    $this->session->close();
                 }
             }
         });

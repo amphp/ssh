@@ -50,7 +50,11 @@ class Dispatcher {
                         continue;
                     }
 
-                    $this->channelsEmitter[$channelId]->emit($message);
+                    yield $this->channelsEmitter[$channelId]->emit($message);
+
+                    if (!\array_key_exists($channelId, $this->channelsEmitter)) {
+                        continue;
+                    }
 
                     if ($message instanceof ChannelClose) {
                         $this->channelsEmitter[$channelId]->complete();
@@ -71,8 +75,14 @@ class Dispatcher {
     public function close() {
         $this->stop();
 
-        foreach ($this->channelsEmitter as $emitter) {
+        foreach ($this->channelsEmitter as $channelId => $emitter) {
+            $close = new ChannelClose();
+            $close->recipientChannel = $channelId;
+
+            $this->handler->write($close);
             $emitter->complete();
+
+            unset($this->channelsEmitter[$channelId]);
         }
     }
 
