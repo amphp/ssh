@@ -47,4 +47,5 @@ script:
   - $TEST_COMMAND
 
 after_script:
+  - cat debug.log
   - if [[ $COVERAGE = true ]]; then ./coveralls.phar -v; fi
