@@ -80,7 +80,7 @@ class Negotiator {
 
             /** @var Message $exchangeSend */
             /** @var Message $exchangeReceive */
-            [$key, $exchangeSend, $exchangeReceive] = yield $kex->exchange($binaryPacketHandler);
+            list($key, $exchangeSend, $exchangeReceive) = yield $kex->exchange($binaryPacketHandler);
 
             /*
             The hash H is computed as the HASH hash of the concatenation of the
