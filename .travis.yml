@@ -8,6 +8,9 @@ php:
 
 sudo: true
 
+services:
+  - docker
+
 env:
   global:
     - TEST_COMMAND="composer test"
@@ -36,6 +39,8 @@ install:
   - travis_retry composer update ${COMPOSER_FLAGS} --prefer-dist --no-interaction
   - if [[ $COVERAGE = true ]]; then wget https://github.com/php-coveralls/php-coveralls/releases/download/v1.0.2/coveralls.phar; fi
   - if [[ $COVERAGE = true ]]; then chmod +x coveralls.phar; fi
+  - docker build -t ssh .
+  - docker run -d -ti -p 2222:22 ssh
 
 script:
   - composer validate --strict --no-check-lock
