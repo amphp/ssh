@@ -2,7 +2,7 @@
 
 namespace Amp\Ssh\Tests;
 
-use PhpCsFixer\Tests\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ProcessTest extends TestCase
 {
