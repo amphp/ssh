@@ -3,10 +3,10 @@
 namespace Amp\Ssh\Message;
 
 class ChannelOpen implements Message {
-    public const TYPE_SESSION = 'session';
-    public const TYPE_X11 = 'x11';
-    public const TYPE_FORWARDED_TCPIP = 'forwarded-tcpip';
-    public const TYPE_DIRECT_TCPIP = 'direct-tcpip';
+    const TYPE_SESSION = 'session';
+    const TYPE_X11 = 'x11';
+    const TYPE_FORWARDED_TCPIP = 'forwarded-tcpip';
+    const TYPE_DIRECT_TCPIP = 'direct-tcpip';
 
     public $channelType;
 

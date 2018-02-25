@@ -3,9 +3,9 @@
 namespace Amp\Ssh\Message;
 
 abstract class UserAuthRequest implements Message {
-    public const TYPE_PASSWORD = 'password';
-    public const TYPE_PUBLIC_KEY = 'publickey';
-    public const TYPE_NONE = 'publickey';
+    const TYPE_PASSWORD = 'password';
+    const TYPE_PUBLIC_KEY = 'publickey';
+    const TYPE_NONE = 'publickey';
 
     public $username;
     public $authType = self::TYPE_NONE;

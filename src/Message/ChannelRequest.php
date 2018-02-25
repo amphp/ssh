@@ -8,16 +8,16 @@ use function Amp\Ssh\Transport\read_string;
 use function Amp\Ssh\Transport\read_uint32;
 
 abstract class ChannelRequest implements Message {
-    public const TYPE_PTY = 'pty-req';
-    public const TYPE_X11_FORWARDING = 'x11-req';
-    public const TYPE_ENV = 'env';
-    public const TYPE_SHELL = 'shell';
-    public const TYPE_EXEC = 'exec';
-    public const TYPE_SUBSYSTEM = 'subsystem';
-    public const TYPE_WINDOW_CHANGE = 'subsystem';
-    public const TYPE_SIGNAL = 'signal';
-    public const TYPE_EXIT_STATUS = 'exit-status';
-    public const TYPE_EXIT_SIGNAL = 'exit-signal';
+    const TYPE_PTY = 'pty-req';
+    const TYPE_X11_FORWARDING = 'x11-req';
+    const TYPE_ENV = 'env';
+    const TYPE_SHELL = 'shell';
+    const TYPE_EXEC = 'exec';
+    const TYPE_SUBSYSTEM = 'subsystem';
+    const TYPE_WINDOW_CHANGE = 'subsystem';
+    const TYPE_SIGNAL = 'signal';
+    const TYPE_EXIT_STATUS = 'exit-status';
+    const TYPE_EXIT_SIGNAL = 'exit-signal';
 
     public $recipientChannel;
 

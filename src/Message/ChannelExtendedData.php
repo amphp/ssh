@@ -7,7 +7,7 @@ use function Amp\Ssh\Transport\read_string;
 use function Amp\Ssh\Transport\read_uint32;
 
 class ChannelExtendedData implements Message {
-    public const SSH_EXTENDED_DATA_STDERR = 1;
+    const SSH_EXTENDED_DATA_STDERR = 1;
 
     public $recipientChannel;
 
