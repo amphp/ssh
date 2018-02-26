@@ -175,14 +175,29 @@ abstract class Channel {
         $this->dataExtendedEmitter->complete();
     }
 
-    protected function doRequest(ChannelRequest $request): Promise {
-        return call(function () use ($request) {
+    protected function doRequest(ChannelRequest $request, $needAck = true): Promise {
+        return call(function () use ($request, $needAck) {
             yield $this->writer->write($request);
-            yield $this->requestResultEmitter->iterate()->advance();
+
+            if (!$needAck) {
+                return true;
+            }
+
+            if (!yield $this->requestResultEmitter->iterate()->advance()) {
+                throw new ChannelException(\sprintf('Cannot advance on the channel iterator sending %s message', \get_class($request)));
+            }
 
             $message = $this->requestResultEmitter->iterate()->getCurrent();
 
-            return $message instanceof ChannelSuccess;
+            if ($message instanceof ChannelFailure) {
+                throw new ChannelFailureException('Request failure', $message);
+            }
+
+            if (!$message instanceof ChannelSuccess) {
+                throw new ChannelException('Invalid message receive');
+            }
+
+            return true;
         });
     }
 

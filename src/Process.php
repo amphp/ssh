@@ -60,7 +60,7 @@ class Process {
 
     public function start(): Promise {
         if ($this->resolved !== null || $this->exitCode !== null) {
-            return new Failure(new \RuntimeException('Process has already been started.'));
+            return new Failure(new StatusError('Process has already been started.'));
         }
 
         $this->resolved = new Deferred();
@@ -73,7 +73,7 @@ class Process {
             }
 
             foreach ($this->env as $key => $value) {
-                yield $this->session->env($key, $value, true);
+                yield $this->session->env($key, $value);
             }
 
             yield $this->session->exec($this->command);
@@ -86,7 +86,7 @@ class Process {
         }
 
         if ($this->resolved === null) {
-            return new Failure(new \RuntimeException('Process has not been started.'));
+            return new Failure(new StatusError('Process has not been started.'));
         }
 
         return $this->resolved->promise();
@@ -98,7 +98,7 @@ class Process {
 
     public function signal(int $signo): Promise {
         if (!$this->isRunning()) {
-            return new Failure(new \RuntimeException('Process is not running.'));
+            return new Failure(new StatusError('Process is not running.'));
         }
 
         return $this->session->signal($signo);

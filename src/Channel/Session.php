@@ -26,11 +26,11 @@ class Session extends Channel {
         $request->name = $name;
         $request->wantReply = !$quiet;
 
-        return call(function () use ($request) {
+        return call(function () use ($request, $quiet, $name) {
             try {
-                return yield $this->doRequest($request);
+                return yield $this->doRequest($request, !$quiet);
             } catch (\Throwable $exception) {
-                throw new \RuntimeException('Unable to set env var, check it is authorised on the server', 0, $exception);
+                throw new SessionEnvException(\sprintf('Unable to set env var %s, check if it is authorised on the server', $name), 0, $exception);
             }
         });
     }
@@ -40,7 +40,7 @@ class Session extends Channel {
         $request->recipientChannel = $this->channelId;
         $request->signal = $signo;
 
-        return $this->doRequest($request);
+        return $this->doRequest($request, false);
     }
 
     public function pty(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600) {

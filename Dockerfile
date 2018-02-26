@@ -5,6 +5,8 @@ RUN apk --update add --no-cache openssh bash \
     && echo "root:root" | chpasswd
 
 RUN sed -ie 's/#Port 22/Port 22/g' /etc/ssh/sshd_config
+RUN sed -ie 's/#PermitUserEnvironment no/PermitUserEnvironment yes/g' /etc/ssh/sshd_config
+RUN echo "AcceptEnv FOO" >> /etc/ssh/sshd_config
 RUN sed -ri 's/#HostKey \/etc\/ssh\/ssh_host_key/HostKey \/etc\/ssh\/ssh_host_key/g' /etc/ssh/sshd_config
 RUN sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_rsa_key/HostKey \/etc\/ssh\/ssh_host_rsa_key/g' /etc/ssh/sshd_config
 RUN sed -ir 's/#HostKey \/etc\/ssh\/ssh_host_dsa_key/HostKey \/etc\/ssh\/ssh_host_dsa_key/g' /etc/ssh/sshd_config
@@ -25,4 +27,4 @@ RUN mkdir /root/.ssh \
 
 EXPOSE 22
 
-CMD ["/usr/sbin/sshd","-D"]
+CMD ["/usr/sbin/sshd","-De"]
