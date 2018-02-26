@@ -30,18 +30,23 @@ class PublicKey implements Authentication {
     public function authenticate(BinaryPacketHandler $handler, string $sessionId): Promise {
         return call(function () use ($handler, $sessionId) {
             if (!yield exists($this->privateKeyPath)) {
-                throw new \RuntimeException('Private key does not exist at path: ' . $this->privateKeyPath);
+                throw new AuthenticationFailureException('Private key does not exist at path: ' . $this->privateKeyPath);
             }
 
             $fileContent = yield get($this->privateKeyPath);
             $key = \openssl_get_privatekey($fileContent, $this->passphrase);
+
+            if ($key === false) {
+                throw new AuthenticationFailureException('Cannot get private key (maybe wrong passphrase ?)');
+            }
+
             $details = \openssl_pkey_get_details($key);
 
             if ($details['type'] === OPENSSL_KEYTYPE_RSA) {
                 return yield $this->rsa($handler, $key, $details, $sessionId);
             }
 
-            throw new \RuntimeException('Private Key Format is not supported.');
+            throw new AuthenticationFailureException('Private Key Format is not supported.');
         });
     }
 
@@ -83,7 +88,7 @@ class PublicKey implements Authentication {
             $package = yield $handler->read();
 
             if (!$package instanceof UserAuthPkOk) {
-                throw new \RuntimeException('Authentication Failure');
+                throw new AuthenticationFailureException('Authentication Failure');
             }
 
             $signatureRequest = new UserAuthRequestSignedPublicKey();

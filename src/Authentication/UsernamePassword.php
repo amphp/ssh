@@ -35,7 +35,7 @@ class UsernamePassword implements Authentication {
             $packet = yield $binaryPacketHandler->read();
 
             if ($packet instanceof UserAuthFailure) {
-                throw new \RuntimeException('Authentication failure');
+                throw new AuthenticationFailureException('Authentication failure');
             }
 
             return $packet;

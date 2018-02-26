@@ -20,8 +20,8 @@ COPY tests/key_rsa.pub /tmp/key_rsa.pub
 
 RUN mkdir /root/.ssh \
     && cat /tmp/key_ecdsa.pub > /root/.ssh/authorized_keys \
-    && cat /tmp/key_passphrase_rsa.pub > /root/.ssh/authorized_keys \
-    && cat /tmp/key_rsa.pub > /root/.ssh/authorized_keys
+    && cat /tmp/key_passphrase_rsa.pub >> /root/.ssh/authorized_keys \
+    && cat /tmp/key_rsa.pub >> /root/.ssh/authorized_keys
 
 EXPOSE 22
 
