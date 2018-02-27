@@ -5,7 +5,7 @@ namespace Amp\Ssh\Tests;
 use Amp\Loop;
 use Amp\Ssh\Authentication\AuthenticationFailureException;
 use Amp\Ssh\Authentication\UsernamePassword;
-use Amp\Ssh\SSHResource;
+use Amp\Ssh\SshResource;
 use PHPUnit\Framework\TestCase;
 use function Amp\Ssh\connect;
 
@@ -15,7 +15,7 @@ class UsernamePasswordTest extends TestCase {
             $authentication = new UsernamePassword('root', 'root');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 
@@ -26,7 +26,7 @@ class UsernamePasswordTest extends TestCase {
             $authentication = new UsernamePassword('root', 'bad');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 }

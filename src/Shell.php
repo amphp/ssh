@@ -12,6 +12,7 @@ use Amp\Ssh\Channel\ChannelOutputStream;
 use Amp\Ssh\Message\ChannelRequestExitStatus;
 use function Amp\asyncCall;
 use function Amp\call;
+use Amp\Success;
 
 class Shell {
     /** @var Channel\Session */
@@ -26,13 +27,16 @@ class Shell {
     /** @var ChannelOutputStream */
     private $stdin;
 
+    /** @var int */
+    private $exitCode;
+
     /** @var Deferred */
     private $resolved;
 
     /** @var array */
     private $env;
 
-    public function __construct(SSHResource $sshResource, array $env = []) {
+    public function __construct(SshResource $sshResource, array $env = []) {
         $this->session = $sshResource->createSession();
         $this->handleRequests();
         $this->stdout = new ChannelInputStream($this->session->getDataEmitter()->iterate());
@@ -48,19 +52,24 @@ class Shell {
     }
 
     public function join(): Promise {
+        if ($this->exitCode !== null) {
+            return new Success($this->exitCode);
+        }
+
         if (!$this->isRunning()) {
-            return new Failure(new \RuntimeException('Process is not running'));
+            return new Failure(new StatusError('Shell is not running'));
         }
 
         return $this->resolved->promise();
     }
 
     public function start(): Promise {
-        if ($this->isRunning()) {
-            return new Failure(new \RuntimeException('Process has already been started.'));
+        if ($this->resolved !== null || $this->exitCode !== null) {
+            return new Failure(new StatusError('Shell has already been started.'));
         }
 
         $this->resolved = new Deferred();
+        $this->exitCode = null;
 
         return call(function () {
             yield $this->session->open();
@@ -76,7 +85,7 @@ class Shell {
 
     public function kill() {
         if (!$this->isRunning()) {
-            throw new \RuntimeException('Process is not running.');
+            throw new StatusError('Shell is not running.');
         }
 
         Promise\rethrow($this->signal(SIGKILL));
@@ -84,7 +93,7 @@ class Shell {
 
     public function signal(int $signo): Promise {
         if (!$this->isRunning()) {
-            return new Failure(new \RuntimeException('Process is not running.'));
+            return new Failure(new StatusError('Shell is not running.'));
         }
 
         return $this->session->signal($signo);
@@ -116,6 +125,7 @@ class Shell {
                 if ($message instanceof ChannelRequestExitStatus) {
                     $resolved = $this->resolved;
                     $this->resolved = null;
+                    $this->exitCode = $message->code;
                     $resolved->resolve($message->code);
 
                     $this->session->close();

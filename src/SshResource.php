@@ -12,7 +12,7 @@ use function Amp\call;
 /**
  * @internal
  */
-class SSHResource {
+class SshResource {
     private $handler;
 
     private $dispatcher;

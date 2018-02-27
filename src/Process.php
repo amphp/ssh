@@ -42,7 +42,7 @@ class Process {
     /** @var array */
     private $env;
 
-    public function __construct(SSHResource $sshResource, string $command, string $cwd = null, array $env = []) {
+    public function __construct(SshResource $sshResource, string $command, string $cwd = null, array $env = []) {
         $this->session = $sshResource->createSession();
         $this->handleRequests();
         $this->command = $cwd !== null ? \sprintf('cd %s; %s', $cwd, $command) : $command;

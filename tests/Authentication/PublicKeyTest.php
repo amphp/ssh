@@ -5,7 +5,7 @@ namespace Amp\Ssh\Tests;
 use Amp\Loop;
 use Amp\Ssh\Authentication\AuthenticationFailureException;
 use Amp\Ssh\Authentication\PublicKey;
-use Amp\Ssh\SSHResource;
+use Amp\Ssh\SshResource;
 use PHPUnit\Framework\TestCase;
 use function Amp\Ssh\connect;
 
@@ -15,7 +15,7 @@ class PublicKeyTest extends TestCase {
             $authentication = new PublicKey('root', __DIR__ . '/../key_rsa');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 
@@ -26,7 +26,7 @@ class PublicKeyTest extends TestCase {
             $authentication = new PublicKey('root', __DIR__ . '/../invalid_key_rsa');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 
@@ -37,7 +37,7 @@ class PublicKeyTest extends TestCase {
             $authentication = new PublicKey('root', __DIR__ . '/../not_existing');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 
@@ -46,7 +46,7 @@ class PublicKeyTest extends TestCase {
             $authentication = new PublicKey('root', __DIR__ . '/../key_passphrase_rsa', 'passphrase');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 
@@ -57,7 +57,7 @@ class PublicKeyTest extends TestCase {
             $authentication = new PublicKey('root', __DIR__ . '/../key_passphrase_rsa', 'bad');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 
@@ -71,7 +71,7 @@ class PublicKeyTest extends TestCase {
             $authentication = new PublicKey('root', __DIR__ . '/../key_ecdsa');
             $sshResource = yield connect('127.0.0.1:2222', $authentication, LoggerTest::get());
 
-            self::assertInstanceOf(SSHResource::class, $sshResource);
+            self::assertInstanceOf(SshResource::class, $sshResource);
         });
     }
 }

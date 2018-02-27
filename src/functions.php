@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use function Amp\call;
 
-function connect($uri, Authentication $authentication, LoggerInterface $logger = null, $identification = 'SSH-2.0-AmpSSH_0.1'): Promise {
+function connect($uri, Authentication $authentication, LoggerInterface $logger = null, string $identification = 'SSH-2.0-AmpSSH_0.1'): Promise {
     return call(function () use ($uri, $authentication, $identification, $logger) {
         $socket = yield \Amp\Socket\connect($uri);
         $logger = $logger ?? new NullLogger();
@@ -56,6 +56,6 @@ function connect($uri, Authentication $authentication, LoggerInterface $logger =
         $dispatcher = new Dispatcher($cryptedHandler);
         $dispatcher->start();
 
-        return new SSHResource($cryptedHandler, $dispatcher);
+        return new SshResource($cryptedHandler, $dispatcher);
     });
 }
