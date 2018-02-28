@@ -8,7 +8,10 @@ use Amp\Ssh\Encryption;
 use Amp\Ssh\Mac;
 use function Amp\call;
 
-class PayloadReader implements BinaryPacketReader {
+/**
+ * @internal
+ */
+final class PayloadReader implements BinaryPacketReader {
     /** @var Encryption\Decryption */
     private $decryption;
 

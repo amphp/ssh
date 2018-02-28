@@ -2,6 +2,9 @@
 
 namespace Amp\Ssh\Message;
 
+/**
+ * @internal
+ */
 abstract class UserAuthRequest implements Message {
     const TYPE_PASSWORD = 'password';
     const TYPE_PUBLIC_KEY = 'publickey';

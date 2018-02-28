@@ -6,6 +6,9 @@ use Amp\Promise;
 use Amp\Ssh\Encryption\Encryption;
 use Amp\Ssh\Mac\Mac;
 
+/**
+ * @internal
+ */
 interface BinaryPacketWriter {
     public function updateEncryption(Encryption $encryption, Mac $encryptMac);
 

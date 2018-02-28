@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class NewKeys implements Message {
+/**
+ * @internal
+ */
+final class NewKeys implements Message {
     public function encode(): string {
         return \pack('C', self::getNumber());
     }

@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Mac;
 
-class Hash implements Mac {
+/**
+ * @internal
+ */
+final class Hash implements Mac {
     private $method;
 
     private $name;

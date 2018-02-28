@@ -13,7 +13,7 @@ use function Amp\call;
 /**
  * @internal
  */
-class ChannelInputStream implements InputStream {
+final class ChannelInputStream implements InputStream {
     private $readable = true;
 
     private $iterator;

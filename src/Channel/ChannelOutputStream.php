@@ -10,7 +10,7 @@ use function Amp\call;
 /**
  * @internal
  */
-class ChannelOutputStream implements OutputStream {
+final class ChannelOutputStream implements OutputStream {
     private $writable = true;
 
     private $channel;

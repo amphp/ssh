@@ -6,7 +6,10 @@ use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 use function Amp\Ssh\Transport\read_uint32;
 
-class ChannelOpenFailure implements Message {
+/**
+ * @internal
+ */
+final class ChannelOpenFailure implements Message {
     public $recipientChannel;
 
     public $reasonCode;

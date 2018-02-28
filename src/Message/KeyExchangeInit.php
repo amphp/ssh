@@ -7,7 +7,10 @@ use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_bytes;
 use function Amp\Ssh\Transport\read_namelist;
 
-class KeyExchangeInit implements Message {
+/**
+ * @internal
+ */
+final class KeyExchangeInit implements Message {
     public $cookie;
     public $kexAlgorithms = [];
     public $serverHostKeyAlgorithms = [];

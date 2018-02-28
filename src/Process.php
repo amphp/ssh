@@ -120,7 +120,7 @@ class Process {
         return $this->stderr;
     }
 
-    protected function handleRequests() {
+    private function handleRequests() {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 

@@ -5,7 +5,10 @@ namespace Amp\Ssh\Message;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 
-class KeyExchangeCurveReply implements Message {
+/**
+ * @internal
+ */
+final class KeyExchangeCurveReply implements Message {
     public $hostKey;
     public $hostKeyFormat;
     public $fBytes;

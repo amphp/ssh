@@ -5,7 +5,10 @@ namespace Amp\Ssh\Message;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_uint32;
 
-class ChannelClose implements Message {
+/**
+ * @internal
+ */
+final class ChannelClose implements Message {
     public $recipientChannel;
 
     public function encode(): string {

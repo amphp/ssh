@@ -11,7 +11,10 @@ use Amp\Ssh\Message\Message;
 use Psr\Log\LoggerInterface;
 use function Amp\call;
 
-class LoggerHandler implements BinaryPacketHandler {
+/**
+ * @internal
+ */
+final class LoggerHandler implements BinaryPacketHandler {
     private $handler;
 
     private $logger;
@@ -59,6 +62,7 @@ class LoggerHandler implements BinaryPacketHandler {
             return $packet;
         });
     }
+
     public function close() {
         $this->logger->debug(\sprintf('Shuting down ssh connection'));
 

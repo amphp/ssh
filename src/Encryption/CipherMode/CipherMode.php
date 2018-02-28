@@ -2,6 +2,9 @@
 
 namespace Amp\Ssh\Encryption\CipherMode;
 
+/**
+ * @internal
+ */
 interface CipherMode {
     public function getCurrentIV(): string;
 

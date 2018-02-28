@@ -18,8 +18,10 @@ use function Amp\call;
 
 /**
  * Negotiate algorithms to use for the ssh connection.
+ *
+ * @internal
  */
-class Negotiator {
+final class Negotiator {
     /** @var Decryption[] */
     private $decryptions = [];
 

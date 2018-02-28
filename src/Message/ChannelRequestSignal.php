@@ -4,7 +4,10 @@ namespace Amp\Ssh\Message;
 
 use function Amp\Ssh\Transport\read_string;
 
-class ChannelRequestSignal extends ChannelRequest {
+/**
+ * @internal
+ */
+final class ChannelRequestSignal extends ChannelRequest {
     public $signal;
 
     private static $signalMapping = [

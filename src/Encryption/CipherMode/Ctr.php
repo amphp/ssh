@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Encryption\CipherMode;
 
-class Ctr implements CipherMode {
+/**
+ * @internal
+ */
+final class Ctr implements CipherMode {
     const NAME = 'ctr';
 
     const CTR_BLOCK_MAX = 65536; // maximum 16-bit unsigned integer value

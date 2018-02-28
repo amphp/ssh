@@ -6,6 +6,9 @@ use Amp\Promise;
 use Amp\Ssh\Message\Message;
 use Amp\Ssh\Transport\BinaryPacketHandler;
 
+/**
+ * @internal
+ */
 interface KeyExchange {
     public function getName(): string;
 

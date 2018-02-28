@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class UserAuthRequestPassword extends UserAuthRequest {
+/**
+ * @internal
+ */
+final class UserAuthRequestPassword extends UserAuthRequest {
     public $password = '';
 
     protected function extraEncode(): string {

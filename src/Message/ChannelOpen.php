@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class ChannelOpen implements Message {
+/**
+ * @internal
+ */
+final class ChannelOpen implements Message {
     const TYPE_SESSION = 'session';
     const TYPE_X11 = 'x11';
     const TYPE_FORWARDED_TCPIP = 'forwarded-tcpip';

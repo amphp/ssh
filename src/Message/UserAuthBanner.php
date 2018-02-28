@@ -5,7 +5,10 @@ namespace Amp\Ssh\Message;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 
-class UserAuthBanner implements Message {
+/**
+ * @internal
+ */
+final class UserAuthBanner implements Message {
     public $message;
 
     public $languageTag;

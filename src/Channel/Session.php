@@ -14,7 +14,7 @@ use function Amp\call;
 /**
  * @internal
  */
-class Session extends Channel {
+final class Session extends Channel {
     protected function getType(): string {
         return ChannelOpen::TYPE_SESSION;
     }

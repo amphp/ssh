@@ -5,7 +5,10 @@ namespace Amp\Ssh\Message;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_uint32;
 
-class Unimplemented implements Message {
+/**
+ * @internal
+ */
+final class Unimplemented implements Message {
     public $packetSequenceNumberRejected;
 
     public function encode(): string {

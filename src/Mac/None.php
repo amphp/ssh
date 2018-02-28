@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Mac;
 
-class None implements Mac {
+/**
+ * @internal
+ */
+final class None implements Mac {
     public function getLength(): int {
         return 0;
     }

@@ -4,7 +4,10 @@ namespace Amp\Ssh\Message;
 
 use function Amp\Ssh\Transport\read_string;
 
-class ChannelRequestExec extends ChannelRequest {
+/**
+ * @internal
+ */
+final class ChannelRequestExec extends ChannelRequest {
     public $command;
 
     public function encode(): string {

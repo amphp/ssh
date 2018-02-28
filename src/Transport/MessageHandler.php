@@ -9,6 +9,9 @@ use Amp\Ssh\Mac\Mac;
 use Amp\Ssh\Message;
 use function Amp\call;
 
+/**
+ * @internal
+ */
 class MessageHandler implements BinaryPacketHandler {
     private $handler;
 

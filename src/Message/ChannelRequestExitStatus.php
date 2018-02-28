@@ -4,7 +4,10 @@ namespace Amp\Ssh\Message;
 
 use function Amp\Ssh\Transport\read_uint32;
 
-class ChannelRequestExitStatus extends ChannelRequest {
+/**
+ * @internal
+ */
+final class ChannelRequestExitStatus extends ChannelRequest {
     public $wantReply = false;
 
     public $code;

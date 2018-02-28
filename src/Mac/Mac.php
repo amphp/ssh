@@ -2,6 +2,9 @@
 
 namespace Amp\Ssh\Mac;
 
+/**
+ * @internal
+ */
 interface Mac {
     public function getLength(): int;
 

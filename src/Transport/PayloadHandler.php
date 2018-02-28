@@ -8,7 +8,10 @@ use Amp\Ssh\Encryption\Decryption;
 use Amp\Ssh\Encryption\Encryption;
 use Amp\Ssh\Mac\Mac;
 
-class PayloadHandler implements BinaryPacketHandler {
+/**
+ * @internal
+ */
+final class PayloadHandler implements BinaryPacketHandler {
     private $reader;
 
     private $writer;

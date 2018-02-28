@@ -7,6 +7,9 @@ use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 use function Amp\Ssh\Transport\read_uint32;
 
+/**
+ * @internal
+ */
 abstract class ChannelRequest implements Message {
     const TYPE_PTY = 'pty-req';
     const TYPE_X11_FORWARDING = 'x11-req';

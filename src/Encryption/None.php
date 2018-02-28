@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Encryption;
 
-class None implements Encryption, Decryption {
+/**
+ * @internal
+ */
+final class None implements Encryption, Decryption {
     public function getBlockSize(): int {
         return 8;
     }

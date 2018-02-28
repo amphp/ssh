@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class UserAuthRequestAskPublicKey extends UserAuthRequest {
+/**
+ * @internal
+ */
+final class UserAuthRequestAskPublicKey extends UserAuthRequest {
     public $keyAlgorithm;
 
     public $keyBlob;

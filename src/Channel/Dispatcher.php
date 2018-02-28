@@ -76,10 +76,6 @@ class Dispatcher {
         $this->stop();
 
         foreach ($this->channelsEmitter as $channelId => $emitter) {
-            $close = new ChannelClose();
-            $close->recipientChannel = $channelId;
-
-            $this->handler->write($close);
             $emitter->complete();
 
             unset($this->channelsEmitter[$channelId]);

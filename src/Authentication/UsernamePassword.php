@@ -9,7 +9,7 @@ use Amp\Ssh\Message\UserAuthRequestPassword;
 use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 
-class UsernamePassword implements Authentication {
+final class UsernamePassword implements Authentication {
     private $username;
     private $password;
 

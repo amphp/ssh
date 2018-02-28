@@ -2,6 +2,9 @@
 
 namespace Amp\Ssh\Message;
 
+/**
+ * @internal
+ */
 interface Message {
     const SSH_MSG_DISCONNECT = 1;
     const SSH_MSG_IGNORE = 2;

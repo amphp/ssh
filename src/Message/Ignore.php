@@ -5,7 +5,10 @@ namespace Amp\Ssh\Message;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 
-class Ignore implements Message {
+/**
+ * @internal
+ */
+final class Ignore implements Message {
     public $data;
 
     public function encode(): string {

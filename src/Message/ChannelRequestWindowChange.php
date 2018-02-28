@@ -4,7 +4,10 @@ namespace Amp\Ssh\Message;
 
 use function Amp\Ssh\Transport\read_uint32;
 
-class ChannelRequestWindowChange extends ChannelRequest {
+/**
+ * @internal
+ */
+final class ChannelRequestWindowChange extends ChannelRequest {
     public $columns;
 
     public $rows;

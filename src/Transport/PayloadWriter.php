@@ -7,7 +7,10 @@ use Amp\Socket\Socket;
 use Amp\Ssh\Encryption;
 use Amp\Ssh\Mac;
 
-class PayloadWriter implements BinaryPacketWriter {
+/**
+ * @internal
+ */
+final class PayloadWriter implements BinaryPacketWriter {
     /** @var Encryption\Encryption */
     private $encryption;
 

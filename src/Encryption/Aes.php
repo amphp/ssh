@@ -6,7 +6,10 @@ use Amp\Ssh\Encryption\CipherMode\Cbc;
 use Amp\Ssh\Encryption\CipherMode\CipherMode;
 use Amp\Ssh\Encryption\CipherMode\Ctr;
 
-class Aes extends OpenSSL {
+/**
+ * @internal
+ */
+final class Aes extends OpenSSL {
     private $keySize;
 
     private $cipherMode;
@@ -40,6 +43,8 @@ class Aes extends OpenSSL {
         if ($this->cipherMode === Ctr::NAME) {
             return new Ctr($iv, $this->getOpenSSLMethod());
         }
+
+        throw new \RuntimeException('Invalid cipher mode');
     }
 
     public static function create() {

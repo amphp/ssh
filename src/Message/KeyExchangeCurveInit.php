@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class KeyExchangeCurveInit implements Message {
+/**
+ * @internal
+ */
+final class KeyExchangeCurveInit implements Message {
     public $exchange;
 
     public function encode(): string {

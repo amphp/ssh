@@ -14,7 +14,7 @@ use function Amp\call;
 use function Amp\File\exists;
 use function Amp\File\get;
 
-class PublicKey implements Authentication {
+final class PublicKey implements Authentication {
     private $privateKeyPath;
 
     private $username;
@@ -50,7 +50,7 @@ class PublicKey implements Authentication {
         });
     }
 
-    protected function rsa(BinaryPacketHandler $handler, $key, array $privateKeyInfo, string $sessionId): Promise {
+    private function rsa(BinaryPacketHandler $handler, $key, array $privateKeyInfo, string $sessionId): Promise {
         return call(function () use ($handler, $key, $privateKeyInfo, $sessionId) {
             $authServiceRequest = new ServiceRequest();
             $authServiceRequest->serviceName = 'ssh-userauth';

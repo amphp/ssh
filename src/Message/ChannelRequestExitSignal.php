@@ -5,7 +5,10 @@ namespace Amp\Ssh\Message;
 use function Amp\Ssh\Transport\read_boolean;
 use function Amp\Ssh\Transport\read_string;
 
-class ChannelRequestExitSignal extends ChannelRequest {
+/**
+ * @internal
+ */
+final class ChannelRequestExitSignal extends ChannelRequest {
     public $signal;
 
     public $coreDumped;

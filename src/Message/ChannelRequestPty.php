@@ -6,7 +6,10 @@ use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 use function Amp\Ssh\Transport\read_uint32;
 
-class ChannelRequestPty extends ChannelRequest {
+/**
+ * @internal
+ */
+final class ChannelRequestPty extends ChannelRequest {
     const MODE_TTY_OP_END = 0;
     const MODE_VINTR = 1;
     const MODE_VQUIT = 2;

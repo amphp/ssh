@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class ServiceRequest implements Message {
+/**
+ * @internal
+ */
+final class ServiceRequest implements Message {
     public $serviceName;
 
     public function encode(): string {

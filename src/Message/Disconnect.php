@@ -6,7 +6,10 @@ use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 use function Amp\Ssh\Transport\read_uint32;
 
-class Disconnect implements Message {
+/**
+ * @internal
+ */
+final class Disconnect implements Message {
     const SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT = 1;
     const SSH_DISCONNECT_PROTOCOL_ERROR = 2;
     const SSH_DISCONNECT_KEY_EXCHANGE_FAILED = 3;

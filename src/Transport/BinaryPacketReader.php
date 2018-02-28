@@ -6,6 +6,9 @@ use Amp\Promise;
 use Amp\Ssh\Encryption\Decryption;
 use Amp\Ssh\Mac\Mac;
 
+/**
+ * @internal
+ */
 interface BinaryPacketReader {
     public function updateDecryption(Decryption $decryption, Mac $decryptMac);
 

@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class UserAuthSuccess implements Message {
+/**
+ * @internal
+ */
+final class UserAuthSuccess implements Message {
     public function encode(): string {
         return \pack(
             'C',

@@ -6,7 +6,10 @@ use function Amp\Ssh\Transport\read_boolean;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_namelist;
 
-class UserAuthFailure implements Message {
+/**
+ * @internal
+ */
+final class UserAuthFailure implements Message {
     public $nextAuthentications;
 
     public $partialSuccess;

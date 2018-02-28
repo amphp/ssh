@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Encryption\CipherMode;
 
-class Cbc implements CipherMode {
+/**
+ * @internal
+ */
+final class Cbc implements CipherMode {
     const NAME = 'cbc';
 
     const BLOCK_SIZE = 16;

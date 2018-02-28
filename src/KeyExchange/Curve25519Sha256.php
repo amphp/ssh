@@ -9,7 +9,10 @@ use Amp\Ssh\Message\Message;
 use Amp\Ssh\Transport\BinaryPacketHandler;
 use function Amp\call;
 
-class Curve25519Sha256 implements KeyExchange {
+/**
+ * @internal
+ */
+final class Curve25519Sha256 implements KeyExchange {
     public function getName(): string {
         return 'curve25519-sha256@libssh.org';
     }

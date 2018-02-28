@@ -6,7 +6,10 @@ use function Amp\Ssh\Transport\read_boolean;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 
-class Debug implements Message {
+/**
+ * @internal
+ */
+final class Debug implements Message {
     public $alwaysDisplay;
 
     public $message;

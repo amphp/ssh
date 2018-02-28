@@ -5,7 +5,10 @@ namespace Amp\Ssh\Message;
 use function Amp\Ssh\Transport\read_byte;
 use function Amp\Ssh\Transport\read_string;
 
-class UserAuthPkOk implements Message {
+/**
+ * @internal
+ */
+final class UserAuthPkOk implements Message {
     private $keyAlgorithm;
 
     private $keyBlob;

@@ -2,7 +2,10 @@
 
 namespace Amp\Ssh\Message;
 
-class GlobalRequest implements Message {
+/**
+ * @internal
+ */
+final class GlobalRequest implements Message {
     public function encode(): string {
         return \pack(
             'C',

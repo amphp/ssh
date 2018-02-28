@@ -10,9 +10,9 @@ use Amp\Promise;
 use Amp\Ssh\Channel\ChannelInputStream;
 use Amp\Ssh\Channel\ChannelOutputStream;
 use Amp\Ssh\Message\ChannelRequestExitStatus;
+use Amp\Success;
 use function Amp\asyncCall;
 use function Amp\call;
-use Amp\Success;
 
 class Shell {
     /** @var Channel\Session */
@@ -115,7 +115,7 @@ class Shell {
         return $this->stderr;
     }
 
-    protected function handleRequests() {
+    private function handleRequests() {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 
@@ -127,8 +127,6 @@ class Shell {
                     $this->resolved = null;
                     $this->exitCode = $message->code;
                     $resolved->resolve($message->code);
-
-                    $this->session->close();
 
                     break;
                 }

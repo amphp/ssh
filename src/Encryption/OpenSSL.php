@@ -4,6 +4,9 @@ namespace Amp\Ssh\Encryption;
 
 use Amp\Ssh\Encryption\CipherMode\CipherMode;
 
+/**
+ * @internal
+ */
 abstract class OpenSSL implements Decryption, Encryption {
     protected $key;
 
