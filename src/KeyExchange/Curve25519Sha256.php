@@ -2,12 +2,12 @@
 
 namespace Amp\Ssh\KeyExchange;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Message\KeyExchangeCurveInit;
 use Amp\Ssh\Message\KeyExchangeCurveReply;
 use Amp\Ssh\Message\Message;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\call;
 
 /**
  * @internal

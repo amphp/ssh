@@ -5,9 +5,9 @@ namespace Amp\Ssh\Tests;
 use Amp\Loop;
 use Amp\Ssh\Authentication\AuthenticationFailureException;
 use Amp\Ssh\Authentication\UsernamePassword;
+use function Amp\Ssh\connect;
 use Amp\Ssh\SshResource;
 use PHPUnit\Framework\TestCase;
-use function Amp\Ssh\connect;
 
 class UsernamePasswordTest extends TestCase {
     public function testSuccess() {

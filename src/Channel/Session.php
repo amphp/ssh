@@ -2,6 +2,7 @@
 
 namespace Amp\Ssh\Channel;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Message\ChannelOpen;
 use Amp\Ssh\Message\ChannelRequestEnv;
@@ -9,7 +10,6 @@ use Amp\Ssh\Message\ChannelRequestExec;
 use Amp\Ssh\Message\ChannelRequestPty;
 use Amp\Ssh\Message\ChannelRequestShell;
 use Amp\Ssh\Message\ChannelRequestSignal;
-use function Amp\call;
 
 /**
  * @internal
@@ -67,5 +67,8 @@ final class Session extends Channel {
         $request->command = $command;
 
         return $this->doRequest($request);
+    }
+
+    public function directTcpIp() {
     }
 }
