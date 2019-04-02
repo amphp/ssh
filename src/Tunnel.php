@@ -2,95 +2,68 @@
 
 namespace Amp\Ssh;
 
-use Amp\ByteStream\InputStream;
-use Amp\ByteStream\OutputStream;
 use Amp\Promise;
+use Amp\Socket;
 use Amp\Ssh\Channel\ChannelInputStream;
 use Amp\Ssh\Channel\ChannelOutputStream;
+use function Amp\asyncCall;
+use function Amp\ByteStream\pipe;
 use function Amp\call;
+use function Amp\Socket\listen;
 
-class Tunnel implements InputStream, OutputStream
+class Tunnel
 {
-    /** @var Channel\DirectTcpIp */
-    private $directTcpIp;
-
-    /** @var ChannelInputStream */
-    private $input;
-
-    /** @var ChannelOutputStream */
-    private $output;
-
-    /** @var Promise|null */
-    private $connectPromise;
-
-    /** @var bool */
-    private $connected = false;
-
-    public function __construct(
+    /**
+     * @param SshResource $sshResource
+     * @param string      $host
+     * @param int         $port
+     * @param string      $originHost
+     * @param string      $originPort
+     *
+     * @return Promise
+     * @throws \Amp\Socket\SocketException
+     */
+    public static function connect(
         SshResource $sshResource,
         string $host,
         int $port,
         string $originHost,
         string $originPort
-    ) {
-        $this->directTcpIp = $sshResource->createDirectTcpIp($host, $port, $originHost, $originPort);
-        $this->input = new ChannelInputStream($this->directTcpIp->getDataEmitter()->iterate());
-        $this->output = new ChannelOutputStream($this->directTcpIp);
-    }
+    ): Promise {
+        $directTcpIp = $sshResource->createDirectTcpIp($host, $port, $originHost, $originPort);
+        $input = new ChannelInputStream($directTcpIp->getDataEmitter()->iterate());
+        $output = new ChannelOutputStream($directTcpIp);
 
-    public function read(): Promise
-    {
-        if ($this->connected) {
-            return $this->input->read();
-        }
+        return call(static function () use ($directTcpIp, $input, $output) {
+            yield $directTcpIp->open();
 
-        return call(function () {
-            yield $this->connect();
+            $server = listen('127.0.0.1:0');
 
-            return yield $this->input->read();
-        });
-    }
+            // FIXME: This is just a PoC, socket connects need to be authenticated.
 
-    private function connect(): Promise
-    {
-        if ($this->connectPromise) {
-            return $this->connectPromise;
-        }
+            /** @var Socket\ClientSocket $socket */
+            /** @var Socket\ServerSocket $intermediate */
+            list($socket, $intermediate) = yield [Socket\connect($server->getAddress()), $server->accept()];
 
-        $connected = &$this->connected;
-        $this->connectPromise = $this->directTcpIp->open();
-        $this->connectPromise->onResolve(static function ($e) use (&$connected) {
-            if (!$e) {
-                $connected = true;
-            }
-        });
+            asyncCall(static function () use ($intermediate, $output) {
+                try {
+                    yield pipe($intermediate, $output);
+                    yield $output->end();
+                } catch (\Throwable $e) {
+                    $intermediate->close();
+                }
+            });
 
-        return $this->connectPromise;
-    }
+            asyncCall(static function () use ($intermediate, $input) {
+                try {
+                    yield pipe($input, $intermediate);
+                    yield $intermediate->end();
+                } catch (\Throwable $e) {
+                    $intermediate->close();
+                }
+            });
 
-    public function write(string $data): Promise
-    {
-        if ($this->connected) {
-            return $this->output->write($data);
-        }
-
-        return call(function () use ($data) {
-            yield $this->connect();
-
-            return $this->output->write($data);
-        });
-    }
-
-    public function end(string $finalData = ''): Promise
-    {
-        if ($this->connected) {
-            return $this->output->end($finalData);
-        }
-
-        return call(function () use ($finalData) {
-            yield $this->connect();
-
-            return $this->output->end($finalData);
+            return $socket;
         });
     }
 }
