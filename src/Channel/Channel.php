@@ -99,7 +99,7 @@ abstract class Channel {
                     $this->requestResultEmitter->emit($message);
                 }
 
-                if ($message instanceof ChannelClose) {
+                if ($message instanceof ChannelClose || $message instanceof ChannelEof) {
                     $this->doClose();
                 }
             }
