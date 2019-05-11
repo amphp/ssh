@@ -4,6 +4,7 @@ namespace Amp\Ssh;
 
 use Amp\Promise;
 use Amp\Ssh\Authentication\Authentication;
+use Amp\Ssh\Authentication\AuthenticationFailureException;
 use Amp\Ssh\Channel\Dispatcher;
 use Amp\Ssh\Transport\LoggerHandler;
 use Amp\Ssh\Transport\MessageHandler;
@@ -31,7 +32,12 @@ function connect(string $uri, Authentication $authentication, LoggerInterface $l
         $buffer = '';
 
         while ($serverIdentification === null) {
-            $buffer .= yield $socket->read();
+            $chunk = yield $socket->read();
+            if ($chunk === null) {
+                throw new AuthenticationFailureException('Could not read server identification: connection closed during read');
+            }
+
+            $buffer .= $chunk;
 
             if (($linePos = \strpos($buffer, "\n")) !== false) {
                 $line = \substr($buffer, 0, $linePos);
