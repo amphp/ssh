@@ -36,9 +36,9 @@ function connect(string $uri, Authentication $authentication, LoggerInterface $l
             if (($crlfpos = \strpos($readed, "\n")) !== false) {
                 $line = \substr($readed, 0, $crlfpos);
 
-                if (\strpos($line, 'SSH') === 0) {
-                	// OpenSSH before 7.4 does not always send LF before CR
-                    $serverIdentification = trim($line, "\r");
+                if (\strpos($line, 'SSH-') === 0) {
+                    // OpenSSH before 7.5 does not always send CR before LF
+                    $serverIdentification = \rtrim($line, "\r");
                 }
 
                 $readed = \substr($readed, $crlfpos + 1);
