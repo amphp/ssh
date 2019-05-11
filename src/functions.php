@@ -33,14 +33,15 @@ function connect(string $uri, Authentication $authentication, LoggerInterface $l
         while ($serverIdentification === false) {
             $readed .= yield $socket->read();
 
-            if (($crlfpos = \strpos($readed, "\r\n")) !== false) {
+            if (($crlfpos = \strpos($readed, "\n")) !== false) {
                 $line = \substr($readed, 0, $crlfpos);
 
                 if (\strpos($line, 'SSH') === 0) {
-                    $serverIdentification = $line;
+                	// OpenSSH before 7.4 does not always send LF before CR
+                    $serverIdentification = trim($line, "\r");
                 }
 
-                $readed = \substr($readed, $crlfpos + 2);
+                $readed = \substr($readed, $crlfpos + 1);
             }
         }
 
