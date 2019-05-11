@@ -27,25 +27,25 @@ function connect(string $uri, Authentication $authentication, LoggerInterface $l
         MUST be able to process such lines.  Such lines MAY be silently
         ignored, or MAY be displayed to the client user.
         */
-        $serverIdentification = false;
-        $readed = '';
+        $serverIdentification = null;
+        $buffer = '';
 
-        while ($serverIdentification === false) {
-            $readed .= yield $socket->read();
+        while ($serverIdentification === null) {
+            $buffer .= yield $socket->read();
 
-            if (($crlfpos = \strpos($readed, "\n")) !== false) {
-                $line = \substr($readed, 0, $crlfpos);
+            if (($linePos = \strpos($buffer, "\n")) !== false) {
+                $line = \substr($buffer, 0, $linePos);
 
                 if (\strpos($line, 'SSH-') === 0) {
                     // OpenSSH before 7.5 does not always send CR before LF
                     $serverIdentification = \rtrim($line, "\r");
                 }
 
-                $readed = \substr($readed, $crlfpos + 1);
+                $buffer = \substr($buffer, $linePos + 1);
             }
         }
 
-        $payloadHandler = new PayloadHandler($socket, $readed);
+        $payloadHandler = new PayloadHandler($socket, $buffer);
         $messageHandler = MessageHandler::create($payloadHandler);
         $loggerHandler = new LoggerHandler($messageHandler, $logger);
 
