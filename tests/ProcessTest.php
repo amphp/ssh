@@ -2,14 +2,14 @@
 
 namespace Amp\Ssh\Tests;
 
+use function Amp\call;
 use Amp\Loop;
 use Amp\Ssh\Authentication\UsernamePassword;
 use Amp\Ssh\Channel\SessionEnvException;
+use function Amp\Ssh\connect;
 use Amp\Ssh\Process;
 use Amp\Ssh\StatusError;
 use PHPUnit\Framework\TestCase;
-use function Amp\call;
-use function Amp\Ssh\connect;
 
 class ProcessTest extends TestCase {
     protected function getSsh() {

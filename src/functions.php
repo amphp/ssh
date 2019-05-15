@@ -2,6 +2,7 @@
 
 namespace Amp\Ssh;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Authentication\Authentication;
 use Amp\Ssh\Authentication\AuthenticationFailureException;
@@ -11,7 +12,6 @@ use Amp\Ssh\Transport\MessageHandler;
 use Amp\Ssh\Transport\PayloadHandler;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use function Amp\call;
 
 function connect(string $uri, Authentication $authentication, LoggerInterface $logger = null, string $identification = 'SSH-2.0-AmpSSH_0.1'): Promise {
     return call(function () use ($uri, $authentication, $identification, $logger) {

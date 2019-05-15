@@ -3,47 +3,33 @@
 namespace Amp\Ssh\Channel;
 
 use Amp\ByteStream\InputStream;
+use Amp\ByteStream\IteratorStream;
 use Amp\Iterator;
 use Amp\Promise;
 use Amp\Ssh\Message\ChannelData;
 use Amp\Ssh\Message\ChannelExtendedData;
-use Amp\Success;
-use function Amp\call;
 
 /**
  * @internal
  */
-final class ChannelInputStream implements InputStream {
-    private $readable = true;
+final class ChannelInputStream implements InputStream
+{
+    private $stream;
 
-    private $iterator;
-
-    public function __construct(Iterator $iterator) {
-        $this->iterator = $iterator;
-    }
-
-    /** {@inheritdoc} */
-    public function read(): Promise {
-        if (!$this->readable) {
-            return new Success; // Resolve with null on closed stream.
-        }
-
-        return call(function () {
-            $advanced = yield $this->iterator->advance();
-
-            if (!$advanced) {
-                $this->readable = false;
-
-                return null;
-            }
-
-            $message = $this->iterator->getCurrent();
-
+    public function __construct(Iterator $iterator)
+    {
+        $this->stream = new IteratorStream(Iterator\map($iterator, static function ($message) {
             if ($message instanceof ChannelData || $message instanceof ChannelExtendedData) {
                 return $message->data;
             }
 
             return $message;
-        });
+        }));
+    }
+
+    /** {@inheritdoc} */
+    public function read(): Promise
+    {
+        return $this->stream->read();
     }
 }

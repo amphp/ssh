@@ -2,12 +2,12 @@
 
 namespace Amp\Ssh\Channel;
 
+use function Amp\asyncCall;
 use Amp\Emitter;
 use Amp\Ssh\Message\ChannelClose;
 use Amp\Ssh\Message\ChannelOpen;
 use Amp\Ssh\Message\Message;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\asyncCall;
 
 /**
  * @internal
@@ -89,5 +89,14 @@ class Dispatcher {
         ++$this->channelSequence;
 
         return $session;
+    }
+
+    public function createDirectTcpIp(string $host, int $port, string $originHost, string $originPort): DirectTcpIp {
+        $emitter = new Emitter();
+        $directTcpIp = new DirectTcpIp($this->handler, $emitter->iterate(), $this->channelSequence, $host, $port, $originHost, $originPort);
+        $this->channelsEmitter[$this->channelSequence] = $emitter;
+        ++$this->channelSequence;
+
+        return $directTcpIp;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Amp\Ssh\Transport;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Encryption\Decryption;
 use Amp\Ssh\Encryption\Encryption;
@@ -9,7 +10,6 @@ use Amp\Ssh\Mac\Mac;
 use Amp\Ssh\Message\Debug;
 use Amp\Ssh\Message\Message;
 use Psr\Log\LoggerInterface;
-use function Amp\call;
 
 /**
  * @internal
@@ -45,7 +45,7 @@ final class LoggerHandler implements BinaryPacketHandler {
             }
 
             if ($packet instanceof Message) {
-                $this->logger->debug(\sprintf('Receive %s packet', \get_class($packet)));
+                $this->logger->debug(\sprintf('Receive %s packet', \get_class($packet)), ['message' => $packet]);
             } else {
                 $type = \unpack('C', $packet)[1];
                 $this->logger->warning(\sprintf('Unknown packet with number %s received', $type));

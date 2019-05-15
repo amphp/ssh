@@ -2,12 +2,12 @@
 
 namespace Amp\Ssh\Authentication;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Message\ServiceRequest;
 use Amp\Ssh\Message\UserAuthFailure;
 use Amp\Ssh\Message\UserAuthRequestPassword;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\call;
 
 final class UsernamePassword implements Authentication {
     private $username;

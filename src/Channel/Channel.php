@@ -2,6 +2,8 @@
 
 namespace Amp\Ssh\Channel;
 
+use function Amp\asyncCall;
+use function Amp\call;
 use Amp\Emitter;
 use Amp\Iterator;
 use Amp\Promise;
@@ -15,10 +17,9 @@ use Amp\Ssh\Message\ChannelOpenConfirmation;
 use Amp\Ssh\Message\ChannelOpenFailure;
 use Amp\Ssh\Message\ChannelRequest;
 use Amp\Ssh\Message\ChannelSuccess;
+use Amp\Ssh\Message\Message;
 use Amp\Ssh\Transport\BinaryPacketWriter;
 use Amp\Success;
-use function Amp\asyncCall;
-use function Amp\call;
 
 /**
  * @internal
@@ -98,18 +99,24 @@ abstract class Channel {
                     $this->requestResultEmitter->emit($message);
                 }
 
-                if ($message instanceof ChannelClose) {
+                if ($message instanceof ChannelClose || $message instanceof ChannelEof) {
                     $this->doClose();
                 }
             }
         });
     }
 
+    protected function createChannelOpenMessage(): Message {
+        $channelOpen = new ChannelOpen();
+        $channelOpen->senderChannel = $this->channelId;
+        $channelOpen->channelType = $this->getType();
+
+        return $channelOpen;
+    }
+
     public function open(): Promise {
         return call(function () {
-            $channelOpen = new ChannelOpen();
-            $channelOpen->senderChannel = $this->channelId;
-            $channelOpen->channelType = $this->getType();
+            $channelOpen = $this->createChannelOpenMessage();
 
             yield $this->writer->write($channelOpen);
             yield $this->channelMessage->advance();

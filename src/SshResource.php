@@ -2,12 +2,13 @@
 
 namespace Amp\Ssh;
 
+use function Amp\call;
 use Amp\Promise;
+use Amp\Ssh\Channel\DirectTcpIp;
 use Amp\Ssh\Channel\Dispatcher;
 use Amp\Ssh\Channel\Session;
 use Amp\Ssh\Message\Disconnect;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\call;
 
 /**
  * @internal
@@ -26,6 +27,10 @@ class SshResource {
 
     public function createSession(): Session {
         return $this->dispatcher->createSession();
+    }
+
+    public function createDirectTcpIp(string $host, int $port, string $originHost, string $originPort): DirectTcpIp {
+        return $this->dispatcher->createDirectTcpIp($host, $port, $originHost, $originPort);
     }
 
     public function close(): Promise {
