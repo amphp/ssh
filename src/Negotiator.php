@@ -2,6 +2,7 @@
 
 namespace Amp\Ssh;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Encryption\Aes;
 use Amp\Ssh\Encryption\Decryption;
@@ -14,7 +15,6 @@ use Amp\Ssh\Message\KeyExchangeInit;
 use Amp\Ssh\Message\Message;
 use Amp\Ssh\Message\NewKeys;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\call;
 
 /**
  * Negotiate algorithms to use for the ssh connection.

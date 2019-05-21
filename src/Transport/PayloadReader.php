@@ -2,11 +2,11 @@
 
 namespace Amp\Ssh\Transport;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Socket\Socket;
 use Amp\Ssh\Encryption;
 use Amp\Ssh\Mac;
-use function Amp\call;
 
 /**
  * @internal

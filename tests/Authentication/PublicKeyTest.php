@@ -5,9 +5,9 @@ namespace Amp\Ssh\Tests;
 use Amp\Loop;
 use Amp\Ssh\Authentication\AuthenticationFailureException;
 use Amp\Ssh\Authentication\PublicKey;
+use function Amp\Ssh\connect;
 use Amp\Ssh\SshResource;
 use PHPUnit\Framework\TestCase;
-use function Amp\Ssh\connect;
 
 class PublicKeyTest extends TestCase {
     public function testRsaSuccess() {
