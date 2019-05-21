@@ -1,9 +1,8 @@
 language: php
 
 php:
-  - 7.0
-  - 7.1
   - 7.2
+  - 7.3
   - nightly
 
 sudo: true
@@ -21,8 +20,6 @@ matrix:
     - php: nightly
   fast_finish: true
   include:
-    - php: 7.0
-      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
     - php: 7.2
       env: COVERAGE=true TEST_COMMAND="composer test-coverage"
     - php: 7.2
@@ -30,11 +27,6 @@ matrix:
 
 before_install:
   - phpenv config-rm xdebug.ini || echo "No xdebug config."
-  - sudo add-apt-repository ppa:ondrej/php -y
-  - sudo apt-get upgrade -y --allow-unauthenticated
-  - sudo apt-get -qq update
-  - sudo apt-get install -y libsodium-dev
-  - pecl install libsodium
 
 install:
   - travis_retry composer update ${COMPOSER_FLAGS} --prefer-dist --no-interaction
