@@ -1,6 +1,8 @@
 language: php
 
 php:
+  - 7.0
+  - 7.1
   - 7.2
   - 7.3
   - 7.4snapshot
@@ -22,6 +24,8 @@ matrix:
     - php: 7.4snapshot
   fast_finish: true
   include:
+    - php: 7.0
+      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
     - php: 7.2
       env: COVERAGE=true TEST_COMMAND="composer test-coverage"
     - php: 7.2
@@ -29,7 +33,16 @@ matrix:
 
 before_install:
   - phpenv config-rm xdebug.ini || echo "No xdebug config."
-
+  - git clone git://github.com/jedisct1/libsodium.git
+  - cd libsodium
+  - ./autogen.sh
+  - ./configure --disable-dependency-tracking
+  - make
+  - sudo make install
+  - sudo /sbin/ldconfig
+  - cd ..
+  - rm -fr libsodium
+  - pecl install libsodium
 install:
   - travis_retry composer update ${COMPOSER_FLAGS} --prefer-dist --no-interaction
   - if [[ $COVERAGE = true ]]; then wget https://github.com/php-coveralls/php-coveralls/releases/download/v1.0.2/coveralls.phar; fi
