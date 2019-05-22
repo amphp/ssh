@@ -63,7 +63,7 @@ class Shell {
         return $this->resolved->promise();
     }
 
-    public function start(): Promise {
+    public function start(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600): Promise {
         if ($this->resolved !== null || $this->exitCode !== null) {
             return new Failure(new StatusError('Shell has already been started.'));
         }
@@ -71,16 +71,25 @@ class Shell {
         $this->resolved = new Deferred();
         $this->exitCode = null;
 
-        return call(function () {
+        return call(function () use ($columns, $rows, $width, $height) {
             yield $this->session->open();
 
             foreach ($this->env as $key => $value) {
                 yield $this->session->env($key, $value, true);
             }
 
-            yield $this->session->pty();
+            yield $this->session->pty($columns, $rows, $width, $height);
             yield $this->session->shell();
         });
+    }
+
+    public function changeWindowSize(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600)
+    {
+        if (!$this->isRunning()) {
+            return new Failure(new StatusError('Shell is not running.'));
+        }
+
+        return $this->session->changeWindowSize($columns, $rows, $width, $height);
     }
 
     public function kill() {

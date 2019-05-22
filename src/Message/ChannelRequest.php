@@ -17,7 +17,7 @@ abstract class ChannelRequest implements Message {
     const TYPE_SHELL = 'shell';
     const TYPE_EXEC = 'exec';
     const TYPE_SUBSYSTEM = 'subsystem';
-    const TYPE_WINDOW_CHANGE = 'subsystem';
+    const TYPE_WINDOW_CHANGE = 'window-change';
     const TYPE_SIGNAL = 'signal';
     const TYPE_EXIT_STATUS = 'exit-status';
     const TYPE_EXIT_SIGNAL = 'exit-signal';

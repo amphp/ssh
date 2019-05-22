@@ -16,11 +16,9 @@ final class ChannelRequestWindowChange extends ChannelRequest {
 
     public $height;
 
-    public $modes;
-
     public function encode(): string {
         return parent::encode() . \pack(
-            'N4*',
+            'N4',
             $this->columns,
             $this->rows,
             $this->width,
