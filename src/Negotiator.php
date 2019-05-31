@@ -172,8 +172,8 @@ final class Negotiator {
 
     private function getDecrypt(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Decryption {
         $decrypt = \current(\array_intersect(
-			$clientKex->encryptionAlgorithmsServerToClient,
-			$serverKex->encryptionAlgorithmsServerToClient
+            $clientKex->encryptionAlgorithmsServerToClient,
+            $serverKex->encryptionAlgorithmsServerToClient
         ));
 
         return $this->decryptions[$decrypt];
@@ -181,8 +181,8 @@ final class Negotiator {
 
     private function getEncrypt(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Encryption {
         $encrypt = \current(\array_intersect(
-			$clientKex->encryptionAlgorithmsClientToServer,
-			$serverKex->encryptionAlgorithmsClientToServer
+            $clientKex->encryptionAlgorithmsClientToServer,
+            $serverKex->encryptionAlgorithmsClientToServer
         ));
 
         return $this->encryptions[$encrypt];
@@ -199,8 +199,8 @@ final class Negotiator {
 
     private function getServerHostKey(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex) {
         $serverHostKey = \current(\array_intersect(
-			$clientKex->serverHostKeyAlgorithms,
-			$serverKex->serverHostKeyAlgorithms
+            $clientKex->serverHostKeyAlgorithms,
+            $serverKex->serverHostKeyAlgorithms
         ));
 
         return $serverHostKey;
@@ -208,8 +208,8 @@ final class Negotiator {
 
     private function getDecryptMac(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Mac {
         $mac = \current(\array_intersect(
-			$clientKex->macAlgorithmsServerToClient,
-			$serverKex->macAlgorithmsServerToClient
+            $clientKex->macAlgorithmsServerToClient,
+            $serverKex->macAlgorithmsServerToClient
         ));
 
         return clone $this->macs[$mac];
@@ -217,8 +217,8 @@ final class Negotiator {
 
     private function getEncryptMac(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Mac {
         $mac = \current(\array_intersect(
-			$clientKex->macAlgorithmsClientToServer,
-			$serverKex->macAlgorithmsClientToServer
+            $clientKex->macAlgorithmsClientToServer,
+            $serverKex->macAlgorithmsClientToServer
         ));
 
         return clone $this->macs[$mac];
