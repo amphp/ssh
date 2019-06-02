@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Maxim Furtuna
- * Date: 01.06.19
- * Time: 13:11
- */
 
 namespace Amp\Ssh\KeyExchange;
 
@@ -16,7 +10,9 @@ use Amp\Ssh\Message\KeyExchangeCurveReply;
 use Amp\Ssh\Message\Message;
 use Amp\Ssh\Transport\BinaryPacketHandler;
 
-
+/**
+ * @internal
+ */
 class DiffieHellmanGroup14Sha1 implements KeyExchange
 {
     const PRIME = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74' .
