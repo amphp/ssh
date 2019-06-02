@@ -8,6 +8,7 @@ use Amp\Ssh\Encryption\Aes;
 use Amp\Ssh\Encryption\Decryption;
 use Amp\Ssh\Encryption\Encryption;
 use Amp\Ssh\KeyExchange\Curve25519Sha256;
+use Amp\Ssh\KeyExchange\DiffieHellmanGroup14Sha1;
 use Amp\Ssh\KeyExchange\KeyExchange;
 use Amp\Ssh\Mac\Hash;
 use Amp\Ssh\Mac\Mac;
@@ -246,6 +247,7 @@ final class Negotiator {
     public static function create() {
         $negotiator = new static();
         $negotiator->addKeyExchange(new Curve25519Sha256());
+        $negotiator->addKeyExchange(new DiffieHellmanGroup14Sha1());
 
         foreach (Aes::create() as $algorithm) {
             $negotiator->addEncryption($algorithm);
