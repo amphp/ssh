@@ -66,17 +66,22 @@ class Process {
         $this->resolved = new Deferred();
 
         return call(function () {
-            if (!$this->open) {
-                yield $this->session->open();
+        	try {
+				if (!$this->open) {
+					yield $this->session->open();
 
-                $this->open = true;
-            }
+					$this->open = true;
+				}
 
-            foreach ($this->env as $key => $value) {
-                yield $this->session->env($key, $value);
-            }
+				foreach ($this->env as $key => $value) {
+					yield $this->session->env($key, $value);
+				}
 
-            yield $this->session->exec($this->command);
+				yield $this->session->exec($this->command);
+			} catch(\Exception $exception) {
+        		$this->resolved = null;
+        		throw $exception;
+			}
         });
     }
 
@@ -124,15 +129,21 @@ class Process {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
 
-            while (yield $requestIterator->advance()) {
-                $message = $requestIterator->getCurrent();
+            try {
+                while (yield $requestIterator->advance()) {
+                    $message = $requestIterator->getCurrent();
 
-                if ($message instanceof ChannelRequestExitStatus) {
-                    $resolved = $this->resolved;
-                    $this->resolved = null;
-                    $this->exitCode = $message->code;
-                    $resolved->resolve($message->code);
+                    if ($message instanceof ChannelRequestExitStatus) {
+                        $resolved = $this->resolved;
+                        $this->resolved = null;
+                        $this->exitCode = $message->code;
+                        $resolved->resolve($message->code);
+                    }
                 }
+            } catch (\Exception $exception) {
+                $resolved = $this->resolved;
+                $this->resolved = null;
+                $resolved->fail($exception);
             }
         });
     }
