@@ -12,7 +12,7 @@ use Amp\Ssh\Transport\BinaryPacketHandler;
 /**
  * @internal
  */
-class DiffieHellmanGroup implements KeyExchange {
+final class DiffieHellmanGroup implements KeyExchange {
     const GROUP14 = 14;
 
     const GROUP16 = 16;
