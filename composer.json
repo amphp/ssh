@@ -38,7 +38,8 @@
         },
         "files": [
             "src/functions.php",
-            "src/Transport/functions.php"
+            "src/Transport/functions.php",
+            "src/KeyExchange/functions.php"
         ]
     },
     "config": {

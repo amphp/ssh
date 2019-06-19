@@ -2,7 +2,6 @@
 
 namespace Amp\Ssh\KeyExchange;
 
-
 use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Message\KeyExchangeCurveInit;
@@ -13,8 +12,7 @@ use Amp\Ssh\Transport\BinaryPacketHandler;
 /**
  * @internal
  */
-class DiffieHellmanGroup implements KeyExchange
-{
+class DiffieHellmanGroup implements KeyExchange {
     const GROUP14 = 14;
 
     const GROUP16 = 16;
@@ -30,34 +28,30 @@ class DiffieHellmanGroup implements KeyExchange
      */
     private $hash;
 
-    public function __construct(int $group, string $hash)
-    {
+    public function __construct(int $group, string $hash) {
         $this->group = $group;
         $this->hash = $hash;
     }
 
-    public function getName(): string
-    {
+    public function getName(): string {
         return 'diffie-hellman-group' . $this->group . '-' . $this->hash;
     }
 
-    public function exchange(BinaryPacketHandler $handler): Promise
-    {
+    public function exchange(BinaryPacketHandler $handler): Promise {
         return call(function () use ($handler) {
+            $prime = $this->getPrime();
 
-            $prime = str_replace(' ', '', $this->getPrime());
-
-            $dhKey = openssl_pkey_new([
+            $dhKey = \openssl_pkey_new([
                 'dh' => [
-                    'p' => hex2bin($prime),
+                    'p' => \hex2bin($prime),
                     'g' => \chr(2),
                 ]
             ]);
-            $details = openssl_pkey_get_details($dhKey);
+            $details = \openssl_pkey_get_details($dhKey);
             $eBytes = $details['dh']['pub_key'];
 
             $message = new KeyExchangeCurveInit();
-            $message->exchange = $this->twosComplement($eBytes);
+            $message->exchange = twos_compliment($eBytes);
 
             yield $handler->write($message);
             $packet = yield $handler->read();
@@ -66,122 +60,111 @@ class DiffieHellmanGroup implements KeyExchange
                 throw new \RuntimeException('Invalid reply');
             }
 
-            $key = openssl_dh_compute_key($packet->fBytes, $dhKey);
+            $key = \openssl_dh_compute_key($packet->fBytes, $dhKey);
 
             \sodium_memzero($details['dh']['priv_key']);
-            unset($details);
-            unset($dhKey);
+            unset($details, $dhKey);
 
-            return [$this->twosComplement($key), $message, $packet];
+
+            return [twos_compliment($key), $message, $packet];
         });
     }
 
-    private function getPrime()
-    {
+    private function getPrime() {
         switch ($this->group) {
             case  self::GROUP14:
                 return
-                    'FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1' .
-                    '29024E08 8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD' .
-                    'EF9519B3 CD3A431B 302B0A6D F25F1437 4FE1356D 6D51C245' .
-                    'E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED' .
-                    'EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE45B3D' .
-                    'C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8 FD24CF5F' .
-                    '83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D' .
-                    '670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B' .
-                    'E39E772C 180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9' .
-                    'DE2BCBF6 95581718 3995497C EA956AE5 15D22618 98FA0510' .
-                    '15728E5A 8AACAA68 FFFFFFFF FFFFFFFF';
+                    'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1' .
+                    '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' .
+                    'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' .
+                    'E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                    'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D' .
+                    'C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F' .
+                    '83655D23DCA3AD961C62F356208552BB9ED529077096966D' .
+                    '670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
+                    'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9' .
+                    'DE2BCBF6955817183995497CEA956AE515D2261898FA0510' .
+                    '15728E5A8AACAA68FFFFFFFFFFFFFFFF';
 
             case self::GROUP16:
                 return
-                    'FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1' .
-                    '29024E08 8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD' .
-                    'EF9519B3 CD3A431B 302B0A6D F25F1437 4FE1356D 6D51C245' .
-                    'E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED' .
-                    'EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE45B3D' .
-                    'C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8 FD24CF5F' .
-                    '83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D' .
-                    '670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B' .
-                    'E39E772C 180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9' .
-                    'DE2BCBF6 95581718 3995497C EA956AE5 15D22618 98FA0510' .
-                    '15728E5A 8AAAC42D AD33170D 04507A33 A85521AB DF1CBA64' .
-                    'ECFB8504 58DBEF0A 8AEA7157 5D060C7D B3970F85 A6E1E4C7' .
-                    'ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226 1AD2EE6B' .
-                    'F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C' .
-                    'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31' .
-                    '43DB5BFC E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7' .
-                    '88719A10 BDBA5B26 99C32718 6AF4E23C 1A946834 B6150BDA' .
-                    '2583E9CA 2AD44CE8 DBBBC2DB 04DE8EF9 2E8EFC14 1FBECAA6' .
-                    '287C5947 4E6BC05D 99B2964F A090C3A2 233BA186 515BE7ED' .
-                    '1F612970 CEE2D7AF B81BDD76 2170481C D0069127 D5B05AA9' .
-                    '93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34063199' .
-                    'FFFFFFFF FFFFFFFF';
+                    'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1' .
+                    '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' .
+                    'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' .
+                    'E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                    'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D' .
+                    'C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F' .
+                    '83655D23DCA3AD961C62F356208552BB9ED529077096966D' .
+                    '670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
+                    'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9' .
+                    'DE2BCBF6955817183995497CEA956AE515D2261898FA0510' .
+                    '15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64' .
+                    'ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7' .
+                    'ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B' .
+                    'F12FFA06D98A0864D87602733EC86A64521F2B18177B200C' .
+                    'BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31' .
+                    '43DB5BFCE0FD108E4B82D120A92108011A723C12A787E6D7' .
+                    '88719A10BDBA5B2699C327186AF4E23C1A946834B6150BDA' .
+                    '2583E9CA2AD44CE8DBBBC2DB04DE8EF92E8EFC141FBECAA6' .
+                    '287C59474E6BC05D99B2964FA090C3A2233BA186515BE7ED' .
+                    '1F612970CEE2D7AFB81BDD762170481CD0069127D5B05AA9' .
+                    '93B4EA988D8FDDC186FFB7DC90A6C08F4DF435C934063199' .
+                    'FFFFFFFFFFFFFFFF';
 
             case self::GROUP18:
                 return
-                    'FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1' .
-                    '29024E08 8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD' .
-                    'EF9519B3 CD3A431B 302B0A6D F25F1437 4FE1356D 6D51C245' .
-                    'E485B576 625E7EC6 F44C42E9 A637ED6B 0BFF5CB6 F406B7ED' .
-                    'EE386BFB 5A899FA5 AE9F2411 7C4B1FE6 49286651 ECE45B3D' .
-                    'C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8 FD24CF5F' .
-                    '83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D' .
-                    '670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B' .
-                    'E39E772C 180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9' .
-                    'DE2BCBF6 95581718 3995497C EA956AE5 15D22618 98FA0510' .
-                    '15728E5A 8AAAC42D AD33170D 04507A33 A85521AB DF1CBA64' .
-                    'ECFB8504 58DBEF0A 8AEA7157 5D060C7D B3970F85 A6E1E4C7' .
-                    'ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226 1AD2EE6B' .
-                    'F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C' .
-                    'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31' .
-                    '43DB5BFC E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7' .
-                    '88719A10 BDBA5B26 99C32718 6AF4E23C 1A946834 B6150BDA' .
-                    '2583E9CA 2AD44CE8 DBBBC2DB 04DE8EF9 2E8EFC14 1FBECAA6' .
-                    '287C5947 4E6BC05D 99B2964F A090C3A2 233BA186 515BE7ED' .
-                    '1F612970 CEE2D7AF B81BDD76 2170481C D0069127 D5B05AA9' .
-                    '93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34028492' .
-                    '36C3FAB4 D27C7026 C1D4DCB2 602646DE C9751E76 3DBA37BD' .
-                    'F8FF9406 AD9E530E E5DB382F 413001AE B06A53ED 9027D831' .
-                    '179727B0 865A8918 DA3EDBEB CF9B14ED 44CE6CBA CED4BB1B' .
-                    'DB7F1447 E6CC254B 33205151 2BD7AF42 6FB8F401 378CD2BF' .
-                    '5983CA01 C64B92EC F032EA15 D1721D03 F482D7CE 6E74FEF6' .
-                    'D55E702F 46980C82 B5A84031 900B1C9E 59E7C97F BEC7E8F3' .
-                    '23A97A7E 36CC88BE 0F1D45B7 FF585AC5 4BD407B2 2B4154AA' .
-                    'CC8F6D7E BF48E1D8 14CC5ED2 0F8037E0 A79715EE F29BE328' .
-                    '06A1D58B B7C5DA76 F550AA3D 8A1FBFF0 EB19CCB1 A313D55C' .
-                    'DA56C9EC 2EF29632 387FE8D7 6E3C0468 043E8F66 3F4860EE' .
-                    '12BF2D5B 0B7474D6 E694F91E 6DBE1159 74A3926F 12FEE5E4' .
-                    '38777CB6 A932DF8C D8BEC4D0 73B931BA 3BC832B6 8D9DD300' .
-                    '741FA7BF 8AFC47ED 2576F693 6BA42466 3AAB639C 5AE4F568' .
-                    '3423B474 2BF1C978 238F16CB E39D652D E3FDB8BE FC848AD9' .
-                    '22222E04 A4037C07 13EB57A8 1A23F0C7 3473FC64 6CEA306B' .
-                    '4BCBC886 2F8385DD FA9D4B7F A2C087E8 79683303 ED5BDD3A' .
-                    '062B3CF5 B3A278A6 6D2A13F8 3F44F82D DF310EE0 74AB6A36' .
-                    '4597E899 A0255DC1 64F31CC5 0846851D F9AB4819 5DED7EA1' .
-                    'B1D510BD 7EE74D73 FAF36BC3 1ECFA268 359046F4 EB879F92' .
-                    '4009438B 481C6CD7 889A002E D5EE382B C9190DA6 FC026E47' .
-                    '9558E447 5677E9AA 9E3050E2 765694DF C81F56E8 80B96E71' .
-                    '60C980DD 98EDD3DF FFFFFFFF FFFFFFFF';
+                    'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1' .
+                    '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' .
+                    'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' .
+                    'E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' .
+                    'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D' .
+                    'C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F' .
+                    '83655D23DCA3AD961C62F356208552BB9ED529077096966D' .
+                    '670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' .
+                    'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9' .
+                    'DE2BCBF6955817183995497CEA956AE515D2261898FA0510' .
+                    '15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64' .
+                    'ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7' .
+                    'ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B' .
+                    'F12FFA06D98A0864D87602733EC86A64521F2B18177B200C' .
+                    'BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31' .
+                    '43DB5BFCE0FD108E4B82D120A92108011A723C12A787E6D7' .
+                    '88719A10BDBA5B2699C327186AF4E23C1A946834B6150BDA' .
+                    '2583E9CA2AD44CE8DBBBC2DB04DE8EF92E8EFC141FBECAA6' .
+                    '287C59474E6BC05D99B2964FA090C3A2233BA186515BE7ED' .
+                    '1F612970CEE2D7AFB81BDD762170481CD0069127D5B05AA9' .
+                    '93B4EA988D8FDDC186FFB7DC90A6C08F4DF435C934028492' .
+                    '36C3FAB4D27C7026C1D4DCB2602646DEC9751E763DBA37BD' .
+                    'F8FF9406AD9E530EE5DB382F413001AEB06A53ED9027D831' .
+                    '179727B0865A8918DA3EDBEBCF9B14ED44CE6CBACED4BB1B' .
+                    'DB7F1447E6CC254B332051512BD7AF426FB8F401378CD2BF' .
+                    '5983CA01C64B92ECF032EA15D1721D03F482D7CE6E74FEF6' .
+                    'D55E702F46980C82B5A84031900B1C9E59E7C97FBEC7E8F3' .
+                    '23A97A7E36CC88BE0F1D45B7FF585AC54BD407B22B4154AA' .
+                    'CC8F6D7EBF48E1D814CC5ED20F8037E0A79715EEF29BE328' .
+                    '06A1D58BB7C5DA76F550AA3D8A1FBFF0EB19CCB1A313D55C' .
+                    'DA56C9EC2EF29632387FE8D76E3C0468043E8F663F4860EE' .
+                    '12BF2D5B0B7474D6E694F91E6DBE115974A3926F12FEE5E4' .
+                    '38777CB6A932DF8CD8BEC4D073B931BA3BC832B68D9DD300' .
+                    '741FA7BF8AFC47ED2576F6936BA424663AAB639C5AE4F568' .
+                    '3423B4742BF1C978238F16CBE39D652DE3FDB8BEFC848AD9' .
+                    '22222E04A4037C0713EB57A81A23F0C73473FC646CEA306B' .
+                    '4BCBC8862F8385DDFA9D4B7FA2C087E879683303ED5BDD3A' .
+                    '062B3CF5B3A278A66D2A13F83F44F82DDF310EE074AB6A36' .
+                    '4597E899A0255DC164F31CC50846851DF9AB48195DED7EA1' .
+                    'B1D510BD7EE74D73FAF36BC31ECFA268359046F4EB879F92' .
+                    '4009438B481C6CD7889A002ED5EE382BC9190DA6FC026E47' .
+                    '9558E4475677E9AA9E3050E2765694DFC81F56E880B96E71' .
+                    '60C980DD98EDD3DFFFFFFFFFFFFFFFFF';
 
         }
     }
 
-    private function twosComplement($data)
-    {
-        return (\ord($data[0]) & 0x80)
-            ? \chr(0) . $data
-            : $data;
-
+    public function hash(string $payload): string {
+        return \hash($this->hash, $payload, true);
     }
 
-    public function hash(string $payload): string
-    {
-        return hash($this->hash, $payload, true);
-    }
-
-    public function getEBytes(Message $message)
-    {
+    public function getEBytes(Message $message) {
         if (!$message instanceof KeyExchangeCurveInit) {
             throw new \RuntimeException();
         }
@@ -189,8 +172,7 @@ class DiffieHellmanGroup implements KeyExchange
         return $message->exchange;
     }
 
-    public function getFBytes(Message $message)
-    {
+    public function getFBytes(Message $message) {
         if (!$message instanceof KeyExchangeCurveReply) {
             throw new \RuntimeException();
         }
@@ -198,8 +180,7 @@ class DiffieHellmanGroup implements KeyExchange
         return $message->fBytes;
     }
 
-    public function getHostKey(Message $message)
-    {
+    public function getHostKey(Message $message) {
         if (!$message instanceof KeyExchangeCurveReply) {
             throw new \RuntimeException();
         }
@@ -207,8 +188,7 @@ class DiffieHellmanGroup implements KeyExchange
         return $message->hostKey;
     }
 
-    public static function create()
-    {
+    public static function create() {
         return [
             new static(static::GROUP14, 'sha1'),
             new static(static::GROUP14, 'sha256'),

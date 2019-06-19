@@ -248,7 +248,7 @@ final class Negotiator {
         $negotiator = new static();
 
         $negotiator->addKeyExchange(new Curve25519Sha256());
-        foreach(DiffieHellmanGroup::create() as $keyExchange) {
+        foreach (DiffieHellmanGroup::create() as $keyExchange) {
             $negotiator->addKeyExchange($keyExchange);
         }
 
