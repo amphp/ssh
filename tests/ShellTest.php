@@ -108,31 +108,30 @@ class ShellTest extends TestCase {
         });
     }
 
-    public function testStdInZero()	{
-		Loop::run(function ()  {
+    public function testStdInZero() {
+        Loop::run(function () {
+            $sshResource = yield $this->getSsh();
 
-			$sshResource = yield $this->getSsh();
-
-			$shell = new \Amp\Ssh\Shell($sshResource);
-			yield $shell->start();
+            $shell = new \Amp\Ssh\Shell($sshResource);
+            yield $shell->start();
 
 
-			\Amp\asyncCall(function () use ($shell) {
-				yield $shell->join();
-			});
+            \Amp\asyncCall(function () use ($shell) {
+                yield $shell->join();
+            });
 
-			// read greeting from server
-			while ($chunk = yield $shell->getStdout()->read()) {
-				if(strpos($chunk, ':~#') !== false) {
-					break;
-				}
-			}
-			// enter 1 in terminal
-			yield $shell->getStdin()->write(1);
-			$this->assertEquals(1, yield $shell->getStdout()->read());
-			// try enter 0
-			yield $shell->getStdin()->write(0);
-			$this->assertEquals(0, yield \Amp\Promise\timeout($shell->getStdout()->read(), 1));
-		});
-	}
+            // read greeting from server
+            while ($chunk = yield $shell->getStdout()->read()) {
+                if (\strpos($chunk, ':~#') !== false) {
+                    break;
+                }
+            }
+            // enter 1 in terminal
+            yield $shell->getStdin()->write(1);
+            $this->assertEquals(1, yield $shell->getStdout()->read());
+            // try enter 0
+            yield $shell->getStdin()->write(0);
+            $this->assertEquals(0, yield \Amp\Promise\timeout($shell->getStdout()->read(), 1));
+        });
+    }
 }
