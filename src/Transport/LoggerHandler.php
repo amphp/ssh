@@ -2,6 +2,7 @@
 
 namespace Amp\Ssh\Transport;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Encryption\Decryption;
 use Amp\Ssh\Encryption\Encryption;
@@ -9,7 +10,6 @@ use Amp\Ssh\Mac\Mac;
 use Amp\Ssh\Message\Debug;
 use Amp\Ssh\Message\Message;
 use Psr\Log\LoggerInterface;
-use function Amp\call;
 
 /**
  * @internal

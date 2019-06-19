@@ -2,12 +2,12 @@
 
 namespace Amp\Ssh\Channel;
 
+use function Amp\asyncCall;
 use Amp\Emitter;
 use Amp\Ssh\Message\ChannelClose;
 use Amp\Ssh\Message\ChannelOpen;
 use Amp\Ssh\Message\Message;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\asyncCall;
 
 /**
  * @internal

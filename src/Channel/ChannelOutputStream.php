@@ -3,9 +3,9 @@
 namespace Amp\Ssh\Channel;
 
 use Amp\ByteStream\OutputStream;
+use function Amp\call;
 use Amp\Promise;
 use Amp\Success;
-use function Amp\call;
 
 /**
  * @internal

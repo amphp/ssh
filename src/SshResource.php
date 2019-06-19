@@ -2,12 +2,12 @@
 
 namespace Amp\Ssh;
 
+use function Amp\call;
 use Amp\Promise;
 use Amp\Ssh\Channel\Dispatcher;
 use Amp\Ssh\Channel\Session;
 use Amp\Ssh\Message\Disconnect;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\call;
 
 /**
  * @internal

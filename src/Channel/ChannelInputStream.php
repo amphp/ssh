@@ -3,12 +3,12 @@
 namespace Amp\Ssh\Channel;
 
 use Amp\ByteStream\InputStream;
+use function Amp\call;
 use Amp\Iterator;
 use Amp\Promise;
 use Amp\Ssh\Message\ChannelData;
 use Amp\Ssh\Message\ChannelExtendedData;
 use Amp\Success;
-use function Amp\call;
 
 /**
  * @internal

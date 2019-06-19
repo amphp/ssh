@@ -2,6 +2,9 @@
 
 namespace Amp\Ssh\Authentication;
 
+use function Amp\call;
+use function Amp\File\exists;
+use function Amp\File\get;
 use Amp\Promise;
 use Amp\Ssh\Message\ServiceRequest;
 use Amp\Ssh\Message\UserAuthFailure;
@@ -10,9 +13,6 @@ use Amp\Ssh\Message\UserAuthRequest;
 use Amp\Ssh\Message\UserAuthRequestAskPublicKey;
 use Amp\Ssh\Message\UserAuthRequestSignedPublicKey;
 use Amp\Ssh\Transport\BinaryPacketHandler;
-use function Amp\call;
-use function Amp\File\exists;
-use function Amp\File\get;
 
 final class PublicKey implements Authentication {
     private $privateKeyPath;

@@ -2,6 +2,8 @@
 
 namespace Amp\Ssh\Channel;
 
+use function Amp\asyncCall;
+use function Amp\call;
 use Amp\Emitter;
 use Amp\Iterator;
 use Amp\Promise;
@@ -17,8 +19,6 @@ use Amp\Ssh\Message\ChannelRequest;
 use Amp\Ssh\Message\ChannelSuccess;
 use Amp\Ssh\Transport\BinaryPacketWriter;
 use Amp\Success;
-use function Amp\asyncCall;
-use function Amp\call;
 
 /**
  * @internal
