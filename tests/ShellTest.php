@@ -131,7 +131,8 @@ class ShellTest extends TestCase {
             $this->assertEquals(1, yield $shell->getStdout()->read());
             // try enter 0
             yield $shell->getStdin()->write(0);
-            $this->assertEquals(0, yield \Amp\Promise\timeout($shell->getStdout()->read(), 1));
+            $this->assertEquals(0, yield \Amp\Promise\timeout($shell->getStdout()->read(), 10));
+			yield $sshResource->close();
         });
     }
 }
