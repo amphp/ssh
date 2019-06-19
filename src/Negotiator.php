@@ -74,11 +74,11 @@ final class Negotiator {
             yield $binaryPacketHandler->write($clientKex);
 
             // Negotiate
-            $kex = $this->getKeyExchange($serverKex, $clientKex);
-            $encrypt = $this->getEncrypt($serverKex, $clientKex);
-            $decrypt = $this->getDecrypt($serverKex, $clientKex);
-            $encryptMac = $this->getEncryptMac($serverKex, $clientKex);
-            $decryptMac = $this->getDecryptMac($serverKex, $clientKex);
+            $kex = $this->getKeyExchange($clientKex, $serverKex);
+            $encrypt = $this->getEncrypt($clientKex, $serverKex);
+            $decrypt = $this->getDecrypt($clientKex, $serverKex);
+            $encryptMac = $this->getEncryptMac($clientKex, $serverKex);
+            $decryptMac = $this->getDecryptMac($clientKex, $serverKex);
 
             /** @var Message $exchangeSend */
             /** @var Message $exchangeReceive */
@@ -129,7 +129,7 @@ final class Negotiator {
                 $this->sessionId = $exchangeHash;
             }
 
-            $serverHostKeyFormat = $this->getServerHostKey($serverKex, $clientKex);
+            $serverHostKeyFormat = $this->getServerHostKey($clientKex, $serverKex);
 
             if ($serverHostKeyFormat !== $exchangeReceive->signatureFormat || $serverHostKeyFormat !== $exchangeReceive->hostKeyFormat) {
                 throw new \RuntimeException('Bad protocol negotiated');
@@ -170,55 +170,55 @@ final class Negotiator {
         });
     }
 
-    private function getDecrypt(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Decryption {
+    private function getDecrypt(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Decryption {
         $decrypt = \current(\array_intersect(
-            $serverKex->encryptionAlgorithmsServerToClient,
-            $clientKex->encryptionAlgorithmsServerToClient
+            $clientKex->encryptionAlgorithmsServerToClient,
+            $serverKex->encryptionAlgorithmsServerToClient
         ));
 
         return $this->decryptions[$decrypt];
     }
 
-    private function getEncrypt(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Encryption {
+    private function getEncrypt(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Encryption {
         $encrypt = \current(\array_intersect(
-            $serverKex->encryptionAlgorithmsClientToServer,
-            $clientKex->encryptionAlgorithmsClientToServer
+            $clientKex->encryptionAlgorithmsClientToServer,
+            $serverKex->encryptionAlgorithmsClientToServer
         ));
 
         return $this->encryptions[$encrypt];
     }
 
-    private function getKeyExchange(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): KeyExchange {
+    private function getKeyExchange(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): KeyExchange {
         $keyExchangeName = \current(\array_intersect(
-            $serverKex->kexAlgorithms,
-            $clientKex->kexAlgorithms
+            $clientKex->kexAlgorithms,
+            $serverKex->kexAlgorithms
         ));
 
         return $this->keyExchanges[$keyExchangeName];
     }
 
-    private function getServerHostKey(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex) {
+    private function getServerHostKey(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex) {
         $serverHostKey = \current(\array_intersect(
-            $serverKex->serverHostKeyAlgorithms,
-            $clientKex->serverHostKeyAlgorithms
+            $clientKex->serverHostKeyAlgorithms,
+            $serverKex->serverHostKeyAlgorithms
         ));
 
         return $serverHostKey;
     }
 
-    private function getDecryptMac(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Mac {
+    private function getDecryptMac(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Mac {
         $mac = \current(\array_intersect(
-            $serverKex->macAlgorithmsServerToClient,
-            $clientKex->macAlgorithmsServerToClient
+            $clientKex->macAlgorithmsServerToClient,
+            $serverKex->macAlgorithmsServerToClient
         ));
 
         return clone $this->macs[$mac];
     }
 
-    private function getEncryptMac(KeyExchangeInit $serverKex, KeyExchangeInit $clientKex): Mac {
+    private function getEncryptMac(KeyExchangeInit $clientKex, KeyExchangeInit $serverKex): Mac {
         $mac = \current(\array_intersect(
-            $serverKex->macAlgorithmsClientToServer,
-            $clientKex->macAlgorithmsClientToServer
+            $clientKex->macAlgorithmsClientToServer,
+            $serverKex->macAlgorithmsClientToServer
         ));
 
         return clone $this->macs[$mac];
