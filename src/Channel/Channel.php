@@ -136,7 +136,7 @@ abstract class Channel {
         $message->data = $data;
         $message->recipientChannel = $this->channelId;
 
-        if (empty($data)) {
+        if ($data === '') {
             return new Success;
         }
 
