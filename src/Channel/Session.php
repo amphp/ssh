@@ -10,6 +10,7 @@ use Amp\Ssh\Message\ChannelRequestExec;
 use Amp\Ssh\Message\ChannelRequestPty;
 use Amp\Ssh\Message\ChannelRequestShell;
 use Amp\Ssh\Message\ChannelRequestSignal;
+use Amp\Ssh\Message\ChannelRequestWindowChange;
 
 /**
  * @internal
@@ -52,6 +53,15 @@ final class Session extends Channel {
         $request->height = $height;
 
         return $this->doRequest($request);
+    }
+
+    public function changeWindowSize(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600) {
+        $request = new ChannelRequestWindowChange();
+        $request->columns = $columns;
+        $request->rows = $rows;
+        $request->width = $width;
+        $request->height = $height;
+        return $this->doRequest($request, false);
     }
 
     public function shell() {

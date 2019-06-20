@@ -8,6 +8,8 @@ use function Amp\Ssh\Transport\read_uint32;
  * @internal
  */
 final class ChannelRequestWindowChange extends ChannelRequest {
+    public $wantReply = false;
+
     public $columns;
 
     public $rows;
@@ -16,11 +18,9 @@ final class ChannelRequestWindowChange extends ChannelRequest {
 
     public $height;
 
-    public $modes;
-
     public function encode(): string {
         return parent::encode() . \pack(
-            'N4*',
+            'N4',
             $this->columns,
             $this->rows,
             $this->width,

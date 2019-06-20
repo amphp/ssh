@@ -135,4 +135,55 @@ class ShellTest extends TestCase {
             yield $sshResource->close();
         });
     }
+
+    public function testShellStartWindowSize() {
+        Loop::run(function () {
+            $ssh = yield $this->getSsh();
+            $shell = new Shell($ssh);
+
+            yield $shell->start(120, 39);
+            self::assertTrue($shell->isRunning());
+
+            yield $shell->getStdin()->write("stty size; exit\n");
+
+            $exitCode = yield $shell->join();
+            $output = '';
+
+            while ($read = yield $shell->getStdout()->read()) {
+                $output .= $read;
+            }
+
+            self::assertFalse($shell->isRunning());
+            self::assertContains('39 120', $output);
+            self::assertEquals(0, $exitCode);
+
+            yield $ssh->close();
+        });
+    }
+
+    public function testShellChangeWindowSize() {
+        Loop::run(function () {
+            $ssh = yield $this->getSsh();
+            $shell = new Shell($ssh);
+
+            yield $shell->start();
+            self::assertTrue($shell->isRunning());
+
+            yield $shell->changeWindowSize(120, 39);
+            yield $shell->getStdin()->write("stty size; exit\n");
+
+            $exitCode = yield $shell->join();
+            $output = '';
+
+            while ($read = yield $shell->getStdout()->read()) {
+                $output .= $read;
+            }
+
+            self::assertFalse($shell->isRunning());
+            self::assertContains('39 120', $output);
+            self::assertEquals(0, $exitCode);
+
+            yield $ssh->close();
+        });
+    }
 }
