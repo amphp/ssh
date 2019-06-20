@@ -136,8 +136,7 @@ class ShellTest extends TestCase {
         });
     }
 
-    public function testShellStartWindowSize()
-    {
+    public function testShellStartWindowSize() {
         Loop::run(function () {
             $ssh = yield $this->getSsh();
             $shell = new Shell($ssh);
@@ -160,11 +159,9 @@ class ShellTest extends TestCase {
 
             yield $ssh->close();
         });
-
     }
 
-    public function testShellChangeWindowSize()
-    {
+    public function testShellChangeWindowSize() {
         Loop::run(function () {
             $ssh = yield $this->getSsh();
             $shell = new Shell($ssh);
@@ -188,7 +185,5 @@ class ShellTest extends TestCase {
 
             yield $ssh->close();
         });
-
     }
-
 }

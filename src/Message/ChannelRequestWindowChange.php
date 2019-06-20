@@ -8,6 +8,8 @@ use function Amp\Ssh\Transport\read_uint32;
  * @internal
  */
 final class ChannelRequestWindowChange extends ChannelRequest {
+    public $wantReply = false;
+
     public $columns;
 
     public $rows;

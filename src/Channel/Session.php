@@ -61,7 +61,7 @@ final class Session extends Channel {
         $request->rows = $rows;
         $request->width = $width;
         $request->height = $height;
-        return $this->doRequest($request);
+        return $this->doRequest($request, false);
     }
 
     public function shell() {

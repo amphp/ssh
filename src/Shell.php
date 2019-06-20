@@ -83,8 +83,7 @@ class Shell {
         });
     }
 
-    public function changeWindowSize(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600)
-    {
+    public function changeWindowSize(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600) {
         if (!$this->isRunning()) {
             return new Failure(new StatusError('Shell is not running.'));
         }
