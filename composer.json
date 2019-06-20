@@ -34,11 +34,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Amp\\Ssh\\": "src"
+            "Amp\\Ssh\\": "src",
+            "Amp\\Ssh\\Tests\\": "tests"
         },
         "files": [
             "src/functions.php",
-            "src/Transport/functions.php"
+            "src/Transport/functions.php",
+            "src/KeyExchange/functions.php"
         ]
     },
     "config": {

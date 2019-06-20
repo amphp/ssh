@@ -8,6 +8,7 @@ use Amp\Ssh\Encryption\Aes;
 use Amp\Ssh\Encryption\Decryption;
 use Amp\Ssh\Encryption\Encryption;
 use Amp\Ssh\KeyExchange\Curve25519Sha256;
+use Amp\Ssh\KeyExchange\DiffieHellmanGroup;
 use Amp\Ssh\KeyExchange\KeyExchange;
 use Amp\Ssh\Mac\Hash;
 use Amp\Ssh\Mac\Mac;
@@ -156,7 +157,7 @@ final class Negotiator {
             );
 
             $decrypt->resetDecrypt(
-                $createDerivationKey('D', $encrypt->getKeySize()),
+                $createDerivationKey('D', $decrypt->getKeySize()),
                 $createDerivationKey('B', $decrypt->getBlockSize())
             );
 
@@ -245,19 +246,41 @@ final class Negotiator {
 
     public static function create() {
         $negotiator = new static();
-        $negotiator->addKeyExchange(new Curve25519Sha256());
+        foreach (self::supportedKeyExchanges() as $keyExchange) {
+            $negotiator->addKeyExchange($keyExchange);
+        }
 
-        foreach (Aes::create() as $algorithm) {
+        foreach (self::supportedEncryptions() as $algorithm) {
             $negotiator->addEncryption($algorithm);
         }
 
-        foreach (Aes::create() as $algorithm) {
+        foreach (self::supportedDecryptions() as $algorithm) {
             $negotiator->addDecryption($algorithm);
         }
 
-        $negotiator->addMac(new Hash('sha256', 'hmac-sha2-256', 32));
-        $negotiator->addMac(new Hash('sha1', 'hmac-sha1', 20));
+        foreach (self::supportedMacs() as $algorithm) {
+            $negotiator->addMac($algorithm);
+        }
 
         return $negotiator;
+    }
+
+    public static function supportedKeyExchanges() {
+        return \array_merge([new Curve25519Sha256()], DiffieHellmanGroup::create());
+    }
+
+    public static function supportedEncryptions() {
+        return Aes::create();
+    }
+
+    public static function supportedDecryptions() {
+        return Aes::create();
+    }
+
+    public static function supportedMacs() {
+        return [
+            new Hash('sha256', 'hmac-sha2-256', 32),
+            new Hash('sha1', 'hmac-sha1', 20),
+        ];
     }
 }

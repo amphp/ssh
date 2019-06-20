@@ -37,12 +37,7 @@ final class Curve25519Sha256 implements KeyExchange {
             $key = \sodium_crypto_scalarmult($secret, $packet->fBytes);
             \sodium_memzero($secret);
 
-            // Two's complement representation
-            if (\ord($key[0]) & 0x80) {
-                $key = \chr(0) . $key;
-            }
-
-            return [$key, $message, $packet];
+            return [twos_compliment($key), $message, $packet];
         });
     }
 
