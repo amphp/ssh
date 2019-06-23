@@ -103,7 +103,10 @@ abstract class Channel {
                         $this->doClose();
                     }
                 }
-            } catch(\Exception $exception) {
+                if ($this->open) {
+                    $this->doClose();
+                }
+            } catch (\Exception $exception) {
                 $this->doFail($exception);
             }
         });

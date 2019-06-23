@@ -66,22 +66,22 @@ class Process {
         $this->resolved = new Deferred();
 
         return call(function () {
-        	try {
-				if (!$this->open) {
-					yield $this->session->open();
+            try {
+                if (!$this->open) {
+                    yield $this->session->open();
 
-					$this->open = true;
-				}
+                    $this->open = true;
+                }
 
-				foreach ($this->env as $key => $value) {
-					yield $this->session->env($key, $value);
-				}
+                foreach ($this->env as $key => $value) {
+                    yield $this->session->env($key, $value);
+                }
 
-				yield $this->session->exec($this->command);
-			} catch(\Exception $exception) {
-        		$this->resolved = null;
-        		throw $exception;
-			}
+                yield $this->session->exec($this->command);
+            } catch (\Exception $exception) {
+                $this->resolved = null;
+                throw $exception;
+            }
         });
     }
 
@@ -140,10 +140,18 @@ class Process {
                         $resolved->resolve($message->code);
                     }
                 }
+                // some servers does not send exit status
+                if ($this->resolved) {
+                    $this->resolved->resolve(false);
+                    $this->exitCode = false;
+                    $this->resolved = null;
+                }
             } catch (\Exception $exception) {
-                $resolved = $this->resolved;
-                $this->resolved = null;
-                $resolved->fail($exception);
+                if ($this->resolved) {
+                    $resolved = $this->resolved;
+                    $this->resolved = null;
+                    $resolved->fail($exception);
+                }
             }
         });
     }

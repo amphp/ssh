@@ -37,7 +37,7 @@ class Dispatcher {
             while ($this->running) {
                 $message = yield $this->handler->read();
 
-                if($message === null) {
+                if ($message === null) {
                     $this->doFail(new ChannelException('SSH connection was closed by remote server'));
                 }
 
@@ -72,8 +72,7 @@ class Dispatcher {
         });
     }
 
-    private function doFail(\Throwable $reason)
-    {
+    private function doFail(\Throwable $reason) {
         $this->stop();
         foreach ($this->channelsEmitter as $channelId => $emitter) {
             $emitter->fail($reason);

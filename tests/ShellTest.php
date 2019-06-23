@@ -5,8 +5,10 @@ namespace Amp\Ssh\Tests;
 use function Amp\call;
 use Amp\Loop;
 use Amp\Ssh\Authentication\UsernamePassword;
+use Amp\Ssh\Channel\ChannelException;
 use function Amp\Ssh\connect;
 use Amp\Ssh\Shell;
+use Amp\Ssh\SshResource;
 use Amp\Ssh\StatusError;
 use PHPUnit\Framework\TestCase;
 
@@ -112,7 +114,7 @@ class ShellTest extends TestCase {
         Loop::run(function () {
             $sshResource = yield $this->getSsh();
 
-            $shell = new \Amp\Ssh\Shell($sshResource);
+            $shell = new Shell($sshResource);
             yield $shell->start();
 
 
@@ -184,6 +186,48 @@ class ShellTest extends TestCase {
             self::assertEquals(0, $exitCode);
 
             yield $ssh->close();
+        });
+    }
+
+    /**
+     * If connection closed by server and process started then fail with channel error.
+     */
+    public function testShellFailOnDisconnect() {
+        $this->expectException(ChannelException::class);
+        Loop::run(function () {
+            /** @var SshResource $ssh */
+            $ssh = yield $this->getSsh();
+
+            $shell = new Shell($ssh);
+
+            yield $shell->start();
+            self::assertTrue($shell->isRunning());
+            Loop::defer(function () use ($ssh) {
+                NetworkHelper::disconnect($ssh);
+            });
+            yield $shell->join();
+        });
+    }
+
+    /**
+     * If channel closed then join must resolve with false exitCode
+     * Some implementations doesn't send exit code.
+     * In that cases false must be used.
+     */
+    public function testShellFinishWithFalseOnChannelClose() {
+        Loop::run(function () {
+            /** @var SshResource $ssh */
+            $ssh = yield $this->getSsh();
+
+            $shell = new Shell($ssh);
+
+            yield $shell->start();
+            self::assertTrue($shell->isRunning());
+            Loop::defer(function () use ($ssh) {
+                $ssh->close();
+            });
+            $exitCode = yield $shell->join();
+            self::assertFalse($exitCode, false);
         });
     }
 }

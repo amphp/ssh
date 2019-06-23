@@ -72,21 +72,20 @@ class Shell {
         $this->exitCode = null;
 
         return call(function () use ($columns, $rows, $width, $height) {
-			try {
-				yield $this->session->open();
+            try {
+                yield $this->session->open();
 
-				foreach ($this->env as $key => $value) {
-					yield $this->session->env($key, $value, true);
-				}
+                foreach ($this->env as $key => $value) {
+                    yield $this->session->env($key, $value, true);
+                }
 
-				yield $this->session->pty($columns, $rows, $width, $height);
-				yield $this->session->shell();
-			} catch (\Exception $exception) {
-				$this->resolved = null;
-				throw $exception;
-			}
-
-		});
+                yield $this->session->pty($columns, $rows, $width, $height);
+                yield $this->session->shell();
+            } catch (\Exception $exception) {
+                $this->resolved = null;
+                throw $exception;
+            }
+        });
     }
 
     public function changeWindowSize(int $columns = 80, int $rows = 24, int $width = 800, int $height = 600) {
@@ -145,10 +144,18 @@ class Shell {
                         break;
                     }
                 }
+                // some servers does not send exit status
+                if ($this->resolved) {
+                    $this->resolved->resolve(false);
+                    $this->exitCode = false;
+                    $this->resolved = null;
+                }
             } catch (\Exception $exception) {
-                $resolved = $this->resolved;
-                $this->resolved = null;
-                $resolved->fail($exception);
+                if ($this->resolved) {
+                    $resolved = $this->resolved;
+                    $this->resolved = null;
+                    $resolved->fail($exception);
+                }
             }
         });
     }
