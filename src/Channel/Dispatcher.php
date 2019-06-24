@@ -37,6 +37,10 @@ class Dispatcher {
             while ($this->running) {
                 $message = yield $this->handler->read();
 
+                if ($message === null) {
+                    $this->doFail(new ChannelException('SSH connection was closed by remote server'));
+                }
+
                 if (!$message instanceof Message) {
                     continue;
                 }
@@ -66,6 +70,15 @@ class Dispatcher {
                 }
             }
         });
+    }
+
+    private function doFail(\Throwable $reason) {
+        $this->stop();
+        foreach ($this->channelsEmitter as $channelId => $emitter) {
+            $emitter->fail($reason);
+
+            unset($this->channelsEmitter[$channelId]);
+        }
     }
 
     public function stop() {

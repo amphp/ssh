@@ -72,14 +72,19 @@ class Shell {
         $this->exitCode = null;
 
         return call(function () use ($columns, $rows, $width, $height) {
-            yield $this->session->open();
+            try {
+                yield $this->session->open();
 
-            foreach ($this->env as $key => $value) {
-                yield $this->session->env($key, $value, true);
+                foreach ($this->env as $key => $value) {
+                    yield $this->session->env($key, $value, true);
+                }
+
+                yield $this->session->pty($columns, $rows, $width, $height);
+                yield $this->session->shell();
+            } catch (\Exception $exception) {
+                $this->resolved = null;
+                throw $exception;
             }
-
-            yield $this->session->pty($columns, $rows, $width, $height);
-            yield $this->session->shell();
         });
     }
 
@@ -126,17 +131,30 @@ class Shell {
     private function handleRequests() {
         asyncCall(function () {
             $requestIterator = $this->session->getRequestEmitter()->iterate();
+            try {
+                while (yield $requestIterator->advance()) {
+                    $message = $requestIterator->getCurrent();
 
-            while (yield $requestIterator->advance()) {
-                $message = $requestIterator->getCurrent();
+                    if ($message instanceof ChannelRequestExitStatus) {
+                        $resolved = $this->resolved;
+                        $this->resolved = null;
+                        $this->exitCode = $message->code;
+                        $resolved->resolve($message->code);
 
-                if ($message instanceof ChannelRequestExitStatus) {
+                        break;
+                    }
+                }
+                // some servers does not send exit status
+                if ($this->resolved) {
+                    $this->resolved->resolve(false);
+                    $this->exitCode = false;
+                    $this->resolved = null;
+                }
+            } catch (\Exception $exception) {
+                if ($this->resolved) {
                     $resolved = $this->resolved;
                     $this->resolved = null;
-                    $this->exitCode = $message->code;
-                    $resolved->resolve($message->code);
-
-                    break;
+                    $resolved->fail($exception);
                 }
             }
         });

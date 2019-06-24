@@ -79,28 +79,35 @@ abstract class Channel {
 
     protected function dispatch() {
         asyncCall(function () {
-            while (yield $this->channelMessage->advance()) {
-                $message = $this->channelMessage->getCurrent();
+            try {
+                while (yield $this->channelMessage->advance()) {
+                    $message = $this->channelMessage->getCurrent();
 
-                if ($message instanceof ChannelData) {
-                    $this->dataEmitter->emit($message);
+                    if ($message instanceof ChannelData) {
+                        $this->dataEmitter->emit($message);
+                    }
+
+                    if ($message instanceof ChannelExtendedData) {
+                        $this->dataExtendedEmitter->emit($message);
+                    }
+
+                    if ($message instanceof ChannelRequest) {
+                        $this->requestEmitter->emit($message);
+                    }
+
+                    if ($message instanceof ChannelSuccess || $message instanceof ChannelFailure) {
+                        $this->requestResultEmitter->emit($message);
+                    }
+
+                    if ($message instanceof ChannelClose) {
+                        $this->doClose();
+                    }
                 }
-
-                if ($message instanceof ChannelExtendedData) {
-                    $this->dataExtendedEmitter->emit($message);
-                }
-
-                if ($message instanceof ChannelRequest) {
-                    $this->requestEmitter->emit($message);
-                }
-
-                if ($message instanceof ChannelSuccess || $message instanceof ChannelFailure) {
-                    $this->requestResultEmitter->emit($message);
-                }
-
-                if ($message instanceof ChannelClose) {
+                if ($this->open) {
                     $this->doClose();
                 }
+            } catch (\Exception $exception) {
+                $this->doFail($exception);
             }
         });
     }
@@ -171,6 +178,14 @@ abstract class Channel {
         $this->open = false;
         $this->requestResultEmitter->complete();
         $this->requestEmitter->complete();
+        $this->dataEmitter->complete();
+        $this->dataExtendedEmitter->complete();
+    }
+
+    private function doFail(\Exception $reason) {
+        $this->open = false;
+        $this->requestResultEmitter->fail($reason);
+        $this->requestEmitter->fail($reason);
         $this->dataEmitter->complete();
         $this->dataExtendedEmitter->complete();
     }
