@@ -21,7 +21,7 @@
     ],
     "require": {
         "ext-sodium": "*",
-        "amphp/socket": "^0.10.5",
+        "amphp/socket": "^1.0",
         "amphp/file": "^0.3",
         "amphp/amp": "^2.0.3",
         "psr/log": "^1.0"
