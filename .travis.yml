@@ -1,11 +1,10 @@
 language: php
 
 php:
-  - 7.0
   - 7.1
   - 7.2
   - 7.3
-  - 7.4snapshot
+  - 7.4
   - nightly
 
 sudo: true
@@ -21,11 +20,8 @@ env:
 matrix:
   allow_failures:
     - php: nightly
-    - php: 7.4snapshot
   fast_finish: true
   include:
-    - php: 7.0
-      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
     - php: 7.2
       env: COVERAGE=true TEST_COMMAND="composer test-coverage"
     - php: 7.2
