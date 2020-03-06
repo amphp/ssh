@@ -6,7 +6,9 @@ use function Amp\call;
 use function Amp\File\exists;
 use function Amp\File\get;
 use Amp\Promise;
+use Amp\Ssh\Message\ServiceAccept;
 use Amp\Ssh\Message\ServiceRequest;
+use Amp\Ssh\Message\UserAuthBanner;
 use Amp\Ssh\Message\UserAuthFailure;
 use Amp\Ssh\Message\UserAuthPkOk;
 use Amp\Ssh\Message\UserAuthRequest;
@@ -56,7 +58,10 @@ final class PublicKey implements Authentication {
             $authServiceRequest->serviceName = 'ssh-userauth';
 
             yield $handler->write($authServiceRequest);
-            yield $handler->read();
+            $status = yield $handler->read();
+            if(!$status instanceof ServiceAccept) {
+                throw new AuthenticationFailureException('Authentication not supported by server');
+            }
 
             $e = $privateKeyInfo['rsa']['e'];
             $n = $privateKeyInfo['rsa']['n'];
@@ -87,6 +92,10 @@ final class PublicKey implements Authentication {
             yield $handler->write($request);
             $package = yield $handler->read();
 
+            if($package instanceof UserAuthBanner) {
+                $package = yield $handler->read();
+            }
+
             if (!$package instanceof UserAuthPkOk) {
                 throw new AuthenticationFailureException('Authentication Failure');
             }
@@ -111,6 +120,10 @@ final class PublicKey implements Authentication {
 
             yield $handler->write($signatureRequest);
             $packet = yield $handler->read();
+
+            if($packet instanceof UserAuthBanner) {
+                $packet = yield $handler->read();
+            }
 
             if ($packet instanceof UserAuthFailure) {
                 throw new \RuntimeException('Authentication failure');
