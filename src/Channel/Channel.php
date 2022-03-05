@@ -100,7 +100,12 @@ abstract class Channel {
                     }
 
                     if ($message instanceof ChannelClose) {
-                        $this->doClose();
+                        if($this->open) {
+                            yield $this->close();
+                        }
+                        else {
+                            $this->doClose();
+                        }
                     }
                 }
                 if ($this->open) {
@@ -125,6 +130,7 @@ abstract class Channel {
 
             if ($openResult instanceof ChannelOpenConfirmation) {
                 $this->open = true;
+                $this->channelId = $openResult->senderChannel;
                 $this->dispatch();
 
                 return true;
